@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Wait for preview deployment
-        uses: lewagon/wait-on-check-action@v1.4.0
+        uses: lewagon/wait-on-check-action@v1.4.1
         with:
           ref: ${{ github.head_ref }}
           check-name: 'Deploy Preview Environment'
