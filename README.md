@@ -6,6 +6,7 @@ Showcase website of [@vanesterik](https://github.com/vanesterik), built with Nex
 
 - [Next.js](https://nextjs.org/) (App Router, static export) and React
 - [Tailwind CSS](https://tailwindcss.com/)
+- [shadcn/ui](https://ui.shadcn.com/) components with [Lucide](https://lucide.dev/) icons
 - [Biome](https://biomejs.dev/) for linting and formatting
 - [Vitest](https://vitest.dev/) and Testing Library for tests
 - TypeScript
