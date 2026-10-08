@@ -22,7 +22,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html
       suppressHydrationWarning
       lang="en"
-      className={`${lausanne.variable} ${nbInternationalProMono.variable}`}
+      className={`${lausanne.variable} ${nbInternationalProMono.variable} md:scroll-pt-24 md:scroll-pb-52`}
     >
       <body>
         <ThemeProvider {...themeProviderProps}>
