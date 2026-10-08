@@ -15,7 +15,9 @@
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
     "prepare": "husky",
-    "release": "commit-and-tag-version"
+    "release": "commit-and-tag-version",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "class-variance-authority": "0.7.1",
@@ -31,6 +33,8 @@
     "@biomejs/biome": "2.5.15",
     "@commitlint/cli": "^21.2.3",
     "@commitlint/config-conventional": "^21.2.3",
+    "@storybook/addon-themes": "^10.6.1",
+    "@storybook/nextjs-vite": "^10.6.1",
     "@tailwindcss/postcss": "^4.3.3",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
@@ -46,6 +50,7 @@
     "jsdom": "^30.1.2",
     "lint-staged": "^17.6.0",
     "postcss": "^8.5.29",
+    "storybook": "^10.6.1",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",
     "vite": "^8.3.4",

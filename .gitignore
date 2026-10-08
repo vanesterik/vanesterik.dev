@@ -31,3 +31,6 @@ coverage
 
 # next.js generated types
 next-env.d.ts
+
+# storybook
+storybook-static
