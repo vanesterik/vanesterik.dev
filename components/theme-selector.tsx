@@ -1,4 +1,9 @@
-import { Listbox } from '@headlessui/react'
+import {
+  Listbox,
+  ListboxButton,
+  ListboxOption,
+  ListboxOptions,
+} from '@headlessui/react'
 import { button, dropdown, type IconVariant, icon } from '@/lib/styles'
 import { dropdownList, dropdownListItem } from '@/lib/styles/dropdown'
 
@@ -21,7 +26,7 @@ export const ThemeSelector = ({ options }: ThemeSelectorProps) => {
   return (
     <Listbox value={theme} onChange={setTheme}>
       <div className={dropdown()}>
-        <Listbox.Button className={button({ intent: 'secondary' })}>
+        <ListboxButton className={button({ intent: 'secondary' })}>
           <span
             className={icon({
               name: 'sun',
@@ -35,19 +40,19 @@ export const ThemeSelector = ({ options }: ThemeSelectorProps) => {
             })}
           />
           {theme}
-        </Listbox.Button>
-        <Listbox.Options className={dropdownList({ side: 'right' })}>
+        </ListboxButton>
+        <ListboxOptions className={dropdownList({ side: 'right' })}>
           {options.map(({ icon: iconName, name }) => (
-            <Listbox.Option
+            <ListboxOption
               className={dropdownListItem()}
               key={name}
               value={name}
             >
               <span className={icon({ name: iconName as IconVariant })} />
               {name}
-            </Listbox.Option>
+            </ListboxOption>
           ))}
-        </Listbox.Options>
+        </ListboxOptions>
       </div>
     </Listbox>
   )
