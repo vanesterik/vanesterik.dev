@@ -9,6 +9,7 @@ Showcase website of [@vanesterik](https://github.com/vanesterik), built with Nex
 - [shadcn/ui](https://ui.shadcn.com/) components with [Lucide](https://lucide.dev/) icons
 - [Biome](https://biomejs.dev/) for linting and formatting
 - [Vitest](https://vitest.dev/) and Testing Library for tests
+- [Storybook](https://storybook.js.org/) for browsing components
 - TypeScript
 
 ## Getting started
@@ -32,4 +33,6 @@ npm run dev
 | `npm test` | Run the tests once |
 | `npm run test:watch` | Run the tests in watch mode |
 | `npm run coverage` | Run the tests with coverage |
+| `npm run storybook` | Start Storybook on port 6006 |
+| `npm run build-storybook` | Build a static Storybook to `storybook-static/` |
 | `npm run release` | Bump the version, update the changelog and tag |
