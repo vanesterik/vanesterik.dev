@@ -44,7 +44,7 @@ Husky runs on every commit:
 - **pre-commit**: `npm run typecheck`, then lint-staged (`biome check --write` on staged files).
 - **commit-msg**: commitlint with `@commitlint/config-conventional`. The subject must not be sentence case, start case or pascal case, so write `feat: add posts page`, not `feat: Add posts page`.
 
-Releases use `commit-and-tag-version` (`npm run release`), which bumps the version, updates `CHANGELOG.md` and creates a `v*.*.*` tag. Pushing that tag deploys production, so releasing is Koen's call. `.versionrc.json` sets the changelog's GitHub links explicitly, because the tool reads the repository name from the remote as `vanesterik` (it drops the `.dev`).
+Releases use `commit-and-tag-version` (`npm run release`), which bumps the version, updates `CHANGELOG.md` and creates a `v*.*.*` tag. Pushing that tag deploys the site and Storybook, so releasing is Koen's call. `.versionrc.json` sets the changelog's GitHub links explicitly, because the tool reads the repository name from the remote as `vanesterik` (it drops the `.dev`).
 
 ## Architecture
 
@@ -72,9 +72,9 @@ Component tests are Vitest with Testing Library and user-event in jsdom (`vitest
 
 ## CI and deployment
 
-All workflows install through the composite action `.github/actions/setup-node` (Node from `.nvmrc`, `npm ci`). Actions are pinned by commit SHA where Dependabot maintains them.
+Two workflows. Actions are pinned by commit SHA with a version comment, which Dependabot updates.
 
-- **Continuous Integration** (push to `main`, pull requests): lint, typecheck, test, build, build Storybook.
-- **Preview Environment** (pull requests to `main`): builds and syncs `out/` to a public S3 website bucket `preview-pr-<number>-vanesterik`, and caches the preview URL. Closing the pull request deletes the bucket.
-- **Web Performance Audit** waits for the "Deploy Preview Environment" check, runs Lighthouse on `/`, `/about/`, `/projects/` and `/posts/`, and keeps a single score comment on the pull request up to date. A new top-level page should be added to its URL list.
-- **Production Environment** (tag `v*.*.*`): builds and syncs `out/` to the production S3 bucket.
+- **`ci.yml`** (push to `main`, pull requests, and called by `deploy.yml`): lint, typecheck, test, build. Storybook is built only when it's deployed. A newer push cancels an older run on the same pull request.
+- **`deploy.yml`** (tag `v*.*.*`): runs `ci.yml`, then in parallel syncs `out/` to the production S3 bucket (access-key secrets `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION`, `AWS_S3_BUCKET_NAME`) and publishes Storybook to GitHub Pages at https://vanesterik.github.io/vanesterik.dev/. Deploys are never cancelled midway.
+
+Releasing (`npm run release`, then pushing the tag) is the only way to deploy. GitHub Pages must use the source "GitHub Actions", and its `github-pages` environment must allow `v*.*.*` tags.
