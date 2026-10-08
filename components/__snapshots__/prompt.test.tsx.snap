@@ -3,7 +3,7 @@
 exports[`Prompt > should render as expected 1`] = `
 <div>
   <div
-    class="font-mono font-normal text-black text-xs uppercase dark:text-white"
+    class="font-mono font-normal text-foreground text-xs uppercase"
   >
     &gt;&gt;&gt;
   </div>

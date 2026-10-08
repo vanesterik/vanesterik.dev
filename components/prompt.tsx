@@ -1,5 +1,5 @@
-import { text } from '@/lib/styles'
-
 export const Prompt = () => (
-  <div className={text({ intent: 'label' })}>&gt;&gt;&gt;</div>
+  <div className="font-mono font-normal text-foreground text-xs uppercase">
+    &gt;&gt;&gt;
+  </div>
 )

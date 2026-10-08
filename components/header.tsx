@@ -1,14 +1,11 @@
 import type { ReactNode } from 'react'
-import { header, stack } from '@/lib/styles'
 
 type HeaderProps = {
   children?: ReactNode
 }
 
 export const Header = ({ children }: HeaderProps) => (
-  <header className={header()}>
-    <div className={stack({ direction: 'row', justify: 'between' })}>
-      {children}
-    </div>
+  <header className="z-10 pt-3 pb-12">
+    <div className="flex flex-row justify-between">{children}</div>
   </header>
 )

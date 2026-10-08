@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { button, stack } from '@/lib/styles'
+import { button } from '@/lib/styles'
 
 type NavigationItem = {
   name: string
@@ -15,7 +15,7 @@ export const Navigation = ({ items }: NavigationProps) => {
 
   return (
     <nav>
-      <ul className={stack({ direction: 'row' })}>
+      <ul className="flex flex-row gap-x-0.5">
         {items.map(({ name, url }) => (
           <li key={name}>
             <Link
