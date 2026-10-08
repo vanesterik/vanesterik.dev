@@ -1,11 +1,14 @@
+'use client'
+
 import { useEffect } from 'react'
 
-import { useTheme } from '@/components/theme-provider'
 import { game } from '@/lib/particles'
+
+import { useTheme } from './theme-provider'
 
 const GAME_CONTAINER_ID = 'game-container'
 
-export default function Index() {
+export const ParticleCanvas = () => {
   const { isDarkMode } = useTheme()
 
   useEffect(() => {

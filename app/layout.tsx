@@ -1,0 +1,47 @@
+import './globals.css'
+
+import type { ReactNode } from 'react'
+
+import { Footer } from '@/components/footer'
+import { Header } from '@/components/header'
+import { LinkList } from '@/components/link-list'
+import { Navigation } from '@/components/navigation'
+import { Prompt } from '@/components/prompt'
+import { ThemeProvider } from '@/components/theme-provider'
+import { ThemeSelector } from '@/components/theme-selector'
+import layout from '@/content/layout.json'
+import { container, main, text } from '@/lib/styles'
+
+type RootLayoutProps = {
+  children: ReactNode
+}
+
+export default function RootLayout({ children }: RootLayoutProps) {
+  return (
+    <html lang="en">
+      <body>
+        <ThemeProvider>
+          <div className={container()}>
+            <Header>
+              <Navigation items={layout.menu} />
+              <ThemeSelector options={layout.theme} />
+            </Header>
+            <main className={main()}>{children}</main>
+            <Footer>
+              <Prompt />
+              <LinkList items={layout.contact} />
+              <Prompt />
+              <LinkList items={layout.social} />
+              <div className={text({ intent: 'footnote' })}>
+                &copy; {new Date().getFullYear().toString()}
+              </div>
+              <div className={text({ intent: 'footnote' })}>
+                {layout.copyright}
+              </div>
+            </Footer>
+          </div>
+        </ThemeProvider>
+      </body>
+    </html>
+  )
+}
