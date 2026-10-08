@@ -113,9 +113,6 @@ jobs:
 
       - name: Build site
         run: npm run build
-
-      - name: Build Storybook
-        run: npm run build-storybook
 ```
 
 Delete the old workflow:
@@ -344,7 +341,7 @@ Replace everything from `## CI and deployment` to the end of the file with:
 
 Two workflows. Actions are pinned by commit SHA with a version comment, which Dependabot updates.
 
-- **`ci.yml`** (push to `main`, pull requests, and called by `deploy.yml`): lint, typecheck, test, build, build Storybook. A newer push cancels an older run on the same pull request.
+- **`ci.yml`** (push to `main`, pull requests, and called by `deploy.yml`): lint, typecheck, test, build. Storybook is built only when it's deployed. A newer push cancels an older run on the same pull request.
 - **`deploy.yml`** (tag `v*.*.*`): runs `ci.yml`, then in parallel syncs `out/` to the production S3 bucket (access-key secrets `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION`, `AWS_S3_BUCKET_NAME`) and publishes Storybook to GitHub Pages at https://vanesterik.github.io/vanesterik.dev/. Deploys are never cancelled midway.
 
 Releasing (`npm run release`, then pushing the tag) is the only way to deploy. GitHub Pages must use the source "GitHub Actions", and its `github-pages` environment must allow `v*.*.*` tags.
