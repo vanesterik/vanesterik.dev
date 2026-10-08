@@ -40,7 +40,9 @@ The README gets status badges and a link to the published Storybook.
   - check out;
   - set up Node from `.nvmrc` with the npm cache;
   - `npm ci`;
-  - `npm run lint`, `npm run typecheck`, `npm test`, `npm run build` and `npm run build-storybook`.
+  - `npm run lint`, `npm run typecheck`, `npm test` and `npm run build`.
+
+  Storybook isn't built here (Koen's decision): a broken story shows up when `deploy.yml` builds Storybook for a release.
 
 ## `deploy.yml`
 
