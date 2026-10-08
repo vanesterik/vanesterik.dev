@@ -51,7 +51,7 @@ Releases use `commit-and-tag-version` (`npm run release`), which bumps the versi
 ```
 app/          App Router: layout.tsx (shell, fonts, theme provider), pages, not-found, globals.css, fonts/
 components/   site components, tests next to each (*.test.tsx); ui/ holds the shadcn/ui components
-lib/          particles.ts (home page animation), utils.ts (shadcn's cn, used by components/ui), random.ts, repeat.ts
+lib/          particles.ts (home page animation), utils.ts (cn re-export, only for components.json), random.ts, repeat.ts
 content/      layout.json: menu, theme options, contact, social links, copyright
 .storybook/   Storybook config: preview.ts loads app/globals.css and app/fonts.ts, toolbar toggles the dark class
 ```
@@ -62,7 +62,7 @@ Things that take more than one file to see:
 - **Server components by default.** Only `theme-provider`, `theme-selector`, `particle-canvas` and the generated `components/ui/dropdown-menu` are client components.
 - **Layout and content are data-driven.** `app/layout.tsx` builds the header, navigation, theme selector and footer from `content/layout.json`; pages render only their main content.
 - **Styling** is Tailwind 4, configured in `app/globals.css`. Colours are semantic tokens only (`background`, `foreground`, `primary`/`primary-foreground`, `secondary`/`secondary-foreground`, `accent`, `highlight`/`highlight-foreground` and `muted-foreground`), defined in `:root` and `.dark`; there are no raw colour scales. Fonts are `sans` (Lausanne) and `mono` (NB International Pro Mono), defined with `next/font/local` in `app/fonts.ts` and applied to `<html>` in `app/layout.tsx`.
-- **shadcn/ui** components live in `components/ui/` and are edited freely to match the site's look. `components.json` was written by hand (no `shadcn init`), so add new components with `npx shadcn@latest add <name>`, then install any import it didn't (`radix-ui`, `lucide-react`) and restyle it with the tokens.
+- **shadcn/ui** components live in `components/ui/` and are edited freely to match the site's look. `components.json` was written by hand (no `shadcn init`). Components import `cn` from the `cn` package directly, as the CLI generates them; `lib/utils.ts` only exists because `components.json` names it. Add new components with `npx shadcn@latest add <name>`, then install any import it didn't (`radix-ui`, `lucide-react`) and restyle it with the tokens.
 - **Theme handling is `next-themes`** (`attribute="class"`, system by default, choice stored in `localStorage`). Its inline script sets the class before the first paint. Client components that show the theme render "system" until hydrated (`useSyncExternalStore`), so the static HTML and the first client render agree.
 - **Icons are Lucide** (`lucide-react`). The theme options' `icon` values in `content/layout.json` are Lucide icon names, mapped in `components/theme-selector.tsx`.
 - **Storybook** covers the shadcn/ui components and the theme selector, with stories next to each (`*.stories.tsx`). Its preview adds the fonts' variable classes to `<html>`, because the theme's font tokens resolve there; wrapping a story in them isn't enough. A story that needs `next-themes` must give its provider `attribute="data-theme"` and its own `storageKey`, so it doesn't fight the toolbar over the `dark` class.
