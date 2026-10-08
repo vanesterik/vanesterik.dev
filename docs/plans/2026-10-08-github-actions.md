@@ -53,8 +53,10 @@ The repository settings that Pages needs are set after merge, with Koen's go-ahe
 
 - [ ] **Step 1: Install actionlint and confirm it checks the current workflows**
 
+Install it with mise, globally like Koen's other dev tools. This adds `actionlint = "latest"` to `~/.config/mise/config.toml`; nothing goes into the repository.
+
 ```bash
-brew install actionlint
+mise use -g actionlint@latest
 actionlint -version
 actionlint .github/workflows/*.yml
 ```
