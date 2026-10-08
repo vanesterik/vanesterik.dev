@@ -28,3 +28,6 @@ tsconfig.tsbuildinfo
 
 # tests
 coverage
+
+# next.js generated types
+next-env.d.ts
