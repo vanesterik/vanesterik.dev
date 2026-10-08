@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { button } from '@/lib/styles'
+
+import { Button } from '@/components/ui/button'
 
 type NavigationItem = {
   name: string
@@ -18,14 +19,9 @@ export const Navigation = ({ items }: NavigationProps) => {
       <ul className="flex flex-row gap-x-0.5">
         {items.map(({ name, url }) => (
           <li key={name}>
-            <Link
-              className={button({
-                intent: url === '/' ? 'ghost' : 'secondary',
-              })}
-              href={url}
-            >
-              {name}
-            </Link>
+            <Button asChild variant={url === '/' ? 'ghost' : 'secondary'}>
+              <Link href={url}>{name}</Link>
+            </Button>
           </li>
         ))}
       </ul>
