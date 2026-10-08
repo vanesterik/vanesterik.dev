@@ -12,7 +12,6 @@
   --font-mono:
     var(--font-nb-international-pro-mono), ui-monospace, SFMono-Regular, Menlo,
     Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-  --font-icon: 'Icons';
 }
 
 @theme inline {
@@ -53,14 +52,6 @@
   --highlight: oklch(79.5% 0.184 86.047); /* yellow-500 */
   --highlight-foreground: #000;
   --muted-foreground: oklch(37.4% 0.01 67.558); /* stone-700 */
-}
-
-@font-face {
-  font-display: swap;
-  font-family: 'Icons';
-  font-style: normal;
-  font-weight: 400;
-  src: url('./fonts/icomoon.woff2') format('woff2');
 }
 
 @layer base {
