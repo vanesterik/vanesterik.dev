@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 
 import { formatPostDate, getPost, getPosts } from './posts'
 
@@ -35,6 +35,12 @@ describe('getPosts', () => {
 })
 
 describe('getPost', () => {
+  // The first render loads Shiki's grammars, themes and engine, which can take
+  // longer than one test's timeout on a cold CI runner
+  beforeAll(async () => {
+    await getPost('older-post', fixtures('posts'))
+  }, 30_000)
+
   it('renders Markdown to HTML', async () => {
     const { html } = await getPost('older-post', fixtures('posts'))
     expect(html).toContain('<h2>A heading</h2>')
