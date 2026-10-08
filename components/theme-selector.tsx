@@ -1,16 +1,19 @@
 'use client'
 
-import {
-  Listbox,
-  ListboxButton,
-  ListboxOption,
-  ListboxOptions,
-} from '@headlessui/react'
+import { Moon, Snowflake, Sun } from 'lucide-react'
+import { useTheme } from 'next-themes'
 import { useSyncExternalStore } from 'react'
-import { button, dropdown, type IconVariant, icon } from '@/lib/styles'
-import { dropdownList, dropdownListItem } from '@/lib/styles/dropdown'
 
-import { useTheme } from './theme-provider'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+
+const icons = { moon: Moon, snowflake: Snowflake, sun: Sun }
 
 const subscribe = () => () => {}
 
@@ -33,36 +36,28 @@ export const ThemeSelector = ({ options }: ThemeSelectorProps) => {
   const current = isHydrated ? (theme ?? 'system') : 'system'
 
   return (
-    <Listbox value={current} onChange={setTheme}>
-      <div className={dropdown()}>
-        <ListboxButton className={button({ intent: 'secondary' })}>
-          <span
-            className={icon({
-              name: 'sun',
-              class: 'dark:hidden',
-            })}
-          />
-          <span
-            className={icon({
-              name: 'moon',
-              class: 'hidden dark:block',
-            })}
-          />
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="secondary">
+          <Sun className="dark:hidden" />
+          <Moon className="hidden dark:block" />
           {current}
-        </ListboxButton>
-        <ListboxOptions className={dropdownList({ side: 'right' })}>
-          {options.map(({ icon: iconName, name }) => (
-            <ListboxOption
-              className={dropdownListItem()}
-              key={name}
-              value={name}
-            >
-              <span className={icon({ name: iconName as IconVariant })} />
-              {name}
-            </ListboxOption>
-          ))}
-        </ListboxOptions>
-      </div>
-    </Listbox>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuRadioGroup value={current} onValueChange={setTheme}>
+          {options.map(({ icon, name }) => {
+            const Icon = icons[icon as keyof typeof icons]
+
+            return (
+              <DropdownMenuRadioItem key={name} value={name}>
+                {Icon && <Icon />}
+                {name}
+              </DropdownMenuRadioItem>
+            )
+          })}
+        </DropdownMenuRadioGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
