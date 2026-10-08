@@ -14,8 +14,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
-    "prepare": "husky install",
-    "release": "standard-version"
+    "prepare": "husky",
+    "release": "commit-and-tag-version"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.10",
@@ -26,7 +26,8 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
-    "@commitlint/config-conventional": "17.8.1",
+    "@commitlint/cli": "^21.2.3",
+    "@commitlint/config-conventional": "^21.2.3",
     "@tailwindcss/postcss": "^4.3.3",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
@@ -37,12 +38,11 @@
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
     "@vitest/coverage-v8": "^5.0.3",
-    "commitlint": "17.8.1",
-    "husky": "8.0.3",
+    "commit-and-tag-version": "^13.2.1",
+    "husky": "^9.1.7",
     "jsdom": "^30.1.2",
-    "lint-staged": "14.0.1",
+    "lint-staged": "^17.6.0",
     "postcss": "^8.5.29",
-    "standard-version": "9.5.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",
     "vite": "^8.3.4",

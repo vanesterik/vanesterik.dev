@@ -1,0 +1,5 @@
+{
+  "commitUrlFormat": "https://github.com/vanesterik/vanesterik.dev/commit/{{hash}}",
+  "compareUrlFormat": "https://github.com/vanesterik/vanesterik.dev/compare/{{previousTag}}...{{currentTag}}",
+  "issueUrlFormat": "https://github.com/vanesterik/vanesterik.dev/issues/{{id}}"
+}
