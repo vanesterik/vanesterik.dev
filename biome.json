@@ -44,13 +44,5 @@
         "organizeImports": "on"
       }
     }
-  },
-  "overrides": [
-    {
-      "includes": ["app/globals.css"],
-      "linter": {
-        "enabled": false
-      }
-    }
-  ]
+  }
 }

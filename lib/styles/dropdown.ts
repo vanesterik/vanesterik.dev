@@ -9,7 +9,7 @@ export const dropdownList = cva(
     'overflow-hidden',
     'rounded',
     'w-32',
-    'focus:outline-none',
+    'focus:outline-hidden',
   ],
   {
     variants: {

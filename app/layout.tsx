@@ -1,5 +1,6 @@
 import './globals.css'
 
+import localFont from 'next/font/local'
 import type { ReactNode } from 'react'
 
 import { Footer } from '@/components/footer'
@@ -12,13 +13,33 @@ import { ThemeSelector } from '@/components/theme-selector'
 import layout from '@/content/layout.json'
 import { container, main, text } from '@/lib/styles'
 
+const lausanne = localFont({
+  src: [
+    { path: './fonts/twk_lausanne_400.woff2', weight: '400', style: 'normal' },
+    { path: './fonts/twk_lausanne_700.woff2', weight: '700', style: 'normal' },
+  ],
+  display: 'swap',
+  variable: '--font-lausanne',
+})
+
+const nbInternationalProMono = localFont({
+  src: './fonts/nb_international_pro_mono.woff2',
+  weight: '400',
+  style: 'normal',
+  display: 'swap',
+  variable: '--font-nb-international-pro-mono',
+})
+
 type RootLayoutProps = {
   children: ReactNode
 }
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      className={`${lausanne.variable} ${nbInternationalProMono.variable}`}
+    >
       <body>
         <ThemeProvider>
           <div className={container()}>

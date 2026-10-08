@@ -1,41 +1,44 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
-@font-face {
-  font-display: swap;
-  font-family: 'Lausanne';
-  font-style: normal;
-  font-weight: 700;
-  src: url('./fonts/twk_lausanne_700.woff2') format('woff2');
-  unicode-range:
-    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
-    U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
-    U+FEFF, U+FFFD;
-}
+@custom-variant dark (&:where(.dark, .dark *));
 
-@font-face {
-  font-display: swap;
-  font-family: 'Lausanne';
-  font-style: normal;
-  font-weight: 400;
-  src: url('./fonts/twk_lausanne_400.woff2') format('woff2');
-  unicode-range:
-    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
-    U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
-    U+FEFF, U+FFFD;
-}
+@theme {
+  --color-*: initial;
+  --color-black: #000;
+  --color-white: #fff;
 
-@font-face {
-  font-display: swap;
-  font-family: 'NB International Pro Mono';
-  font-style: normal;
-  font-weight: 400;
-  src: url('./fonts/nb_international_pro_mono.woff2') format('woff2');
-  unicode-range:
-    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
-    U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
-    U+FEFF, U+FFFD;
+  --color-primary-50: oklch(98.5% 0.001 106.423);
+  --color-primary-100: oklch(97% 0.001 106.424);
+  --color-primary-200: oklch(92.3% 0.003 48.717);
+  --color-primary-300: oklch(86.9% 0.005 56.366);
+  --color-primary-400: oklch(70.9% 0.01 56.259);
+  --color-primary-500: oklch(55.3% 0.013 58.071);
+  --color-primary-600: oklch(44.4% 0.011 73.639);
+  --color-primary-700: oklch(37.4% 0.01 67.558);
+  --color-primary-800: oklch(26.8% 0.007 34.298);
+  --color-primary-900: oklch(21.6% 0.006 56.043);
+  --color-primary-950: oklch(14.7% 0.004 49.25);
+
+  --color-secondary-50: oklch(98.7% 0.026 102.212);
+  --color-secondary-100: oklch(97.3% 0.071 103.193);
+  --color-secondary-200: oklch(94.5% 0.129 101.54);
+  --color-secondary-300: oklch(90.5% 0.182 98.111);
+  --color-secondary-400: oklch(85.2% 0.199 91.936);
+  --color-secondary-500: oklch(79.5% 0.184 86.047);
+  --color-secondary-600: oklch(68.1% 0.162 75.834);
+  --color-secondary-700: oklch(55.4% 0.135 66.442);
+  --color-secondary-800: oklch(47.6% 0.114 61.907);
+  --color-secondary-900: oklch(42.1% 0.095 57.708);
+  --color-secondary-950: oklch(28.6% 0.066 53.813);
+
+  --font-*: initial;
+  --font-sans:
+    var(--font-lausanne), ui-sans-serif, system-ui, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-mono:
+    var(--font-nb-international-pro-mono), ui-monospace, SFMono-Regular, Menlo,
+    Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  --font-icon: 'Icons';
 }
 
 @font-face {
@@ -48,7 +51,6 @@
 
 @layer base {
   body {
-    @apply antialiased;
-    @apply bg-white dark:bg-black;
+    @apply antialiased bg-white dark:bg-black;
   }
 }
