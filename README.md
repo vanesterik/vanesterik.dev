@@ -1,6 +1,12 @@
+[![CI](https://github.com/vanesterik/vanesterik.dev/actions/workflows/ci.yml/badge.svg)](https://github.com/vanesterik/vanesterik.dev/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/vanesterik/vanesterik.dev)](LICENSE)
+[![Version](https://img.shields.io/github/package-json/v/vanesterik/vanesterik.dev)](CHANGELOG.md)
+
 # van_esterik
 
 Showcase website of [@vanesterik](https://github.com/vanesterik), built with Next.js and exported as a static site.
+
+Browse the components in [Storybook](https://vanesterik.github.io/vanesterik.dev/).
 
 ## Stack
 
