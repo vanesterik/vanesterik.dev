@@ -31,7 +31,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
               <Navigation items={layout.menu} />
               <ThemeSelector options={layout.theme} />
             </Header>
-            <main className="flex-auto">{children}</main>
+            <main className="flex-auto md:min-h-0 md:overflow-y-auto">
+              {children}
+            </main>
             <Footer>
               <Prompt />
               <LinkList items={layout.contact} />
