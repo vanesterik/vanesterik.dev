@@ -1,6 +1,6 @@
 'use client'
 
-import { Moon, Snowflake, Sun } from 'lucide-react'
+import { Moon, Settings, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useSyncExternalStore } from 'react'
 
@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-const icons = { moon: Moon, snowflake: Snowflake, sun: Sun }
+const icons = { moon: Moon, settings: Settings, sun: Sun }
 
 const subscribe = () => () => {}
 

@@ -43,7 +43,7 @@
   "theme": [
     {
       "name": "system",
-      "icon": "snowflake"
+      "icon": "settings"
     },
     {
       "name": "dark",

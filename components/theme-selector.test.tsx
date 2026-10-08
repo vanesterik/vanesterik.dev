@@ -11,7 +11,7 @@ vi.mock('next-themes', () => ({
 }))
 
 const options = [
-  { name: 'system', icon: 'snowflake' },
+  { name: 'system', icon: 'settings' },
   { name: 'dark', icon: 'moon' },
   { name: 'light', icon: 'sun' },
 ]
@@ -67,7 +67,7 @@ describe('ThemeSelector', () => {
     await user.click(screen.getByRole('button', { name: /system/i }))
 
     for (const [name, icon] of [
-      ['system', 'snowflake'],
+      ['system', 'settings'],
       ['dark', 'moon'],
       ['light', 'sun'],
     ]) {
