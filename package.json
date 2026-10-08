@@ -1,34 +1,50 @@
 {
-  "name": "vanesterik",
+  "name": "vanesterik.dev",
   "version": "1.1.0",
-  "packageManager": "pnpm@10.14.0",
+  "private": true,
   "engines": {
-    "node": ">=20.0.0"
-  },
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
-  "devDependencies": {
-    "@commitlint/config-conventional": "^17.7.0",
-    "@types/node": "20.5.8",
-    "@vitest/coverage-v8": "^0.34.3",
-    "commitlint": "^17.7.1",
-    "husky": "^8.0.3",
-    "lint-staged": "^14.0.1",
-    "prettier": "^3.0.3",
-    "prettier-config": "github:vanesterik/prettier-config",
-    "standard-version": "^9.5.0",
-    "typescript": "5.2.2",
-    "vitest": "^0.34.3"
+    "node": ">=24"
   },
   "scripts": {
-    "build": "pnpm -r build",
-    "coverage": "vitest --coverage",
-    "lint": "pnpm -r lint",
+    "dev": "next dev",
+    "build": "next build",
+    "lint": "biome check",
+    "format": "biome check --write",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage",
     "prepare": "husky install",
-    "release": "standard-version",
-    "test": "vitest",
-    "typecheck": "pnpm -r typecheck"
-  }
+    "release": "standard-version"
+  },
+  "dependencies": {
+    "@headlessui/react": "1.7.19",
+    "class-variance-authority": "0.7.1",
+    "next": "13.5.11",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15",
+    "@commitlint/config-conventional": "17.8.1",
+    "@testing-library/jest-dom": "6.6.4",
+    "@testing-library/react": "14.0.0",
+    "@types/node": "20.5.8",
+    "@types/react": "18.2.21",
+    "@types/react-dom": "18.3.7",
+    "@vitejs/plugin-react": "4.7.0",
+    "@vitest/coverage-v8": "0.34.6",
+    "autoprefixer": "10.4.21",
+    "commitlint": "17.8.1",
+    "husky": "8.0.3",
+    "jsdom": "22.1.0",
+    "lint-staged": "14.0.1",
+    "postcss": "8.5.6",
+    "standard-version": "9.5.0",
+    "tailwindcss": "3.4.17",
+    "typescript": "5.2.2",
+    "vite": "5.4.19",
+    "vitest": "0.34.6"
+  },
+  "packageManager": "npm@11.19.0"
 }

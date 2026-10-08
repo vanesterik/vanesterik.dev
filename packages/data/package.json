@@ -1,9 +1,0 @@
-{
-  "name": "@vanesterik/data",
-  "version": "1.0.0",
-  "private": true,
-  "dependencies": {
-    "@types/react": "18.2.21",
-    "typescript": "5.2.2"
-  }
-}

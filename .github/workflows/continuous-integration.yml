@@ -19,13 +19,13 @@ jobs:
         uses: ./.github/actions/setup-node
 
       - name: Run linters
-        run: pnpm lint
+        run: npm run lint
 
       - name: Run typecheck
-        run: pnpm typecheck
+        run: npm run typecheck
 
       - name: Run unit tests
-        run: pnpm test
+        run: npm test
 
       - name: Build application
-        run: pnpm build
+        run: npm run build

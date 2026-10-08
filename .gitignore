@@ -12,7 +12,6 @@ build
 
 # misc
 .DS_Store
-.eslintcache
 .vscode
 *.pem
 tsconfig.tsbuildinfo
@@ -29,17 +28,3 @@ tsconfig.tsbuildinfo
 
 # tests
 coverage
-
-# turbo
-.turbo
-.vercel
-.turbo-cache
-
-# vscode
-.vscode
-
-# Playwright
-test-results/
-playwright-report/
-blob-report/
-playwright/.cache/

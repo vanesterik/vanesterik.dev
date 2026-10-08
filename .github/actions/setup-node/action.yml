@@ -1,24 +1,14 @@
-name: Setup Node & PNPM
-
-inputs:
-  node-version:
-    required: true
-    default: 20
+name: Setup Node & npm
 
 runs:
   using: 'composite'
   steps:
-    - name: Setup PNPM
-      uses: pnpm/action-setup@v4
-      with:
-        run_install: false
-
     - name: Setup Node
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ inputs.node-version }}
-        cache: pnpm
+        node-version-file: .nvmrc
+        cache: npm
 
     - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+      run: npm ci
       shell: bash
