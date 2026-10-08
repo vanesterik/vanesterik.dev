@@ -31,7 +31,7 @@ npm run build-storybook  # static Storybook in storybook-static/
 Run a single test file or filter by name:
 
 ```bash
-npx vitest run components/link-list.test.tsx
+npx vitest run src/components/link-list.test.tsx
 npx vitest run -t "applies the dark theme"
 ```
 
@@ -49,26 +49,26 @@ Releases use `commit-and-tag-version` (`npm run release`), which bumps the versi
 ## Architecture
 
 ```
-app/          App Router: layout.tsx (shell, fonts, theme provider), pages, not-found, globals.css, fonts/
-components/   site components, tests next to each (*.test.tsx); ui/ holds the shadcn/ui components
-lib/          posts.ts (Markdown posts: load, validate, render), particles.ts (home page animation), utils.ts (cn re-export, only for components.json), random.ts, repeat.ts
-content/      layout.json (menu, theme options, contact, social links, copyright), posts/*.md
-.storybook/   Storybook config: preview.ts loads app/globals.css and app/fonts.ts, toolbar toggles the dark class
+src/app/          App Router: layout.tsx (shell, fonts, theme provider), pages, not-found, globals.css, fonts/
+src/components/   site components, tests next to each (*.test.tsx); ui/ holds the shadcn/ui components
+src/lib/          posts.ts (Markdown posts: load, validate, render), particles.ts (home page animation), utils.ts (cn re-export, only for components.json), random.ts, repeat.ts
+content/          layout.json (menu, theme options, contact, social links, copyright), posts/*.md
+.storybook/       Storybook config: preview.ts loads src/app/globals.css and src/app/fonts.ts, toolbar toggles the dark class
 ```
 
 Things that take more than one file to see:
 
 - **The site is a static export** (`output: 'export'`, `trailingSlash: true`, optional `NEXT_PUBLIC_BASE_PATH`). Route handlers, server actions, middleware and the default image optimizer don't work.
-- **Server components by default.** Only `theme-provider`, `theme-selector`, `particle-canvas` and the generated `components/ui/dropdown-menu` are client components.
-- **Layout and content are data-driven.** `app/layout.tsx` builds the header, navigation, theme selector and footer from `content/layout.json`; pages render only their main content.
-- **On screens from `md` (768px) up, the header and footer stay in view:** they're `sticky` (top and bottom) with no background, so the page content scrolls behind them. The column in `app/layout.tsx` is `min-h-screen`, and `main` is a flex column so the home page's canvas wrapper can fill it with `flex-1`. They pass clicks through (`pointer-events-none`) except on their own links and buttons, and `<html>` has scroll padding (`md:scroll-pt-24 md:scroll-pb-52`) so focused or linked content stops clear of them; change those if the header or footer grows. Below `md` the header and footer scroll with the page.
-- **Posts** are Markdown files in `content/posts/<slug>.md` with required front matter (`title`, `date` as `YYYY-MM-DD`, `description`) and no `# H1`; the file name is the URL. `lib/posts.ts` reads and renders them at build time (gray-matter, remark/rehype, Shiki with GitHub light and dark as CSS variables); a broken post fails the build with its file name. `/posts/` lists them newest first and `/posts/<slug>/` renders one in a 640px column with Tailwind Typography, whose colours are mapped onto the tokens in `app/globals.css`. Adding a post needs no code.
-- **Styling** is Tailwind 4, configured in `app/globals.css`. Colours are semantic tokens only (`background`, `foreground`, `primary`/`primary-foreground`, `secondary`/`secondary-foreground`, `accent`, `highlight`/`highlight-foreground` and `muted-foreground`), defined in `:root` and `.dark`; there are no raw colour scales. Fonts are `sans` (Lausanne) and `mono` (NB International Pro Mono), defined with `next/font/local` in `app/fonts.ts` and applied to `<html>` in `app/layout.tsx`.
-- **shadcn/ui** components live in `components/ui/` and are edited freely to match the site's look. `components.json` was written by hand (no `shadcn init`). Components import `cn` from the `cn` package directly, as the CLI generates them; `lib/utils.ts` only exists because `components.json` names it. Add new components with `npx shadcn@latest add <name>`, then install any import it didn't (`radix-ui`, `lucide-react`) and restyle it with the tokens.
+- **Server components by default.** Only `theme-provider`, `theme-selector`, `particle-canvas` and the generated `src/components/ui/dropdown-menu` are client components.
+- **Layout and content are data-driven.** `src/app/layout.tsx` builds the header, navigation, theme selector and footer from `content/layout.json`; pages render only their main content.
+- **On screens from `md` (768px) up, the header and footer stay in view:** they're `sticky` (top and bottom) with no background, so the page content scrolls behind them. The column in `src/app/layout.tsx` is `min-h-screen`, and `main` is a flex column so the home page's canvas wrapper can fill it with `flex-1`. They pass clicks through (`pointer-events-none`) except on their own links and buttons, and `<html>` has scroll padding (`md:scroll-pt-24 md:scroll-pb-52`) so focused or linked content stops clear of them; change those if the header or footer grows. Below `md` the header and footer scroll with the page.
+- **Posts** are Markdown files in `content/posts/<slug>.md` with required front matter (`title`, `date` as `YYYY-MM-DD`, `description`) and no `# H1`; the file name is the URL. `src/lib/posts.ts` reads and renders them at build time (gray-matter, remark/rehype, Shiki with GitHub light and dark as CSS variables); a broken post fails the build with its file name. `/posts/` lists them newest first and `/posts/<slug>/` renders one in a 640px column with Tailwind Typography, whose colours are mapped onto the tokens in `src/app/globals.css`. Adding a post needs no code.
+- **Styling** is Tailwind 4, configured in `src/app/globals.css`. Colours are semantic tokens only (`background`, `foreground`, `primary`/`primary-foreground`, `secondary`/`secondary-foreground`, `accent`, `highlight`/`highlight-foreground` and `muted-foreground`), defined in `:root` and `.dark`; there are no raw colour scales. Fonts are `sans` (Lausanne) and `mono` (NB International Pro Mono), defined with `next/font/local` in `src/app/fonts.ts` and applied to `<html>` in `src/app/layout.tsx`.
+- **shadcn/ui** components live in `src/components/ui/` and are edited freely to match the site's look. `components.json` was written by hand (no `shadcn init`). Components import `cn` from the `cn` package directly, as the CLI generates them; `src/lib/utils.ts` only exists because `components.json` names it. Add new components with `npx shadcn@latest add <name>`, then install any import it didn't (`radix-ui`, `lucide-react`) and restyle it with the tokens.
 - **Theme handling is `next-themes`** (`attribute="class"`, system by default, choice stored in `localStorage`). Its inline script sets the class before the first paint. Client components that show the theme render "system" until hydrated (`useSyncExternalStore`), so the static HTML and the first client render agree.
-- **Icons are Lucide** (`lucide-react`). The theme options' `icon` values in `content/layout.json` are Lucide icon names, mapped in `components/theme-selector.tsx`.
+- **Icons are Lucide** (`lucide-react`). The theme options' `icon` values in `content/layout.json` are Lucide icon names, mapped in `src/components/theme-selector.tsx`.
 - **Storybook** covers the shadcn/ui components and the theme selector, with stories next to each (`*.stories.tsx`). Its preview adds the fonts' variable classes to `<html>`, because the theme's font tokens resolve there; wrapping a story in them isn't enough. A story that needs `next-themes` must give its provider `attribute="data-theme"` and its own `storageKey`, so it doesn't fight the toolbar over the `dark` class.
-- **The `@/*` alias** resolves from the repository root, in Next.js through `tsconfig.json` and in Vitest through `vitest.config.ts`.
+- **All code lives in `src/`;** the root holds configuration, `content/`, `public/`, `docs/` and build output. **The `@/*` alias** resolves to `src/`, except `@/content/*`, which resolves to the root `content/` folder. Both are set in `tsconfig.json` (Next.js, Storybook) and `vitest.config.ts` (Vitest).
 
 Component tests are Vitest with Testing Library and user-event in jsdom (`vitest.config.ts`, `vitest.setup.ts`). `vitest.setup.ts` stubs `ResizeObserver`, which jsdom lacks and Radix needs.
 
