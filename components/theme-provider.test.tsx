@@ -1,7 +1,8 @@
 import { act, render } from '@testing-library/react'
+import { useTheme } from 'next-themes'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { ThemeProvider, themeProviderProps, useTheme } from './theme-provider'
+import { ThemeProvider, themeProviderProps } from './theme-provider'
 
 let theme: ReturnType<typeof useTheme>
 
