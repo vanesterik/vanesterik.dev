@@ -7,6 +7,13 @@ on:
 permissions:
   contents: read
 
+# Whole deploys queue in the order their tags were pushed, so an older release
+# can never finish after a newer one. A running deploy is never interrupted:
+# --delete could leave the bucket half-updated.
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
 jobs:
   ci:
     name: CI
@@ -16,10 +23,6 @@ jobs:
     name: Deploy site to S3
     needs: ci
     runs-on: ubuntu-latest
-    concurrency:
-      group: deploy-site
-      # Never interrupt a sync: --delete could leave the bucket half-updated
-      cancel-in-progress: false
 
     steps:
       - name: Check out code
@@ -60,9 +63,6 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    concurrency:
-      group: deploy-storybook
-      cancel-in-progress: false
 
     steps:
       - name: Check out code

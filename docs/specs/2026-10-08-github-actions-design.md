@@ -48,20 +48,19 @@ The README gets status badges and a link to the published Storybook.
 
 - **Trigger:** `push` of tags matching `v*.*.*`.
 - **Permissions:** `contents: read` at the top. The `storybook` job adds `pages: write` and `id-token: write`.
+- **Concurrency:** one workflow-level group, `deploy`, with `cancel-in-progress: false`. Whole deploys queue in the order their tags were pushed, so an older release can never finish after a newer one, and a running sync is never interrupted. (Per-job groups would let two releases' CI runs race and deploy out of order.)
 - **Jobs:**
   - **`ci`:** `uses: ./.github/workflows/ci.yml`.
   - **`site`** (needs `ci`):
     - check out, set up Node, `npm ci`, `npm run build`;
     - configure AWS credentials from the secrets;
     - `aws s3 sync ./out s3://$AWS_S3_BUCKET_NAME --delete`.
-
-    Concurrency `deploy-site` with `cancel-in-progress: false`, so a sync is never interrupted.
   - **`storybook`** (needs `ci`):
     - check out, set up Node, `npm ci`, `npm run build-storybook`;
     - `actions/upload-pages-artifact` with `storybook-static`;
     - `actions/deploy-pages`.
 
-    Environment `github-pages`, with the deployed URL as its environment URL. Concurrency `deploy-storybook` with `cancel-in-progress: false`.
+    Environment `github-pages`, with the deployed URL as its environment URL.
 
 ## Removed
 
