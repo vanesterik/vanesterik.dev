@@ -4,32 +4,6 @@
 
 @theme {
   --color-*: initial;
-  --color-black: #000;
-  --color-white: #fff;
-
-  --color-primary-50: oklch(98.5% 0.001 106.423);
-  --color-primary-100: oklch(97% 0.001 106.424);
-  --color-primary-200: oklch(92.3% 0.003 48.717);
-  --color-primary-300: oklch(86.9% 0.005 56.366);
-  --color-primary-400: oklch(70.9% 0.01 56.259);
-  --color-primary-500: oklch(55.3% 0.013 58.071);
-  --color-primary-600: oklch(44.4% 0.011 73.639);
-  --color-primary-700: oklch(37.4% 0.01 67.558);
-  --color-primary-800: oklch(26.8% 0.007 34.298);
-  --color-primary-900: oklch(21.6% 0.006 56.043);
-  --color-primary-950: oklch(14.7% 0.004 49.25);
-
-  --color-secondary-50: oklch(98.7% 0.026 102.212);
-  --color-secondary-100: oklch(97.3% 0.071 103.193);
-  --color-secondary-200: oklch(94.5% 0.129 101.54);
-  --color-secondary-300: oklch(90.5% 0.182 98.111);
-  --color-secondary-400: oklch(85.2% 0.199 91.936);
-  --color-secondary-500: oklch(79.5% 0.184 86.047);
-  --color-secondary-600: oklch(68.1% 0.162 75.834);
-  --color-secondary-700: oklch(55.4% 0.135 66.442);
-  --color-secondary-800: oklch(47.6% 0.114 61.907);
-  --color-secondary-900: oklch(42.1% 0.095 57.708);
-  --color-secondary-950: oklch(28.6% 0.066 53.813);
 
   --font-*: initial;
   --font-sans:
@@ -39,6 +13,46 @@
     var(--font-nb-international-pro-mono), ui-monospace, SFMono-Regular, Menlo,
     Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
   --font-icon: 'Icons';
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-highlight: var(--highlight);
+  --color-highlight-foreground: var(--highlight-foreground);
+  --color-muted-foreground: var(--muted-foreground);
+}
+
+/* Values are Tailwind's stone and yellow scales, which the site used before */
+:root {
+  --background: #fff;
+  --foreground: #000;
+  --primary: #000;
+  --primary-foreground: #fff;
+  --secondary: oklch(92.3% 0.003 48.717); /* stone-200 */
+  --secondary-foreground: #000;
+  --accent: oklch(86.9% 0.005 56.366); /* stone-300 */
+  --highlight: oklch(79.5% 0.184 86.047); /* yellow-500 */
+  --highlight-foreground: #000;
+  --muted-foreground: oklch(86.9% 0.005 56.366); /* stone-300 */
+}
+
+.dark {
+  --background: #000;
+  --foreground: #fff;
+  --primary: #fff;
+  --primary-foreground: #000;
+  --secondary: oklch(26.8% 0.007 34.298); /* stone-800 */
+  --secondary-foreground: #fff;
+  --accent: oklch(26.8% 0.007 34.298); /* stone-800 */
+  --highlight: oklch(79.5% 0.184 86.047); /* yellow-500 */
+  --highlight-foreground: #000;
+  --muted-foreground: oklch(37.4% 0.01 67.558); /* stone-700 */
 }
 
 @font-face {
@@ -57,6 +71,6 @@
   }
 
   body {
-    @apply antialiased bg-white dark:bg-black;
+    @apply antialiased bg-background text-foreground;
   }
 }

@@ -11,7 +11,6 @@ import { Prompt } from '@/components/prompt'
 import { ThemeProvider } from '@/components/theme-provider'
 import { ThemeSelector } from '@/components/theme-selector'
 import layout from '@/content/layout.json'
-import { container, main, text } from '@/lib/styles'
 
 const lausanne = localFont({
   src: [
@@ -43,21 +42,21 @@ export default function RootLayout({ children }: RootLayoutProps) {
     >
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <div className={container()}>
+          <div className="flex h-screen flex-col gap-0.5 px-3">
             <Header>
               <Navigation items={layout.menu} />
               <ThemeSelector options={layout.theme} />
             </Header>
-            <main className={main()}>{children}</main>
+            <main className="flex-auto">{children}</main>
             <Footer>
               <Prompt />
               <LinkList items={layout.contact} />
               <Prompt />
               <LinkList items={layout.social} />
-              <div className={text({ intent: 'footnote' })}>
+              <div className="font-mono font-normal text-muted-foreground text-xs uppercase">
                 &copy; {new Date().getFullYear().toString()}
               </div>
-              <div className={text({ intent: 'footnote' })}>
+              <div className="font-mono font-normal text-muted-foreground text-xs uppercase">
                 {layout.copyright}
               </div>
             </Footer>

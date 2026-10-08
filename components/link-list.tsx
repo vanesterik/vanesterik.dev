@@ -1,5 +1,3 @@
-import { menu, text } from '@/lib/styles'
-
 type LinkListItem = {
   name: string
   url: string
@@ -13,11 +11,11 @@ export const LinkList = ({ items }: LinkListProps) => {
   if (!items?.length) return null
 
   return (
-    <ul className={menu()}>
+    <ul className="leading-4">
       {items.map(({ name, url }) => (
         <li key={name}>
           <a
-            className={text({ intent: 'link' })}
+            className="font-mono text-foreground text-xs uppercase hover:text-highlight"
             href={url}
             {...(isAlternativeLink(url)
               ? { target: '_self' }
