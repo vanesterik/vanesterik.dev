@@ -8,6 +8,8 @@ Showcase website of [@vanesterik](https://github.com/vanesterik), built with Nex
 
 Browse the components in [Storybook](https://vanesterik.github.io/vanesterik.dev/).
 
+Posts are Markdown files in `content/posts/` with `title`, `date` and `description` front matter.
+
 ## Stack
 
 - [Next.js](https://nextjs.org/) (App Router, static export) and React

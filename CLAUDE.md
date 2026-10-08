@@ -51,8 +51,8 @@ Releases use `commit-and-tag-version` (`npm run release`), which bumps the versi
 ```
 app/          App Router: layout.tsx (shell, fonts, theme provider), pages, not-found, globals.css, fonts/
 components/   site components, tests next to each (*.test.tsx); ui/ holds the shadcn/ui components
-lib/          particles.ts (home page animation), utils.ts (cn re-export, only for components.json), random.ts, repeat.ts
-content/      layout.json: menu, theme options, contact, social links, copyright
+lib/          posts.ts (Markdown posts: load, validate, render), particles.ts (home page animation), utils.ts (cn re-export, only for components.json), random.ts, repeat.ts
+content/      layout.json (menu, theme options, contact, social links, copyright), posts/*.md
 .storybook/   Storybook config: preview.ts loads app/globals.css and app/fonts.ts, toolbar toggles the dark class
 ```
 
@@ -62,6 +62,7 @@ Things that take more than one file to see:
 - **Server components by default.** Only `theme-provider`, `theme-selector`, `particle-canvas` and the generated `components/ui/dropdown-menu` are client components.
 - **Layout and content are data-driven.** `app/layout.tsx` builds the header, navigation, theme selector and footer from `content/layout.json`; pages render only their main content.
 - **On screens from `md` (768px) up, the header and footer stay in view** and only `main` scrolls (`md:min-h-0 md:overflow-y-auto` inside the `h-screen` column in `app/layout.tsx`). Below `md` the whole page scrolls.
+- **Posts** are Markdown files in `content/posts/<slug>.md` with required front matter (`title`, `date` as `YYYY-MM-DD`, `description`) and no `# H1`; the file name is the URL. `lib/posts.ts` reads and renders them at build time (gray-matter, remark/rehype, Shiki with GitHub light and dark as CSS variables); a broken post fails the build with its file name. `/posts/` lists them newest first and `/posts/<slug>/` renders one in a 640px column with Tailwind Typography, whose colours are mapped onto the tokens in `app/globals.css`. Adding a post needs no code.
 - **Styling** is Tailwind 4, configured in `app/globals.css`. Colours are semantic tokens only (`background`, `foreground`, `primary`/`primary-foreground`, `secondary`/`secondary-foreground`, `accent`, `highlight`/`highlight-foreground` and `muted-foreground`), defined in `:root` and `.dark`; there are no raw colour scales. Fonts are `sans` (Lausanne) and `mono` (NB International Pro Mono), defined with `next/font/local` in `app/fonts.ts` and applied to `<html>` in `app/layout.tsx`.
 - **shadcn/ui** components live in `components/ui/` and are edited freely to match the site's look. `components.json` was written by hand (no `shadcn init`). Components import `cn` from the `cn` package directly, as the CLI generates them; `lib/utils.ts` only exists because `components.json` names it. Add new components with `npx shadcn@latest add <name>`, then install any import it didn't (`radix-ui`, `lucide-react`) and restyle it with the tokens.
 - **Theme handling is `next-themes`** (`attribute="class"`, system by default, choice stored in `localStorage`). Its inline script sets the class before the first paint. Client components that show the theme render "system" until hydrated (`useSyncExternalStore`), so the static HTML and the first client render agree.
