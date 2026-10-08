@@ -8,77 +8,69 @@ The global `~/.claude/CLAUDE.md` (development workflow, branching, pull requests
 
 Showcase website of [@vanesterik](https://github.com/vanesterik): a statically exported Next.js site, hosted on AWS S3. The GitHub repository is `vanesterik/vanesterik.dev`. User stories and epics go on the project board [vanesterik.dev](https://github.com/users/vanesterik/projects/4) (user project 4: `gh project item-add 4 --owner vanesterik --url <issue-url>`).
 
+The repository is being overhauled under epic #32; the design is in `docs/specs/2026-10-08-repository-overhaul-design.md`.
+
 ## Commands
 
-A pnpm workspace (`pnpm@10`, Node >= 20). Run from the repository root unless noted.
+One npm package on Node 24 (`.nvmrc`).
 
 ```bash
-pnpm install                      # install all workspaces
-pnpm --filter next dev            # Next.js dev server (apps/next)
-pnpm --filter @vanesterik/ui dev  # Ladle story browser for the UI package
-pnpm build                        # build every workspace that has a build script (static export to apps/next/out)
-pnpm lint                         # ESLint per workspace
-pnpm typecheck                    # tsc --noEmit per workspace
-pnpm test                         # Vitest workspace (watch mode locally, single run under CI)
-pnpm coverage                     # Vitest with v8 coverage
+npm install
+npm run dev          # development server
+npm run build        # static export to out/
+npm run lint         # Biome lint and format check
+npm run format       # apply Biome fixes
+npm run typecheck    # next typegen && tsc --noEmit
+npm test             # Vitest, single run
+npm run test:watch
+npm run coverage
 ```
 
-Run a single unit test file or filter by test name:
+Run a single test file or filter by name:
 
 ```bash
-pnpm vitest run apps/next/src/components/Header/Header.test.tsx
-pnpm vitest run -t "renders"
+npx vitest run components/link-list.test.tsx
+npx vitest run -t "applies the dark theme"
 ```
 
-End-to-end tests are Playwright in `packages/e2e` (no package scripts; call Playwright directly):
-
-```bash
-pnpm --filter e2e exec playwright install --with-deps
-pnpm --filter e2e exec playwright test
-```
-
-`packages/e2e/tests/example.spec.ts` is still the Playwright scaffold that targets playwright.dev, and `baseURL` in `playwright.config.ts` is commented out. The e2e workflow reads the preview URL into a step output but doesn't pass it to Playwright yet.
+There is no `start` script: `next start` doesn't serve a static export. Use `npx serve out` to look at a build.
 
 ## Git hooks and commit messages
 
 Husky runs on every commit:
 
-- **pre-commit**: `pnpm typecheck` across all workspaces, then lint-staged (ESLint with `--max-warnings 0` and Prettier on staged TS/TSX; Prettier on JS, JSON, Markdown, YAML).
+- **pre-commit**: `npm run typecheck`, then lint-staged (`biome check --write` on staged files).
 - **commit-msg**: commitlint with `@commitlint/config-conventional`. The subject must not be sentence case, start case or pascal case, so write `feat: add posts page`, not `feat: Add posts page`.
 
-Releases use `standard-version` (`pnpm release`), which bumps the version, updates `CHANGELOG.md` and creates a `v*.*.*` tag. Pushing that tag deploys production, so releasing is Koen's call.
-
-Prettier and ESLint configs come from Koen's own GitHub-hosted packages (`github:vanesterik/prettier-config`, `github:vanesterik/eslint-config-custom`), not from files in this repository.
+Releases use `commit-and-tag-version` (`npm run release`), which bumps the version, updates `CHANGELOG.md` and creates a `v*.*.*` tag. Pushing that tag deploys production, so releasing is Koen's call. `.versionrc.json` sets the changelog's GitHub links explicitly, because the tool reads the repository name from the remote as `vanesterik` (it drops the `.dev`).
 
 ## Architecture
 
 ```
-apps/next          Next.js 13 site (pages router), the only deployable app
-packages/ui        Tailwind style functions built with class-variance-authority, plus Ladle stories
-packages/config    shared Tailwind theme, PostCSS config and tsconfig bases
-packages/data      site content as JSON (layout.json: menu, theme options, contact, social links, copyright)
-packages/fonts     self-hosted woff2 fonts and the @font-face CSS, including an icon font
-packages/utils     small shared helpers with unit tests
-packages/e2e       Playwright tests run against the preview deployment
+app/          App Router: layout.tsx (shell, fonts, theme provider), pages, not-found, globals.css, fonts/
+components/   site components, tests next to each (*.test.tsx)
+lib/          particles.ts (home page animation), styles/ (cva style functions), random.ts, repeat.ts
+content/      layout.json: menu, theme options, contact, social links, copyright
 ```
 
 Things that take more than one file to see:
 
-- **`@vanesterik/ui` exports style functions, not React components.** Each `lib/*.ts` is a `cva(...)` call returning a class string (`button({ intent: 'ghost' })`, `stack({ direction: 'row' })`). React components live in `apps/next/src/components/<Name>/` and apply those functions as `className`. Put new visual styling in a `cva` function in `packages/ui`, with a story in `packages/ui/stories/`, rather than as inline Tailwind classes in the app.
-- **Tailwind has to see the UI package's classes.** `apps/next/tailwind.config.js` extends the shared theme in `packages/config/tailwind` and adds `packages/ui/**/*.ts` to `content`. The theme replaces Tailwind's palette entirely: only `black`, `white`, `primary` (stone) and `secondary` (yellow) exist, and the font families are `sans` (Lausanne), `mono` (NB International Pro Mono) and `icon`.
-- **Workspace packages ship untranspiled TypeScript.** `apps/next/next.config.js` lists them in `next-transpile-modules`. A new package that the app imports has to be added there.
-- **The site is a static export** (`output: 'export'`, `trailingSlash: true`, optional `NEXT_PUBLIC_BASE_PATH`). Server-side features such as API routes, `getServerSideProps`, middleware and the default image optimizer don't work.
-- **Layout and content are data-driven.** `apps/next/src/pages/_app.tsx` builds the header, navigation, theme selector and footer from `packages/data/layout.json`. Pages under `src/pages/` render only their main content.
-- **Dark mode is class-based.** `ThemeProvider` resolves light, dark or system preference and toggles `dark` on `<html>`; Tailwind uses `darkMode: 'class'`. Ladle's global provider (`packages/ui/.ladle/components.tsx`) toggles the same class so stories show both themes.
-- **Icons are glyphs of the icon font**, mapped in `packages/ui/lib/icon.ts` through `before:content-['<char>']`. Adding an icon means adding the glyph to `packages/fonts/files/icomoon.woff2` and a variant to `icon`.
+- **The site is a static export** (`output: 'export'`, `trailingSlash: true`, optional `NEXT_PUBLIC_BASE_PATH`). Route handlers, server actions, middleware and the default image optimizer don't work.
+- **Server components by default.** Only `theme-provider`, `theme-selector` and `particle-canvas` are client components.
+- **Layout and content are data-driven.** `app/layout.tsx` builds the header, navigation, theme selector and footer from `content/layout.json`; pages render only their main content.
+- **Styling** is Tailwind 4, configured in `app/globals.css` with `@theme`. The palette is restricted to `black`, `white`, `primary-*` (stone) and `secondary-*` (yellow); fonts to `sans` (Lausanne), `mono` (NB International Pro Mono) and `icon`. The text fonts load through `next/font/local` in `app/layout.tsx`.
+- **`lib/styles/` holds `cva` style functions** carried over from the old `@vanesterik/ui` package. Story #34 replaces them with shadcn/ui; don't add new ones.
+- **Dark mode is class-based.** `ThemeProvider` resolves light, dark or system preference and toggles `dark` on `<html>`; `@custom-variant dark` targets it.
+- **Icons are glyphs of the icon font**, mapped in `lib/styles/icon.ts` through `before:content-['<char>']`. Story #34 replaces them with Lucide.
+- **The `@/*` alias** resolves from the repository root, in Next.js through `tsconfig.json` and in Vitest through `vitest.config.ts`.
 
-Component tests are Vitest with Testing Library in jsdom (`apps/next/vitest.config.ts`), placed next to the component as `<Name>.test.tsx`. `packages/ui` has no tests.
+Component tests are Vitest with Testing Library and user-event in jsdom (`vitest.config.ts`, `vitest.setup.ts`). `vitest.setup.ts` stubs `ResizeObserver`, which jsdom lacks and Headless UI needs.
 
 ## CI and deployment
 
-All workflows install through the composite action `.github/actions/setup-node`. Actions are pinned by commit SHA where Dependabot maintains them.
+All workflows install through the composite action `.github/actions/setup-node` (Node from `.nvmrc`, `npm ci`). Actions are pinned by commit SHA where Dependabot maintains them.
 
-- **Continuous Integration** (push to `main`, pull requests): lint, typecheck, unit tests, build.
-- **Preview Environment** (pull requests to `main`): builds `apps/next`, syncs `out/` to a public S3 website bucket `preview-pr-<number>-vanesterik`, and caches the preview URL for the jobs below. Closing the pull request deletes the bucket.
-- **End-to-End Tests** and **Web Performance Audit** wait for the "Deploy Preview Environment" check. The audit runs Lighthouse on `/`, `/about/`, `/projects/` and `/posts/` and keeps a single score comment on the pull request up to date. A new top-level page should be added to its URL list.
-- **Production Environment** (tag `v*.*.*`): builds and syncs `apps/next/out` to the production S3 bucket.
+- **Continuous Integration** (push to `main`, pull requests): lint, typecheck, test, build.
+- **Preview Environment** (pull requests to `main`): builds and syncs `out/` to a public S3 website bucket `preview-pr-<number>-vanesterik`, and caches the preview URL. Closing the pull request deletes the bucket.
+- **Web Performance Audit** waits for the "Deploy Preview Environment" check, runs Lighthouse on `/`, `/about/`, `/projects/` and `/posts/`, and keeps a single score comment on the pull request up to date. A new top-level page should be added to its URL list.
+- **Production Environment** (tag `v*.*.*`): builds and syncs `out/` to the production S3 bucket.

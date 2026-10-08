@@ -100,7 +100,7 @@ Goal: the same site, built from one npm package on the current stack.
   - **Linting and formatting:** Biome replaces ESLint and Prettier. `biome.json` uses the recommended rules and formatting that matches the current style: two-space indent, single quotes, no semicolons, trailing commas.
   - **Commit hooks:** Husky 9, with `"prepare": "husky"`. Pre-commit runs `tsc --noEmit`, then lint-staged with `biome check --write`. commit-msg runs commitlint.
   - **Releases:** `commit-and-tag-version` replaces `standard-version`.
-- **npm scripts:** `dev`, `build`, `start`, `lint` (`biome check`), `format`, `typecheck`, `test` (single run), `test:watch`, `coverage` and `release`.
+- **npm scripts:** `dev`, `build`, `lint` (`biome check`), `format`, `typecheck`, `test` (single run), `test:watch`, `coverage` and `release`. There is no `start` script, because `next start` doesn't serve a static export.
 - **CI and deployment:**
   - **Setup action:** reads Node from `.nvmrc` and runs `npm ci`.
   - **Continuous Integration:** runs lint, typecheck, test and build.
