@@ -37,11 +37,12 @@ type RootLayoutProps = {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html
+      suppressHydrationWarning
       lang="en"
       className={`${lausanne.variable} ${nbInternationalProMono.variable}`}
     >
       <body>
-        <ThemeProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <div className={container()}>
             <Header>
               <Navigation items={layout.menu} />
