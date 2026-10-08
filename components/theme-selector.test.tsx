@@ -51,6 +51,30 @@ describe('ThemeSelector', () => {
     expect(document.documentElement).toHaveClass('dark')
   })
 
+  it('applies the dark theme when dark is chosen by keyboard', async () => {
+    const user = userEvent.setup()
+    renderSelector()
+
+    // ArrowDown opens the list on the current theme; the next one moves to dark
+    screen.getByRole('button', { name: /system/i }).focus()
+    await user.keyboard('{ArrowDown}')
+    await user.keyboard('{ArrowDown}{Enter}')
+
+    expect(document.documentElement).toHaveClass('dark')
+  })
+
+  it('closes on Escape without changing the highlighted theme', async () => {
+    const user = userEvent.setup()
+    renderSelector()
+
+    await user.click(screen.getByRole('button', { name: /system/i }))
+    await user.keyboard('{ArrowDown}')
+    await user.keyboard('{Escape}')
+
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+    expect(document.documentElement).not.toHaveClass('dark')
+  })
+
   it('closes on Escape without changing the theme', async () => {
     const user = userEvent.setup()
     renderSelector()
