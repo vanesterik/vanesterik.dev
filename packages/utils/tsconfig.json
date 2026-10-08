@@ -1,5 +1,0 @@
-{
-  "extends": "@vanesterik/config/tsconfig/react.json",
-  "include": ["./helpers", "./index.ts"],
-  "exclude": ["node_modules"]
-}

@@ -18,7 +18,7 @@ jobs:
         uses: ./.github/actions/setup-node
 
       - name: Build application
-        run: pnpm --filter next build
+        run: npm run build
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -28,4 +28,4 @@ jobs:
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
       - name: Deploy to S3
-        run: aws s3 sync ./apps/next/out s3://${{ secrets.AWS_S3_BUCKET_NAME }} --delete
+        run: aws s3 sync ./out s3://${{ secrets.AWS_S3_BUCKET_NAME }} --delete
