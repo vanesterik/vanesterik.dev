@@ -13,7 +13,7 @@ const options = [
 
 const renderSelector = () =>
   render(
-    <ThemeProvider>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <ThemeSelector options={options} />
     </ThemeProvider>,
   )
@@ -26,9 +26,12 @@ beforeEach(() => {
       matches: false,
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
     }),
   )
-  document.documentElement.classList.remove('dark')
+  localStorage.clear()
+  document.documentElement.classList.remove('dark', 'light')
 })
 
 afterEach(() => {
@@ -51,6 +54,16 @@ describe('ThemeSelector', () => {
     expect(document.documentElement).toHaveClass('dark')
   })
 
+  it('remembers the chosen theme for the next visit', async () => {
+    const user = userEvent.setup()
+    renderSelector()
+
+    await user.click(screen.getByRole('button', { name: /system/i }))
+    await user.click(screen.getByRole('option', { name: /dark/i }))
+
+    expect(localStorage.getItem('theme')).toBe('dark')
+  })
+
   it('applies the dark theme when dark is chosen by keyboard', async () => {
     const user = userEvent.setup()
     renderSelector()
@@ -69,19 +82,6 @@ describe('ThemeSelector', () => {
 
     await user.click(screen.getByRole('button', { name: /system/i }))
     await user.keyboard('{ArrowDown}')
-    await user.keyboard('{Escape}')
-
-    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
-    expect(document.documentElement).not.toHaveClass('dark')
-  })
-
-  it('closes on Escape without changing the theme', async () => {
-    const user = userEvent.setup()
-    renderSelector()
-
-    await user.click(screen.getByRole('button', { name: /system/i }))
-    expect(screen.getByRole('listbox')).toBeInTheDocument()
-
     await user.keyboard('{Escape}')
 
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument()

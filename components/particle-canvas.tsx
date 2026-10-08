@@ -9,7 +9,8 @@ import { useTheme } from './theme-provider'
 const GAME_CONTAINER_ID = 'game-container'
 
 export const ParticleCanvas = () => {
-  const { isDarkMode } = useTheme()
+  const { resolvedTheme } = useTheme()
+  const isDarkMode = resolvedTheme === 'dark'
 
   useEffect(() => {
     // Trigger game function and define finalize function to be used in

@@ -6,10 +6,13 @@ import {
   ListboxOption,
   ListboxOptions,
 } from '@headlessui/react'
+import { useSyncExternalStore } from 'react'
 import { button, dropdown, type IconVariant, icon } from '@/lib/styles'
 import { dropdownList, dropdownListItem } from '@/lib/styles/dropdown'
 
 import { useTheme } from './theme-provider'
+
+const subscribe = () => () => {}
 
 type ThemeOption = {
   icon: string
@@ -22,11 +25,15 @@ type ThemeSelectorProps = {
 
 export const ThemeSelector = ({ options }: ThemeSelectorProps) => {
   const { theme, setTheme } = useTheme()
-
-  if (!theme) return null
+  const isHydrated = useSyncExternalStore(
+    subscribe,
+    () => true,
+    () => false,
+  )
+  const current = isHydrated ? (theme ?? 'system') : 'system'
 
   return (
-    <Listbox value={theme} onChange={setTheme}>
+    <Listbox value={current} onChange={setTheme}>
       <div className={dropdown()}>
         <ListboxButton className={button({ intent: 'secondary' })}>
           <span
@@ -41,7 +48,7 @@ export const ThemeSelector = ({ options }: ThemeSelectorProps) => {
               class: 'hidden dark:block',
             })}
           />
-          {theme}
+          {current}
         </ListboxButton>
         <ListboxOptions className={dropdownList({ side: 'right' })}>
           {options.map(({ icon: iconName, name }) => (
