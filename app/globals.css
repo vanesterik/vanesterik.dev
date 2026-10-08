@@ -50,6 +50,12 @@
 }
 
 @layer base {
+  /* Tailwind 4's preflight no longer gives buttons a pointer cursor */
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+
   body {
     @apply antialiased bg-white dark:bg-black;
   }
