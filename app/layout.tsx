@@ -8,7 +8,7 @@ import { Header } from '@/components/header'
 import { LinkList } from '@/components/link-list'
 import { Navigation } from '@/components/navigation'
 import { Prompt } from '@/components/prompt'
-import { ThemeProvider } from '@/components/theme-provider'
+import { ThemeProvider, themeProviderProps } from '@/components/theme-provider'
 import { ThemeSelector } from '@/components/theme-selector'
 import layout from '@/content/layout.json'
 
@@ -41,7 +41,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       className={`${lausanne.variable} ${nbInternationalProMono.variable}`}
     >
       <body>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider {...themeProviderProps}>
           <div className="flex h-screen flex-col gap-0.5 px-3">
             <Header>
               <Navigation items={layout.menu} />
