@@ -26,14 +26,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
     >
       <body>
         <ThemeProvider {...themeProviderProps}>
-          <div className="flex h-screen flex-col gap-0.5 px-3">
+          <div className="flex min-h-screen flex-col gap-0.5 px-3">
             <Header>
               <Navigation items={layout.menu} />
               <ThemeSelector options={layout.theme} />
             </Header>
-            <main className="flex-auto md:min-h-0 md:overflow-y-auto">
-              {children}
-            </main>
+            <main className="flex flex-auto flex-col">{children}</main>
             <Footer>
               <Prompt />
               <LinkList items={layout.contact} />
