@@ -48,8 +48,8 @@ Releases use `commit-and-tag-version` (`npm run release`), which bumps the versi
 
 ```
 app/          App Router: layout.tsx (shell, fonts, theme provider), pages, not-found, globals.css, fonts/
-components/   site components, tests next to each (*.test.tsx)
-lib/          particles.ts (home page animation), styles/ (cva style functions), random.ts, repeat.ts
+components/   site components, tests next to each (*.test.tsx); ui/ holds the shadcn/ui components
+lib/          particles.ts (home page animation), utils.ts (shadcn's cn), random.ts, repeat.ts
 content/      layout.json: menu, theme options, contact, social links, copyright
 ```
 
@@ -58,13 +58,13 @@ Things that take more than one file to see:
 - **The site is a static export** (`output: 'export'`, `trailingSlash: true`, optional `NEXT_PUBLIC_BASE_PATH`). Route handlers, server actions, middleware and the default image optimizer don't work.
 - **Server components by default.** Only `theme-provider`, `theme-selector` and `particle-canvas` are client components.
 - **Layout and content are data-driven.** `app/layout.tsx` builds the header, navigation, theme selector and footer from `content/layout.json`; pages render only their main content.
-- **Styling** is Tailwind 4, configured in `app/globals.css` with `@theme`. The palette is restricted to `black`, `white`, `primary-*` (stone) and `secondary-*` (yellow); fonts to `sans` (Lausanne), `mono` (NB International Pro Mono) and `icon`. The text fonts load through `next/font/local` in `app/layout.tsx`.
-- **`lib/styles/` holds `cva` style functions** carried over from the old `@vanesterik/ui` package. Story #34 replaces them with shadcn/ui; don't add new ones.
-- **Dark mode is class-based.** `ThemeProvider` resolves light, dark or system preference and toggles `dark` on `<html>`; `@custom-variant dark` targets it.
-- **Icons are glyphs of the icon font**, mapped in `lib/styles/icon.ts` through `before:content-['<char>']`. Story #34 replaces them with Lucide.
+- **Styling** is Tailwind 4, configured in `app/globals.css`. Colours are semantic tokens only (`background`, `foreground`, `primary`, `secondary`, `accent`, `highlight`, `muted-foreground` and their `-foreground` pairs), defined in `:root` and `.dark`; there are no raw colour scales. Fonts are `sans` (Lausanne) and `mono` (NB International Pro Mono), loaded through `next/font/local` in `app/layout.tsx`.
+- **shadcn/ui** components live in `components/ui/` and are edited freely to match the site's look. `components.json` was written by hand (no `shadcn init`), so add new components with `npx shadcn@latest add <name>`, then install any import it didn't (`radix-ui`, `lucide-react`) and restyle it with the tokens.
+- **Theme handling is `next-themes`** (`attribute="class"`, system by default, choice stored in `localStorage`). Its inline script sets the class before the first paint. Client components that show the theme render "system" until hydrated (`useSyncExternalStore`), so the static HTML and the first client render agree.
+- **Icons are Lucide** (`lucide-react`). The theme options' `icon` values in `content/layout.json` are Lucide icon names, mapped in `components/theme-selector.tsx`.
 - **The `@/*` alias** resolves from the repository root, in Next.js through `tsconfig.json` and in Vitest through `vitest.config.ts`.
 
-Component tests are Vitest with Testing Library and user-event in jsdom (`vitest.config.ts`, `vitest.setup.ts`). `vitest.setup.ts` stubs `ResizeObserver`, which jsdom lacks and Headless UI needs.
+Component tests are Vitest with Testing Library and user-event in jsdom (`vitest.config.ts`, `vitest.setup.ts`). `vitest.setup.ts` stubs `ResizeObserver`, which jsdom lacks and Radix needs.
 
 ## CI and deployment
 
