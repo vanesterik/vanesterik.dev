@@ -13,5 +13,3 @@ export const themeProviderProps = {
 export const ThemeProvider = (
   props: ComponentProps<typeof NextThemesProvider>,
 ) => <NextThemesProvider {...props} />
-
-export { useTheme } from 'next-themes'

@@ -1,10 +1,9 @@
 'use client'
 
+import { useTheme } from 'next-themes'
 import { useEffect } from 'react'
 
 import { game } from '@/lib/particles'
-
-import { useTheme } from './theme-provider'
 
 const GAME_CONTAINER_ID = 'game-container'
 
