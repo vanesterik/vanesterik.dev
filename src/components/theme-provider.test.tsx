@@ -2,7 +2,7 @@ import { act, render } from '@testing-library/react'
 import { useTheme } from 'next-themes'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { ThemeProvider, themeProviderProps } from './theme-provider'
+import { ThemeProvider } from './theme-provider'
 
 let theme: ReturnType<typeof useTheme>
 
@@ -11,9 +11,12 @@ const Probe = () => {
   return null
 }
 
+// Rendered without props, exactly as the root layout renders it: the site's
+// settings must live in the provider, because a server component can't pass a
+// value imported from this client module
 const renderProvider = () =>
   render(
-    <ThemeProvider {...themeProviderProps}>
+    <ThemeProvider>
       <Probe />
     </ThemeProvider>,
   )
@@ -34,6 +37,7 @@ const stubSystemPreference = (isDark: boolean) => {
 beforeEach(() => {
   localStorage.clear()
   document.documentElement.classList.remove('dark', 'light')
+  document.documentElement.removeAttribute('data-theme')
 })
 
 afterEach(() => {
@@ -57,5 +61,19 @@ describe('ThemeProvider', () => {
 
     expect(document.documentElement).toHaveClass('dark')
     expect(localStorage.getItem('theme')).toBe('dark')
+  })
+
+  it('lets a caller override the attribute, as the Storybook story does', () => {
+    stubSystemPreference(false)
+    render(
+      <ThemeProvider attribute="data-theme">
+        <Probe />
+      </ThemeProvider>,
+    )
+
+    act(() => theme.setTheme('dark'))
+
+    expect(document.documentElement).toHaveAttribute('data-theme', 'dark')
+    expect(document.documentElement).not.toHaveClass('dark')
   })
 })
