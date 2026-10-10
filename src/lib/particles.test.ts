@@ -105,6 +105,17 @@ const fireTouchStart = (x: number, y: number) => {
   return event
 }
 
+// How far the first particle drawn moves in a frame, a frame from now.
+// Particles are drawn by id, so in the tests that's the grabbed one
+const firstParticleStep = (context: ReturnType<typeof stubContext>) => {
+  drawnParticles(context)
+  runFrames()
+  const from = drawnParticles(context)[0]
+  runFrames()
+  const to = drawnParticles(context)[0]
+  return { x: to.x - from.x, y: to.y - from.y }
+}
+
 const runFrames = () => {
   const pending = [...frames.values()]
   frames.clear()
@@ -409,6 +420,28 @@ describe('dragging', () => {
     }
   })
 
+  it('slows a thrown particle, and those it hits, back to normal speed', () => {
+    firePointer('pointerdown', FIRST_PARTICLE.x, FIRST_PARTICLE.y)
+    for (let step = 1; step <= 12; step++) {
+      firePointer('pointermove', FIRST_PARTICLE.x, FIRST_PARTICLE.y + step * 60)
+      runFrames()
+    }
+    firePointer('pointerup', FIRST_PARTICLE.x, FIRST_PARTICLE.y + 720)
+
+    // About a second at 60 frames per second
+    for (let frame = 0; frame < 80; frame++) runFrames()
+    drawnParticles(context)
+    runFrames()
+    const from = drawnParticles(context)
+    runFrames()
+    const to = drawnParticles(context)
+
+    // No faster than a particle starts out: 3px across and 6px up
+    to.forEach(({ x, y }, index) => {
+      expect(Math.hypot(x - from[index].x, y - from[index].y)).toBeLessThan(7)
+    })
+  })
+
   it('shows a grab cursor over particles and while dragging', () => {
     const canvas = getCanvas()
 
@@ -433,5 +466,49 @@ describe('dragging', () => {
     expect(fireTouchStart(FREE_SPOT.x, FREE_SPOT.y).defaultPrevented).toBe(
       false,
     )
+  })
+})
+
+describe('throwing', () => {
+  // On a 600 by 3000 canvas the 36 particles sit in the middle of a 3 by 12
+  // grid of 200 by 250 cells, with clear lanes between them to throw through
+  const FIRST_PARTICLE = { x: 100, y: 125 }
+  const LANE = { x: 200, y: 250 }
+
+  let context: ReturnType<typeof stubContext>
+
+  beforeEach(() => {
+    vi.spyOn(Math, 'random').mockReturnValue(0)
+    context = stubContext()
+    game(CONTAINER_ID)
+    fireResize(600, 3000)
+    runFrames()
+  })
+
+  it('throws a particle on in the direction it was dragged', () => {
+    firePointer('pointerdown', FIRST_PARTICLE.x, FIRST_PARTICLE.y)
+    for (let step = 0; step <= 12; step++) {
+      firePointer('pointermove', LANE.x + step * 5, LANE.y)
+      runFrames()
+    }
+    firePointer('pointerup', LANE.x + 60, LANE.y)
+
+    const { x, y } = firstParticleStep(context)
+    expect(x).toBeCloseTo(5, 0)
+    expect(y).toBeCloseTo(0, 0)
+  })
+
+  it('caps the speed of a throw at 30px per frame', () => {
+    firePointer('pointerdown', FIRST_PARTICLE.x, FIRST_PARTICLE.y)
+    for (let step = 0; step <= 6; step++) {
+      firePointer('pointermove', LANE.x, LANE.y + step * 60)
+      runFrames()
+    }
+    firePointer('pointerup', LANE.x, LANE.y + 360)
+
+    // Thrown at 30, it has slowed by 2% twice by the step measured
+    const { x, y } = firstParticleStep(context)
+    expect(x).toBeCloseTo(0, 0)
+    expect(y).toBeCloseTo(30 * 0.98 ** 2, 0)
   })
 })
