@@ -60,14 +60,12 @@ type Listener = (state: State, previousState: State) => void
 type Reducer = (state: State, action: Action) => State
 
 type State = {
-  isDarkMode: boolean
   particles: Record<number, Particle>
   frameId: number
 }
 
 type Store = {
   dispatch: (action: Action) => void
-  getIsDarkMode: () => boolean
   getParticles: () => Particle[]
   getFrameId: () => number
   subscribe: (listener: Listener) => () => void
@@ -95,9 +93,10 @@ const GAME_ID = 'game'
 /**
  * Main game function which creates a canvas element and appends it to the
  * passed container id. It sets the stage for the game by creating the
- * initial state and starting the render loop.
+ * initial state and starting the render loop. Particles are drawn in the
+ * canvas's CSS colour, so a theme change recolours them without a restart.
  */
-export const game = (containerId: string, isDarkMode = false) => {
+export const game = (containerId: string) => {
   const container = document.getElementById(containerId)
 
   if (!container)
@@ -105,7 +104,7 @@ export const game = (containerId: string, isDarkMode = false) => {
       console.error('Container not found')
     }
 
-  const reducer = createReducer({ frameId: 0, isDarkMode, particles: {} })
+  const reducer = createReducer({ frameId: 0, particles: {} })
   const store = createStore(reducer)
   store.dispatch({ type: ActionTypes.SET_INITIAL_STATE })
 
@@ -168,7 +167,6 @@ const createStore = (reducer: Reducer) => {
     })
   }
 
-  const getIsDarkMode = () => state.isDarkMode
   const getParticles = () => Object.values(state.particles)
   const getFrameId = () => state.frameId
 
@@ -180,7 +178,6 @@ const createStore = (reducer: Reducer) => {
 
   return {
     dispatch,
-    getIsDarkMode,
     getParticles,
     getFrameId,
     subscribe,
@@ -233,7 +230,7 @@ const createReducer =
 const createCanvas = (container: HTMLElement) => {
   const canvas = document.createElement('canvas')
   canvas.setAttribute('id', GAME_ID)
-  canvas.classList.add('absolute', 'h-full', 'w-full')
+  canvas.classList.add('absolute', 'h-full', 'w-full', 'text-foreground')
 
   // Replace or append canvas element to container. This is necessary because of
   // hot module reloading in development mode. Otherwise new canvas elements are
@@ -484,25 +481,27 @@ const clearCanvas = () => {
 /**
  * Draw particle on canvas based on passed properties
  */
-const drawParticles = ({ getParticles, getIsDarkMode }: Store) => {
+const drawParticles = ({ getParticles }: Store) => {
   const particles = getParticles()
-  const isDarkMode = getIsDarkMode()
   const context = getContext()
 
   if (!context) return
+
+  // Read the colour every frame, so it follows theme changes
+  const color = getComputedStyle(getCanvas()).color
 
   particles.forEach(({ radius, type, x, y }) => {
     context.beginPath()
     context.arc(x, y, radius, 0, Math.PI * 2)
 
     if (type === ParticleTypes.FILL) {
-      context.fillStyle = isDarkMode ? 'white' : 'black'
+      context.fillStyle = color
       context.fill()
     }
 
     if (type === ParticleTypes.STROKE) {
       context.lineWidth = 1
-      context.strokeStyle = isDarkMode ? 'white' : 'black'
+      context.strokeStyle = color
       context.stroke()
     }
 
