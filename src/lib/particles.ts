@@ -10,6 +10,8 @@ type State = {
   context: CanvasRenderingContext2D | null
   drag: Drag | null
   frameId: number
+  // When the last frame was drawn, in performance.now() time
+  lastFrameAt: number
   // Ordered by id
   particles: Particle[]
 }
@@ -64,13 +66,21 @@ const BUFFER_RADII = 4
 // How long the buffer takes to grow from nothing to its full width, in ms
 const BUFFER_GROWTH_DURATION = 500
 
-// Fastest a thrown particle leaves the pointer, in px per frame, so it can't
+// Speeds are in px per step, a 60th of a second, whatever the screen's
+// refresh rate: each frame moves particles by the steps since the last one
+const STEP_DURATION = 1000 / 60
+
+// Most steps a frame moves particles by, so a long gap between frames, as when
+// coming back to a tab in the background, doesn't throw them through walls
+const MAX_STEPS = 3
+
+// Fastest a thrown particle leaves the pointer, in px per step, so it can't
 // skip past a wall in one frame
 const MAX_THROW_SPEED = 30
 
-// Fastest a particle moves of its own accord, in px per frame: particles start
+// Fastest a particle moves of its own accord, in px per step: particles start
 // out moving at most 3 across and 6 up. Faster ones, thrown or hit by a thrown
-// one, slow down by SLOWDOWN per frame until they're back at this speed
+// one, slow down by SLOWDOWN per step until they're back at this speed
 const NORMAL_MAX_SPEED = 7
 const SLOWDOWN = 0.98
 
@@ -94,6 +104,7 @@ export const game = (container: HTMLElement) => {
     context: canvas.getContext('2d'),
     drag: null,
     frameId: 0,
+    lastFrameAt: performance.now(),
     particles: [],
   }
 
@@ -328,7 +339,11 @@ const render = (state: State) => {
   // effect cleanup that finalizes the game, so a frame can land in between
   if (!state.canvas.isConnected) return
 
-  updateParticlePositions(state)
+  const time = performance.now()
+  const steps = Math.min((time - state.lastFrameAt) / STEP_DURATION, MAX_STEPS)
+  state.lastFrameAt = time
+
+  updateParticlePositions(state, steps)
   detectParticleBoundaries(state)
   detectParticleCollisions(state)
   detectHeldParticleBuffer(state)
@@ -341,12 +356,15 @@ const render = (state: State) => {
 }
 
 /**
- * Update particle position by adding velocity to x and y coordinates. A
- * particle faster than normal slows down first. The particle held by the
- * pointer sits under it instead, and takes the speed it's dragged at as its
- * velocity, so letting go throws it.
+ * Move particles by their velocity for the passed number of steps. A particle
+ * faster than normal slows down first. The particle held by the pointer sits
+ * under it instead, and takes the speed it's dragged at as its velocity, so
+ * letting go throws it.
  */
-const updateParticlePositions = ({ canvas, drag, particles }: State) => {
+const updateParticlePositions = (
+  { canvas, drag, particles }: State,
+  steps: number,
+) => {
   particles.forEach((particle) => {
     const { radius, vx, vy, x, y } = particle
 
@@ -354,13 +372,17 @@ const updateParticlePositions = ({ canvas, drag, particles }: State) => {
     if (particle === drag?.particle) {
       particle.x = clamp(drag.x, radius, canvas.width - radius)
       particle.y = clamp(drag.y, radius, canvas.height - radius)
-      // Average the last few frames' movement, so a wobble as the pointer
-      // lets go doesn't spoil the throw
+
+      if (steps === 0) return
+
+      // Average the movement over the last few steps, so a wobble as the
+      // pointer lets go doesn't spoil the throw: each step counts for half
+      const weight = 1 - 0.5 ** steps
       Object.assign(
         particle,
         limitSpeed(
-          (vx + particle.x - x) / 2,
-          (vy + particle.y - y) / 2,
+          vx + ((particle.x - x) / steps - vx) * weight,
+          vy + ((particle.y - y) / steps - vy) * weight,
           MAX_THROW_SPEED,
         ),
       )
@@ -370,13 +392,13 @@ const updateParticlePositions = ({ canvas, drag, particles }: State) => {
     const speed = Math.hypot(vx, vy)
     const slowdown =
       speed > NORMAL_MAX_SPEED
-        ? Math.max(SLOWDOWN, NORMAL_MAX_SPEED / speed)
+        ? Math.max(SLOWDOWN ** steps, NORMAL_MAX_SPEED / speed)
         : 1
 
     particle.vx = vx * slowdown
     particle.vy = vy * slowdown
-    particle.x = x + particle.vx
-    particle.y = y + particle.vy
+    particle.x = x + particle.vx * steps
+    particle.y = y + particle.vy * steps
   })
 }
 
