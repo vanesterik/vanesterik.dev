@@ -44,3 +44,7 @@ npm run dev
 | `npm run storybook` | Start Storybook on port 6006 |
 | `npm run build-storybook` | Build a static Storybook to `storybook-static/` |
 | `npm run release` | Bump the version, update the changelog and tag |
+
+## License
+
+The code and the content, posts included, are released under the [MIT License](LICENSE). Copyright (c) 2023-2026 Koen Dirk van Esterik B.V.
