@@ -1,0 +1,64 @@
+{
+  "intro": "I’m an applied data scientist with a master’s degree to match, building on more than a decade of experience in front-end development.",
+  "afterTagline": "That loop took me from building interfaces to building with data, and the craft of the first now shapes how I do the second.",
+  "experience": [
+    {
+      "title": "Data Scientist",
+      "company": "Provincie Utrecht",
+      "period": "2026 – Present"
+    },
+    {
+      "title": "Data Science Intern",
+      "company": "Provincie Utrecht",
+      "period": "2025 – 2026"
+    },
+    {
+      "title": "Development Team Lead & Senior Frontend Developer",
+      "company": "Lab Digital",
+      "period": "2022 – 2024"
+    },
+    {
+      "title": "Product Owner",
+      "company": "Flex IT Distribution",
+      "period": "2021"
+    },
+    {
+      "title": "Senior Frontend Developer",
+      "company": "LeasePlan",
+      "period": "2018 – 2021"
+    },
+    {
+      "title": "Designer & Creative Developer",
+      "company": "Jungle Minds",
+      "period": "2017 – 2018"
+    },
+    {
+      "title": "Art Director, Designer & Creative Developer",
+      "company": "Lab Digital",
+      "period": "2016 – 2017"
+    },
+    {
+      "title": "Digital Director & Partner",
+      "company": "Flip-Flop Interactive",
+      "period": "2013 – 2016"
+    },
+    {
+      "title": "Creative Intern",
+      "company": "Tribal DDB Shanghai",
+      "period": "2012"
+    }
+  ],
+  "companies": [
+    "Provincie Utrecht",
+    "Lab Digital",
+    "Flex IT Distribution",
+    "LeasePlan",
+    "Jungle Minds",
+    "Flip-Flop Interactive",
+    "Tribal DDB Shanghai",
+    "Amstel Gold Race",
+    "Hanno",
+    "Nutricia",
+    "Toyota"
+  ]
+}
