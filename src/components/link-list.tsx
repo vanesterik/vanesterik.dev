@@ -17,9 +17,7 @@ export const LinkList = ({ items }: LinkListProps) => {
           <a
             className="font-mono text-foreground text-xs uppercase hover:text-highlight"
             href={url}
-            {...(isAlternativeLink(url)
-              ? { target: '_self' }
-              : { rel: 'noopener noreferrer', target: '_blank' })}
+            {...getLinkTargetProps(url)}
           >
             {name}
           </a>
@@ -30,3 +28,11 @@ export const LinkList = ({ items }: LinkListProps) => {
 }
 
 export const isAlternativeLink = (url: string) => /mailto:|tel:/.test(url)
+
+/**
+ * Open email and phone links in the same tab, and other links in a new one
+ */
+export const getLinkTargetProps = (url: string) =>
+  isAlternativeLink(url)
+    ? { target: '_self' }
+    : { rel: 'noopener noreferrer', target: '_blank' }
