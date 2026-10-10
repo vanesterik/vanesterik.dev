@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.4.0](https://github.com/vanesterik/vanesterik.dev/compare/v1.3.0...v1.4.0) (2026-10-10)
+
+### Features
+
+* add a section component for the about page ([92c5a55](https://github.com/vanesterik/vanesterik.dev/commit/92c5a557656dd5639ef4a49380f7027949ca6474)), references [#63](https://github.com/vanesterik/vanesterik.dev/issues/63)
+* build the about page's contact links from the layout content ([50ca6cc](https://github.com/vanesterik/vanesterik.dev/commit/50ca6ccf3bd575486ca4d9acd6bd6e3fb26d0d9d)), references [#63](https://github.com/vanesterik/vanesterik.dev/issues/63)
+* move the page links into a menu on narrow screens ([47393c9](https://github.com/vanesterik/vanesterik.dev/commit/47393c9c6642fb8822e7689c1fef581c40840112)), references [#65](https://github.com/vanesterik/vanesterik.dev/issues/65)
+* replace the about page's coming soon with an introduction, experience and contact ([a4f3425](https://github.com/vanesterik/vanesterik.dev/commit/a4f34251676ca895a756fffa5ef33767c3633cfc)), references [#63](https://github.com/vanesterik/vanesterik.dev/issues/63)
+* set the about page in regular weight with small, muted lists ([c4893b1](https://github.com/vanesterik/vanesterik.dev/commit/c4893b13572545097c003e436988efefca3a9c03)), references [#63](https://github.com/vanesterik/vanesterik.dev/issues/63)
+* show only the theme selector's icon on narrow screens ([d952555](https://github.com/vanesterik/vanesterik.dev/commit/d9525552fbdd45a360d48381a82b6e5e70e69908)), references [#65](https://github.com/vanesterik/vanesterik.dev/issues/65)
+
+### Bug Fixes
+
+* make muted text readable in both themes ([4ecf849](https://github.com/vanesterik/vanesterik.dev/commit/4ecf84947659bbff10d64780c578f8f4a0427a91)), references [#63](https://github.com/vanesterik/vanesterik.dev/issues/63)
+
 ## [1.3.0](https://github.com/vanesterik/vanesterik.dev/compare/v1.2.1...v1.3.0) (2026-10-10)
 
 ### Features
