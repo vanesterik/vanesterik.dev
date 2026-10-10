@@ -20,7 +20,7 @@ Changed from the reference:
 - **Working Experience:** Koen's roles from his LinkedIn profile.
 - **Brands I Worked With:** renamed to **Companies I Worked With**, with companies from his LinkedIn profile.
 - **Get In Touch:** Email, LinkedIn and GitHub only.
-- **Weight:** the reference sets everything in a regular weight; this page sets its large text in Lausanne bold.
+- **Item sizes:** the companies and contact links are set small and muted, like the descriptions in the posts list, instead of at the large item size.
 
 Left out: the minimap on the left, the Awards & Recognition and Credits sections, and anything outside the page's main content. The site's header, footer and navigation stay as they are.
 
@@ -34,7 +34,8 @@ Left out: the minimap on the left, the Awards & Recognition and Credits sections
 | Companies | Employers and direct clients first, newest first, then the projects named in the Lab Digital 2016–2017 role; HAN University of Applied Sciences is left out |
 | Column | From `md` (768px): starts at 45% of the main column's width and ends 10% before its right edge. Below `md`: full width |
 | Text sizes | Scale with the window at the reference's proportions, with minimums for small screens |
-| Fonts | Lausanne bold (700) for the large text; periods in NB International Pro Mono, uppercase, `text-muted-foreground` |
+| Fonts | Lausanne regular (400) throughout, as on the reference; periods in NB International Pro Mono, uppercase, `text-muted-foreground` |
+| Compact lists | Companies I Worked With and Get In Touch set their items at the base size in `text-muted-foreground`, like the posts list's descriptions |
 | Links | As in the footer's `LinkList`: `mailto:` in the same tab, other links in a new tab with `rel="noopener noreferrer"`; `hover:text-highlight` |
 | Rendering | Server components only; no client JavaScript |
 | Coming soon | Stays for Projects; the about page stops using it |
@@ -113,14 +114,16 @@ type AboutSectionProps = {
 
 It renders `<section>` with an `<h2>` and a `<ul>` holding the children, the list indented by about two characters' width of the heading. The items are passed in, so each section decides what an item holds.
 
+An `isCompact` prop sets the items at the base size in `text-muted-foreground`, close together, instead of at the large item size. The text size sits on the items, not the list, so the indent is the same in every section.
+
 ### `app/about/page.tsx`
 
 Server component that renders, in the column:
 - a visually hidden `<h1>About</h1>` (`sr-only`), as the large introduction is not a heading;
 - the two introduction paragraphs;
 - `<AboutSection title="Working Experience">` with an item per role: the title and the company each on their own line at item size, the period under them in the mono style;
-- `<AboutSection title="Companies I Worked With">` with one name per item;
-- `<AboutSection title="Get In Touch">` with one link per item.
+- `<AboutSection title="Companies I Worked With" isCompact>` with one name per item;
+- `<AboutSection title="Get In Touch" isCompact>` with one link per item.
 
 It sets `<title>` to "About" through `export const metadata`.
 
@@ -131,12 +134,13 @@ Measured on the reference at a 1512px-wide window and kept as proportions:
 | Element | Size |
 |---|---|
 | Introduction and section headings | `clamp(1.75rem, 2.8vw, 3.5rem)`, about 42px at 1512px |
-| Items: titles, companies, names, links | `clamp(1.375rem, 2.3vw, 2.875rem)`, about 35px at 1512px |
+| Experience items: titles and companies | `clamp(1.375rem, 2.3vw, 2.875rem)`, about 35px at 1512px |
+| Compact items: companies and contact links | `text-base` (16px), `text-muted-foreground`, `gap-1` |
 | Periods | `text-xs`, mono, uppercase, as elsewhere on the site |
 | Line height | 1.3 |
 | Between the introduction paragraphs | about one line (1.15em) |
 | Before each section | about 6.5em of the introduction size (about 280px at 1512px) |
-| Between a heading and its first item, and between items | about 1.2em of the item size |
+| Between a heading and its first item, and between experience items | about 1em of the heading size |
 
 Exact values may be adjusted in the browser to match the reference by eye.
 
