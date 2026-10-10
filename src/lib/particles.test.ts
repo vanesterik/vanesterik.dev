@@ -502,7 +502,7 @@ describe('dragging', () => {
     runFrames()
     const to = drawnParticles(context)
 
-    // No faster than a particle starts out: 3px across and 6px up
+    // No faster than the normal maximum speed
     to.forEach(({ x, y }, index) => {
       expect(
         Math.hypot(x - from[index].x, y - from[index].y),

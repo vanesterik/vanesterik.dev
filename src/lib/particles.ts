@@ -86,8 +86,9 @@ const MAX_STEPS = 3
 const MAX_THROW_SPEED = 30
 
 // Fastest a particle moves of its own accord, in px per step: particles start
-// out moving at most 3 across and 6 up. Faster ones, thrown or hit by a thrown
-// one, slow down by SLOWDOWN per step until they're back at this speed
+// out moving at most 2 across and 5 up, and collisions can pass speed between
+// them. Faster ones, thrown or hit by a thrown one, slow down by SLOWDOWN per
+// step until they're back at this speed
 const NORMAL_MAX_SPEED = 7
 const SLOWDOWN = 0.98
 
