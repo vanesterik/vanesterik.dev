@@ -44,7 +44,33 @@ Husky runs on every commit:
 - **pre-commit**: `npm run typecheck`, then lint-staged (`biome check --write` on staged files).
 - **commit-msg**: commitlint with `@commitlint/config-conventional`. The subject must not be sentence case, start case or pascal case, so write `feat: add posts page`, not `feat: Add posts page`.
 
-Releases use `commit-and-tag-version` (`npm run release`), which bumps the version, updates `CHANGELOG.md` and creates a `v*.*.*` tag. Pushing that tag deploys the site and Storybook, so releasing is Koen's call. `.versionrc.json` sets the changelog's GitHub links explicitly, because the tool reads the repository name from the remote as `vanesterik` (it drops the `.dev`).
+## Releasing
+
+A release deploys the site and Storybook, so it's Koen's call: only release when he asks. Releases use `commit-and-tag-version`, which bumps the version in `package.json` and `package-lock.json` and adds a section to `CHANGELOG.md`. Nothing is pushed to `main` directly. The release commit goes through a pull request, and only the tag is pushed:
+
+1. **Preview** on an up-to-date `main`: `npx commit-and-tag-version --dry-run` shows the next version and its changelog section.
+2. **Commit the release on a branch, without tagging:**
+
+   ```bash
+   git checkout -b release/<version>
+   npx commit-and-tag-version --skip.tag --releaseCommitMessageFormat "chore(release): {{currentTag}}"
+   ```
+
+   When Claude makes the commit, add the `Co-Authored-By` line to the format.
+3. **Open a pull request** titled `chore(release): <version>`, wait for CI, and let Koen merge it.
+4. **Tag the merged commit and push only the tag:**
+
+   ```bash
+   git checkout main && git pull --ff-only
+   git log -1 --format=%h --grep='^chore(release): <version>$'
+   git tag -a v<version> <sha> -m "chore(release): <version>"
+   git push origin v<version>
+   ```
+
+   Tag the commit on `main`, not the branch's: rebase merging gives it a new SHA.
+5. **Watch the deploy** (`gh run watch` on the `deploy.yml` run for the tag), then check https://www.vanesterik.dev/ and the Storybook URL.
+
+`feat:` commits make a minor release and `fix:` commits a patch. Other types (`docs:`, `refactor:`, `chore:`) still make a patch release, but they aren't listed in the changelog. `.versionrc.json` sets the changelog's GitHub links explicitly, because the tool reads the repository name from the remote as `vanesterik` (it drops the `.dev`).
 
 ## Architecture
 
@@ -79,4 +105,4 @@ Two workflows. Actions are pinned by commit SHA with a version comment, which De
 - **`ci.yml`** (push to `main`, pull requests, and called by `deploy.yml`): lint, typecheck, test, build. Storybook is built only when it's deployed. A newer push cancels an older run on the same pull request.
 - **`deploy.yml`** (tag `v*.*.*`): runs `ci.yml`, then in parallel syncs `out/` to the production S3 bucket (access-key secrets `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION`, `AWS_S3_BUCKET_NAME`) and publishes Storybook to GitHub Pages at https://vanesterik.github.io/vanesterik.dev/. Deploys are never cancelled midway.
 
-Releasing (`npm run release`, then pushing the tag) is the only way to deploy. GitHub Pages must use the source "GitHub Actions", and its `github-pages` environment must allow `v*.*.*` tags.
+Pushing a release tag (see "Releasing" above) is the only way to deploy. GitHub Pages must use the source "GitHub Actions", and its `github-pages` environment must allow `v*.*.*` tags.
