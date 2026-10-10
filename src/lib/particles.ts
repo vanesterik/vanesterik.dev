@@ -115,9 +115,10 @@ type Particle = {
   y: number
 }
 
-// The particle held by the pointer, and where the pointer holds it
+// The particle held by the pointer, the pointer holding it, and where
 type Drag = {
   id: number
+  pointerId: number
   x: number
   y: number
 }
@@ -479,17 +480,22 @@ const dragParticles = (store: Store) => {
         : ''
   }
 
+  // Only the pointer that grabbed a particle moves or releases it, so a second
+  // finger can't take it over
+  const isDragging = (event: PointerEvent) =>
+    getDrag()?.pointerId === event.pointerId
+
   const onPointerDown = (event: PointerEvent) => {
     const { x, y } = getPointerPosition(event.clientX, event.clientY)
     const particle = findParticleAt(store, x, y)
 
-    if (!particle) return
+    if (!particle || getDrag()) return
 
     // Keep receiving the pointer's moves when it leaves the canvas
     canvas.setPointerCapture(event.pointerId)
     dispatch({
       type: ActionTypes.START_DRAG,
-      payload: { id: particle.id, x, y },
+      payload: { id: particle.id, pointerId: event.pointerId, x, y },
     })
     updateCursor(x, y)
   }
@@ -497,19 +503,22 @@ const dragParticles = (store: Store) => {
   const onPointerMove = (event: PointerEvent) => {
     const { x, y } = getPointerPosition(event.clientX, event.clientY)
 
-    if (getDrag()) dispatch({ type: ActionTypes.MOVE_DRAG, payload: { x, y } })
+    if (isDragging(event)) {
+      dispatch({ type: ActionTypes.MOVE_DRAG, payload: { x, y } })
+    }
     updateCursor(x, y)
   }
 
   const onPointerUp = (event: PointerEvent) => {
     const { x, y } = getPointerPosition(event.clientX, event.clientY)
 
-    if (getDrag()) dispatch({ type: ActionTypes.END_DRAG })
+    if (isDragging(event)) dispatch({ type: ActionTypes.END_DRAG })
     updateCursor(x, y)
   }
 
   const onTouchStart = (event: TouchEvent) => {
-    const touch = event.touches[0]
+    // The finger that just landed, not one already on the screen
+    const touch = event.changedTouches[0]
 
     if (!touch) return
 

@@ -82,9 +82,14 @@ const getCanvas = () => document.getElementById('game') as HTMLCanvasElement
 
 // jsdom places every element at the page's origin, so client coordinates are
 // canvas coordinates
-const firePointer = (type: string, x: number, y: number) =>
+const firePointer = (type: string, x: number, y: number, pointerId = 1) =>
   getCanvas().dispatchEvent(
-    new PointerEvent(type, { bubbles: true, clientX: x, clientY: y }),
+    new PointerEvent(type, {
+      bubbles: true,
+      clientX: x,
+      clientY: y,
+      pointerId,
+    }),
   )
 
 const fireTouchStart = (x: number, y: number) => {
@@ -93,7 +98,7 @@ const fireTouchStart = (x: number, y: number) => {
     cancelable: true,
   })
   // jsdom has no Touch constructor
-  Object.defineProperty(event, 'touches', {
+  Object.defineProperty(event, 'changedTouches', {
     value: [{ clientX: x, clientY: y }],
   })
   getCanvas().dispatchEvent(event)
@@ -328,6 +333,17 @@ describe('dragging', () => {
   it('moves a grabbed particle with the pointer', () => {
     firePointer('pointerdown', FIRST_PARTICLE.x, FIRST_PARTICLE.y)
     firePointer('pointermove', FREE_SPOT.x, FREE_SPOT.y)
+    runFrames()
+
+    expect(drawnParticles(context)).toContainEqual(FREE_SPOT)
+  })
+
+  it('follows only the pointer that grabbed the particle', () => {
+    firePointer('pointerdown', FIRST_PARTICLE.x, FIRST_PARTICLE.y, 1)
+    firePointer('pointermove', FREE_SPOT.x, FREE_SPOT.y, 1)
+    // A second finger moves and lifts elsewhere
+    firePointer('pointermove', 300, 700, 2)
+    firePointer('pointerup', 300, 700, 2)
     runFrames()
 
     expect(drawnParticles(context)).toContainEqual(FREE_SPOT)
