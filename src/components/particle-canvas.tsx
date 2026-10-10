@@ -19,5 +19,5 @@ export const ParticleCanvas = () => {
     return () => finalize()
   }, [isDarkMode])
 
-  return <div className="relative w-full flex-1" id={GAME_CONTAINER_ID} />
+  return <div className="fixed inset-0" id={GAME_CONTAINER_ID} />
 }
