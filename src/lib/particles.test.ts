@@ -55,6 +55,7 @@ const stubContext = () => {
     fill: vi.fn(() => finish({ type: 'fill', color: context.fillStyle })),
     fillStyle: '',
     lineWidth: 0,
+    setTransform: vi.fn(),
     stroke: vi.fn(() => finish({ type: 'stroke', color: context.strokeStyle })),
     strokeStyle: '',
   }
@@ -208,6 +209,34 @@ describe('game', () => {
 
     expect(frames.size).toBe(0)
     expect(observers[0].disconnect).toHaveBeenCalled()
+  })
+
+  it('sizes its canvas in device pixels and draws in CSS pixels', () => {
+    vi.stubGlobal('devicePixelRatio', 2)
+    const context = stubContext()
+    game(container)
+
+    fireResize(390, 844)
+
+    const canvas = getCanvas()
+    expect([canvas.width, canvas.height]).toEqual([780, 1688])
+    expect(context.setTransform).toHaveBeenLastCalledWith(2, 0, 0, 2, 0, 0)
+  })
+
+  it('keeps particles inside the canvas in CSS pixels on a high-density screen', () => {
+    vi.stubGlobal('devicePixelRatio', 2)
+    const context = stubContext()
+    game(container)
+    fireResize(100, 100)
+
+    for (let frame = 0; frame < 10; frame++) {
+      runFrames()
+      // Particles have a radius of 20
+      for (const { x, y } of drawnParticles(context)) {
+        expect(x).toBeLessThanOrEqual(80)
+        expect(y).toBeLessThanOrEqual(80)
+      }
+    }
   })
 
   it('removes its canvas when finalised', () => {
