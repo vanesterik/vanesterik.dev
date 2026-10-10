@@ -26,6 +26,15 @@ describe('ThemeSelector', () => {
     expect(screen.getByRole('button', { name: /system/i })).toBeInTheDocument()
   })
 
+  it('hides the theme name visually below md, but not from screen readers', () => {
+    render(<ThemeSelector options={options} />)
+    const name = screen.getByText('system')
+    expect(name).toHaveClass('max-md:sr-only')
+    expect(screen.getByRole('button', { name: /system/i })).toContainElement(
+      name,
+    )
+  })
+
   it('chooses a theme with the mouse', async () => {
     const user = userEvent.setup()
     render(<ThemeSelector options={options} />)
