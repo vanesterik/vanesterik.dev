@@ -2,102 +2,13 @@ import { random } from '@/lib/random'
 
 // Types ///////////////////////////////////////////////////////////////////////
 
-enum ActionTypes {
-  END_DRAG,
-  MOVE_DRAG,
-  SET_PARTICLES,
-  SET_FRAME_ID,
-  SET_INITIAL_STATE,
-  START_DRAG,
-  UPDATE_PARTICLE_BUFFER,
-  UPDATE_PARTICLE_COLLISION,
-  UPDATE_PARTICLE_HORIZONTAL_BOUNDARY,
-  UPDATE_PARTICLE_POSITION,
-  UPDATE_PARTICLE_VERTICAL_BOUNDARY,
-}
-
-type EndDragAction = {
-  type: ActionTypes.END_DRAG
-}
-
-type MoveDragAction = {
-  type: ActionTypes.MOVE_DRAG
-  payload: Pick<Drag, 'x' | 'y'>
-}
-
-type StartDragAction = {
-  type: ActionTypes.START_DRAG
-  payload: Drag
-}
-
-type SetParticlesAction = {
-  type: ActionTypes.SET_PARTICLES
-  payload: Record<number, Particle>
-}
-
-type SetFrameIdAction = {
-  type: ActionTypes.SET_FRAME_ID
-  payload: number
-}
-
-type SetInitialStateAction = {
-  type: ActionTypes.SET_INITIAL_STATE
-}
-
-type UpdateParticlePositionAction = {
-  type: ActionTypes.UPDATE_PARTICLE_POSITION
-  payload: Pick<Particle, 'id' | 'vx' | 'vy' | 'x' | 'y'>
-}
-
-type UpdateParticleBufferAction = {
-  type: ActionTypes.UPDATE_PARTICLE_BUFFER
-  payload: Pick<Particle, 'id' | 'vx' | 'vy' | 'x' | 'y'>
-}
-
-type UpdateParticleCollisionAction = {
-  type: ActionTypes.UPDATE_PARTICLE_COLLISION
-  payload: Pick<Particle, 'id' | 'type' | 'vx' | 'vy'>
-}
-
-type UpdateParticleHorizontalBoundaryAction = {
-  type: ActionTypes.UPDATE_PARTICLE_HORIZONTAL_BOUNDARY
-  payload: Pick<Particle, 'id' | 'vx' | 'x'>
-}
-
-type UpdateParticleVerticalBoundaryAction = {
-  type: ActionTypes.UPDATE_PARTICLE_VERTICAL_BOUNDARY
-  payload: Pick<Particle, 'id' | 'vy' | 'y'>
-}
-
-type Action =
-  | EndDragAction
-  | MoveDragAction
-  | SetParticlesAction
-  | SetFrameIdAction
-  | SetInitialStateAction
-  | StartDragAction
-  | UpdateParticleBufferAction
-  | UpdateParticleCollisionAction
-  | UpdateParticleHorizontalBoundaryAction
-  | UpdateParticlePositionAction
-  | UpdateParticleVerticalBoundaryAction
-
-type Listener = (state: State, previousState: State) => void
-
-type Reducer = (state: State, action: Action) => State
-
+// Everything a running game keeps track of. The render loop changes it in
+// place, every frame
 type State = {
   drag: Drag | null
-  particles: Record<number, Particle>
   frameId: number
-}
-
-type Store = {
-  dispatch: (action: Action) => void
-  getDrag: () => Drag | null
-  getParticles: () => Particle[]
-  getFrameId: () => number
-  subscribe: (listener: Listener) => () => void
+  // Ordered by id
+  particles: Particle[]
 }
 
 enum ParticleTypes {
@@ -118,7 +29,7 @@ type Particle = {
 // The particle held by the pointer, the pointer holding it, when it was
 // grabbed (in performance.now() time) and where it is
 type Drag = {
-  id: number
+  particle: Particle
   pointerId: number
   startedAt: number
   x: number
@@ -168,9 +79,9 @@ const PLACEMENT_ATTEMPTS = 10
 
 /**
  * Main game function which creates a canvas element and appends it to the
- * passed container id. It sets the stage for the game by creating the
- * initial state and starting the render loop. Particles are drawn in the
- * canvas's CSS colour, so a theme change recolours them without a restart.
+ * passed container id, and starts the render loop, which draws particles once
+ * the canvas has a size. Particles are drawn in the canvas's CSS colour, so a
+ * theme change recolours them without a restart.
  */
 export const game = (containerId: string) => {
   const container = document.getElementById(containerId)
@@ -180,157 +91,21 @@ export const game = (containerId: string) => {
       console.error('Container not found')
     }
 
-  const reducer = createReducer({ drag: null, frameId: 0, particles: {} })
-  const store = createStore(reducer)
-  store.dispatch({ type: ActionTypes.SET_INITIAL_STATE })
+  const state: State = { drag: null, frameId: 0, particles: [] }
 
   createCanvas(container)
-  const stopResizing = resizeCanvas(store)
-  const stopDragging = dragParticles(store)
-  const stopStarting = initialize(store)
+  const stopResizing = resizeCanvas(state)
+  const stopDragging = dragParticles(state)
+  state.frameId = requestAnimationFrame(() => render(state))
 
   // Return a function that stops everything the game set up, so nothing keeps
-  // running once the canvas is gone: React may finalize the game before the
-  // first resize has even started the render loop
+  // running once the canvas is gone
   return () => {
     stopResizing()
     stopDragging()
-    stopStarting()
-    finalize(store)
+    cancelAnimationFrame(state.frameId)
   }
 }
-
-/**
- * Initialize game by starting render loop
- */
-const initialize = (store: Store) => {
-  const { dispatch, subscribe } = store
-  const unsubscribe = subscribe((state) => {
-    if (!state) return
-    // Directly unsubscribe from state changes, because this function should
-    // only be called once
-    unsubscribe()
-    // Start render loop by requesting animation frame
-    const requestId = requestAnimationFrame(() => render(store))
-    // Dispatch returned request id to state in order to cancel requested
-    // animation frame when finalizing the game
-    dispatch({ type: ActionTypes.SET_FRAME_ID, payload: requestId })
-  })
-
-  // Stops the loop from starting if the game is finalized before it has
-  return unsubscribe
-}
-
-/**
- * Finalize game by stopping render loop
- */
-const finalize = ({ getFrameId }: Store) => cancelAnimationFrame(getFrameId())
-
-/**
- * Create state container store based on passed reducer. The store is an object
- * that contains the state and a dispatch function in order to update the state.
- * The store is passed to all functions that need to update this state.
- */
-const createStore = (reducer: Reducer) => {
-  // Let is required in order to implement state state container logic
-  let state: State
-  const listeners: Set<Listener> = new Set()
-
-  const dispatch = (action: Action) => {
-    const previousState = state
-    // Mutations is required in order to implement state container logic
-    state = reducer(state, action)
-    listeners.forEach((listener) => {
-      listener(state, previousState)
-    })
-  }
-
-  const getParticles = () => Object.values(state.particles)
-  const getDrag = () => state.drag
-  const getFrameId = () => state.frameId
-
-  const subscribe = (listener: Listener) => {
-    listeners.add(listener)
-    // Directly return unsubscribe function
-    return () => listeners.delete(listener)
-  }
-
-  return {
-    dispatch,
-    getDrag,
-    getParticles,
-    getFrameId,
-    subscribe,
-  }
-}
-
-/**
- * Create state reducer based on passed initial state. The reducer is a pure
- * function that takes the previous state and an action, and returns the next
- * state.
- */
-const createReducer =
-  (initialState: State) =>
-  (state: State = initialState, action: Action): State => {
-    switch (action.type) {
-      case ActionTypes.SET_INITIAL_STATE:
-        return state
-      case ActionTypes.START_DRAG: {
-        const particle = state.particles[action.payload.id]
-        return {
-          ...state,
-          drag: action.payload,
-          // Grabbing a particle flips its type, as a collision would
-          particles: {
-            ...state.particles,
-            [particle.id]: {
-              ...particle,
-              type:
-                particle.type === ParticleTypes.FILL
-                  ? ParticleTypes.STROKE
-                  : ParticleTypes.FILL,
-            },
-          },
-        }
-      }
-      case ActionTypes.MOVE_DRAG:
-        return state.drag
-          ? { ...state, drag: { ...state.drag, ...action.payload } }
-          : state
-      case ActionTypes.END_DRAG:
-        return {
-          ...state,
-          drag: null,
-        }
-      case ActionTypes.SET_FRAME_ID:
-        return {
-          ...state,
-          frameId: action.payload,
-        }
-      case ActionTypes.SET_PARTICLES:
-        return {
-          ...state,
-          particles: action.payload,
-        }
-      case ActionTypes.UPDATE_PARTICLE_POSITION:
-      case ActionTypes.UPDATE_PARTICLE_BUFFER:
-      case ActionTypes.UPDATE_PARTICLE_COLLISION:
-      case ActionTypes.UPDATE_PARTICLE_HORIZONTAL_BOUNDARY:
-      case ActionTypes.UPDATE_PARTICLE_VERTICAL_BOUNDARY:
-        return {
-          ...state,
-          particles: {
-            ...state.particles,
-            [action.payload.id]: {
-              ...state.particles[action.payload.id],
-              ...action.payload,
-            },
-          },
-        }
-      default:
-        return state
-    }
-  }
 
 /**
  * Create canvas element and append it to passed container element
@@ -356,7 +131,7 @@ const createCanvas = (container: HTMLElement) => {
  * and match the number of particles to the width. Particles that end up
  * outside a canvas that shrank are brought back in by the boundary detection.
  */
-const resizeCanvas = (store: Store) => {
+const resizeCanvas = (state: State) => {
   const canvas = getCanvas()
 
   const observer = new ResizeObserver((entries) => {
@@ -368,7 +143,7 @@ const resizeCanvas = (store: Store) => {
         canvas.setAttribute('width', `${width}`)
         canvas.setAttribute('height', `${height}`)
 
-        updateParticleCount(store, width, height)
+        updateParticleCount(state, width, height)
       }
     })
   })
@@ -383,25 +158,18 @@ const resizeCanvas = (store: Store) => {
  * particles in free spots or removes the newest ones, and leaves the others
  * where they are, so the animation carries on.
  */
-const updateParticleCount = (
-  { dispatch, getParticles }: Store,
-  width: number,
-  height: number,
-) => {
-  const particles = getParticles()
+const updateParticleCount = (state: State, width: number, height: number) => {
+  const { particles } = state
   const count = getParticleCount(width)
 
   if (particles.length === count) return
 
   if (particles.length === 0) {
-    dispatch({
-      type: ActionTypes.SET_PARTICLES,
-      payload: toRecord(createParticleGrid(count, width, height)),
-    })
+    state.particles = createParticleGrid(count, width, height)
     return
   }
 
-  // Particles are listed by ascending id, so the newest are removed first
+  // Particles are ordered by id, so the newest are removed first
   const kept = particles.slice(0, count)
   const nextId = Math.max(...particles.map(({ id }) => id)) + 1
   const added: Particle[] = []
@@ -411,10 +179,7 @@ const updateParticleCount = (
     added.push(createParticle(nextId + index, x, y, width))
   }
 
-  dispatch({
-    type: ActionTypes.SET_PARTICLES,
-    payload: toRecord([...kept, ...added]),
-  })
+  state.particles = [...kept, ...added]
 }
 
 /**
@@ -483,18 +248,18 @@ const createParticle = (
 }
 
 /**
- * Let the pointer grab a particle and drag it around. The cursor shows a grab
- * hand over particles, and a touch that lands on a particle doesn't scroll the
- * page; one that misses still does.
+ * Let the pointer grab a particle and drag it around. Grabbing a particle flips
+ * its type, as a collision would. The cursor shows a grab hand over particles,
+ * and a touch that lands on a particle doesn't scroll the page; one that misses
+ * still does.
  */
-const dragParticles = (store: Store) => {
-  const { dispatch, getDrag } = store
+const dragParticles = (state: State) => {
   const canvas = getCanvas()
 
   const updateCursor = (x: number, y: number) => {
-    canvas.style.cursor = getDrag()
+    canvas.style.cursor = state.drag
       ? 'grabbing'
-      : findParticleAt(store, x, y)
+      : findParticleAt(state, x, y)
         ? 'grab'
         : ''
   }
@@ -502,34 +267,36 @@ const dragParticles = (store: Store) => {
   // Only the pointer that grabbed a particle moves or releases it, so a second
   // finger can't take it over
   const isDragging = (event: PointerEvent) =>
-    getDrag()?.pointerId === event.pointerId
+    state.drag?.pointerId === event.pointerId
 
   const onPointerDown = (event: PointerEvent) => {
     const { x, y } = getPointerPosition(event.clientX, event.clientY)
-    const particle = findParticleAt(store, x, y)
+    const particle = findParticleAt(state, x, y)
 
-    if (!particle || getDrag()) return
+    if (!particle || state.drag) return
 
     // Keep receiving the pointer's moves when it leaves the canvas
     canvas.setPointerCapture(event.pointerId)
-    dispatch({
-      type: ActionTypes.START_DRAG,
-      payload: {
-        id: particle.id,
-        pointerId: event.pointerId,
-        startedAt: performance.now(),
-        x,
-        y,
-      },
-    })
+    particle.type =
+      particle.type === ParticleTypes.FILL
+        ? ParticleTypes.STROKE
+        : ParticleTypes.FILL
+    state.drag = {
+      particle,
+      pointerId: event.pointerId,
+      startedAt: performance.now(),
+      x,
+      y,
+    }
     updateCursor(x, y)
   }
 
   const onPointerMove = (event: PointerEvent) => {
     const { x, y } = getPointerPosition(event.clientX, event.clientY)
 
-    if (isDragging(event)) {
-      dispatch({ type: ActionTypes.MOVE_DRAG, payload: { x, y } })
+    if (state.drag && isDragging(event)) {
+      state.drag.x = x
+      state.drag.y = y
     }
     updateCursor(x, y)
   }
@@ -537,7 +304,7 @@ const dragParticles = (store: Store) => {
   const onPointerUp = (event: PointerEvent) => {
     const { x, y } = getPointerPosition(event.clientX, event.clientY)
 
-    if (isDragging(event)) dispatch({ type: ActionTypes.END_DRAG })
+    if (isDragging(event)) state.drag = null
     updateCursor(x, y)
   }
 
@@ -548,7 +315,7 @@ const dragParticles = (store: Store) => {
     if (!touch) return
 
     const { x, y } = getPointerPosition(touch.clientX, touch.clientY)
-    if (findParticleAt(store, x, y)) event.preventDefault()
+    if (findParticleAt(state, x, y)) event.preventDefault()
   }
 
   canvas.addEventListener('pointerdown', onPointerDown)
@@ -573,27 +340,21 @@ const dragParticles = (store: Store) => {
  * position updates, collision detection, etc. You could see this as the game
  * engine.
  */
-const render = (store: Store) => {
-  const { dispatch } = store
-
+const render = (state: State) => {
   // Stop when the canvas has left the page: React removes it before it runs the
   // effect cleanup that finalizes the game, so a frame can land in between
   if (!getCanvas()) return
 
-  updateParticlePositions(store)
-  detectParticleBoundaries(store)
-  detectParticleCollisions(store)
-  detectHeldParticleBuffer(store)
+  updateParticlePositions(state)
+  detectParticleBoundaries(state)
+  detectParticleCollisions(state)
+  detectHeldParticleBuffer(state)
 
   clearCanvas()
-  drawBuffer(store)
-  drawParticles(store)
+  drawBuffer(state)
+  drawParticles(state)
 
-  // Call render function recursively by requesting animation frame again
-  const requestId = requestAnimationFrame(() => render(store))
-  // Dispatch returned request id to state in order to cancel requested
-  // animation frame when finalizing the game
-  dispatch({ type: ActionTypes.SET_FRAME_ID, payload: requestId })
+  state.frameId = requestAnimationFrame(() => render(state))
 }
 
 /**
@@ -602,32 +363,26 @@ const render = (store: Store) => {
  * pointer sits under it instead, and takes the speed it's dragged at as its
  * velocity, so letting go throws it.
  */
-const updateParticlePositions = ({
-  dispatch,
-  getDrag,
-  getParticles,
-}: Store) => {
-  const particles = getParticles()
-  const drag = getDrag()
+const updateParticlePositions = ({ drag, particles }: State) => {
   const canvas = getCanvas()
 
-  particles.forEach(({ id, radius, vx, vy, x, y }) => {
+  particles.forEach((particle) => {
+    const { radius, vx, vy, x, y } = particle
+
     // A held particle sits under the pointer, inside the canvas
-    if (id === drag?.id) {
-      const nextX = clamp(drag.x, radius, canvas.width - radius)
-      const nextY = clamp(drag.y, radius, canvas.height - radius)
+    if (particle === drag?.particle) {
+      particle.x = clamp(drag.x, radius, canvas.width - radius)
+      particle.y = clamp(drag.y, radius, canvas.height - radius)
       // Average the last few frames' movement, so a wobble as the pointer
       // lets go doesn't spoil the throw
-      const velocity = limitSpeed(
-        (vx + nextX - x) / 2,
-        (vy + nextY - y) / 2,
-        MAX_THROW_SPEED,
+      Object.assign(
+        particle,
+        limitSpeed(
+          (vx + particle.x - x) / 2,
+          (vy + particle.y - y) / 2,
+          MAX_THROW_SPEED,
+        ),
       )
-
-      dispatch({
-        type: ActionTypes.UPDATE_PARTICLE_POSITION,
-        payload: { id, ...velocity, x: nextX, y: nextY },
-      })
       return
     }
 
@@ -637,16 +392,10 @@ const updateParticlePositions = ({
         ? Math.max(SLOWDOWN, NORMAL_MAX_SPEED / speed)
         : 1
 
-    dispatch({
-      type: ActionTypes.UPDATE_PARTICLE_POSITION,
-      payload: {
-        id,
-        vx: vx * slowdown,
-        vy: vy * slowdown,
-        x: x + vx * slowdown,
-        y: y + vy * slowdown,
-      },
-    })
+    particle.vx = vx * slowdown
+    particle.vy = vy * slowdown
+    particle.x = x + particle.vx
+    particle.y = y + particle.vy
   })
 }
 
@@ -655,81 +404,45 @@ const updateParticlePositions = ({
  * particle always bounces towards the inside, so one left outside a canvas
  * that shrank, or resting on an edge, doesn't keep reversing.
  */
-const detectParticleBoundaries = ({
-  dispatch,
-  getDrag,
-  getParticles,
-}: Store) => {
-  const particles = getParticles()
-  const drag = getDrag()
+const detectParticleBoundaries = ({ drag, particles }: State) => {
   const canvas = getCanvas()
 
   particles.forEach((particle) => {
     // The pointer keeps a held particle inside the canvas
-    if (particle.id === drag?.id) return
+    if (particle === drag?.particle) return
 
     if (particle.x + particle.radius >= canvas.width) {
-      dispatch({
-        type: ActionTypes.UPDATE_PARTICLE_HORIZONTAL_BOUNDARY,
-        payload: {
-          id: particle.id,
-          vx: -Math.abs(particle.vx),
-          x: canvas.width - particle.radius,
-        },
-      })
+      particle.vx = -Math.abs(particle.vx)
+      particle.x = canvas.width - particle.radius
     }
     if (particle.x - particle.radius <= 0) {
-      dispatch({
-        type: ActionTypes.UPDATE_PARTICLE_HORIZONTAL_BOUNDARY,
-        payload: {
-          id: particle.id,
-          vx: Math.abs(particle.vx),
-          x: particle.radius,
-        },
-      })
+      particle.vx = Math.abs(particle.vx)
+      particle.x = particle.radius
     }
     if (particle.y + particle.radius >= canvas.height) {
-      dispatch({
-        type: ActionTypes.UPDATE_PARTICLE_VERTICAL_BOUNDARY,
-        payload: {
-          id: particle.id,
-          vy: -Math.abs(particle.vy),
-          y: canvas.height - particle.radius,
-        },
-      })
+      particle.vy = -Math.abs(particle.vy)
+      particle.y = canvas.height - particle.radius
     }
     if (particle.y - particle.radius <= 0) {
-      dispatch({
-        type: ActionTypes.UPDATE_PARTICLE_VERTICAL_BOUNDARY,
-        payload: {
-          id: particle.id,
-          vy: Math.abs(particle.vy),
-          y: particle.radius,
-        },
-      })
+      particle.vy = Math.abs(particle.vy)
+      particle.y = particle.radius
     }
   })
 }
 
 /**
- * Detect collision between two particles and update particle velocities. The
- * particle held by the pointer is left to detectHeldParticleBuffer.
+ * Detect collision between two particles and update particle velocities. Each
+ * collision sees the velocities left by the ones before it in the same frame.
+ * The particle held by the pointer is left to detectHeldParticleBuffer.
  */
-const detectParticleCollisions = ({
-  dispatch,
-  getDrag,
-  getParticles,
-}: Store) => {
-  const particles = getParticles()
-  const drag = getDrag()
-
+const detectParticleCollisions = ({ drag, particles }: State) => {
   particles.forEach((particleA, indexA) => {
-    if (particleA.id === drag?.id) return
+    if (particleA === drag?.particle) return
 
     // Only check for collisions with particles that have a higher index,
     // otherwise the same particle is checked twice
     particles.slice(indexA + 1).forEach((particleB) => {
-      if (particleB.id === drag?.id) return
+      if (particleB === drag?.particle) return
 
       const distanceX = particleB.x - particleA.x
       const distanceY = particleB.y - particleA.y
@@ -762,24 +475,12 @@ const detectParticleCollisions = ({
           const typeA = getParticleType(particleA.type, particleB.type)
           const typeB = getParticleType(particleB.type, particleA.type)
 
-          dispatch({
-            type: ActionTypes.UPDATE_PARTICLE_COLLISION,
-            payload: {
-              id: particleA.id,
-              type: typeA,
-              vx: velocityA.x,
-              vy: velocityA.y,
-            },
-          })
-          dispatch({
-            type: ActionTypes.UPDATE_PARTICLE_COLLISION,
-            payload: {
-              id: particleB.id,
-              type: typeB,
-              vx: velocityB.x,
-              vy: velocityB.y,
-            },
-          })
+          particleA.type = typeA
+          particleA.vx = velocityA.x
+          particleA.vy = velocityA.y
+          particleB.type = typeB
+          particleB.vx = velocityB.x
+          particleB.vy = velocityB.y
         }
       }
     })
@@ -789,26 +490,18 @@ const detectParticleCollisions = ({
 /**
  * Keep other particles out of the buffer around the particle held by the
  * pointer, which grows to BUFFER_RADII radii wide. The held particle is an
- * immovable wall: a
- * particle moving into the buffer is mirrored off it, and one inside it is
- * pushed back to its edge, so a fast drag can't leave it stuck. Neither changes
- * type.
+ * immovable wall: a particle moving into the buffer is mirrored off it, and
+ * one inside it is pushed back to its edge, so a fast drag can't leave it
+ * stuck. Neither changes type.
  */
-const detectHeldParticleBuffer = ({
-  dispatch,
-  getDrag,
-  getParticles,
-}: Store) => {
-  const particles = getParticles()
-  const drag = getDrag()
-  const held = particles.find(({ id }) => id === drag?.id)
+const detectHeldParticleBuffer = ({ drag, particles }: State) => {
+  if (!drag) return
 
-  if (!drag || !held) return
-
+  const held = drag.particle
   const bufferRadius = held.radius * getBufferRadii(drag)
 
   particles.forEach((particle) => {
-    if (particle.id === held.id) return
+    if (particle === held) return
 
     const reach = particle.radius + held.radius + bufferRadius
     const distanceX = particle.x - held.x
@@ -825,16 +518,10 @@ const detectHeldParticleBuffer = ({
     // Only mirror a particle that moves towards the held one
     const bounce = Math.min(approach, 0) * 2
 
-    dispatch({
-      type: ActionTypes.UPDATE_PARTICLE_BUFFER,
-      payload: {
-        id: particle.id,
-        vx: particle.vx - bounce * normalX,
-        vy: particle.vy - bounce * normalY,
-        x: held.x + normalX * reach,
-        y: held.y + normalY * reach,
-      },
-    })
+    particle.vx -= bounce * normalX
+    particle.vy -= bounce * normalY
+    particle.x = held.x + normalX * reach
+    particle.y = held.y + normalY * reach
   })
 }
 
@@ -854,13 +541,12 @@ const clearCanvas = () => {
  * Draw the edge of the buffer around the particle held by the pointer, behind
  * the particles, in the canvas's buffer colour
  */
-const drawBuffer = ({ getDrag, getParticles }: Store) => {
-  const drag = getDrag()
-  const held = getParticles().find(({ id }) => id === drag?.id)
+const drawBuffer = ({ drag }: State) => {
   const context = getContext()
 
-  if (!drag || !held || !context) return
+  if (!drag || !context) return
 
+  const held = drag.particle
   const bufferRadii = getBufferRadii(drag)
 
   if (bufferRadii === 0) return
@@ -878,8 +564,7 @@ const drawBuffer = ({ getDrag, getParticles }: Store) => {
 /**
  * Draw particle on canvas based on passed properties
  */
-const drawParticles = ({ getParticles }: Store) => {
-  const particles = getParticles()
+const drawParticles = ({ particles }: State) => {
   const context = getContext()
 
   if (!context) return
@@ -930,8 +615,8 @@ const getPointerPosition = (clientX: number, clientY: number) => {
 /**
  * Find the particle closest to the passed position within its grab distance
  */
-const findParticleAt = ({ getParticles }: Store, x: number, y: number) =>
-  getParticles()
+const findParticleAt = ({ particles }: State, x: number, y: number) =>
+  particles
     .map((particle) => ({
       particle,
       distance: Math.hypot(particle.x - x, particle.y - y),
@@ -980,12 +665,6 @@ const clamp = (value: number, min: number, max: number) =>
  */
 const getParticleCount = (width: number) =>
   PARTICLE_COUNTS.find(({ minWidth }) => width >= minWidth)?.count ?? 0
-
-/**
- * Key particles by their id, as they're kept in state
- */
-const toRecord = (particles: Particle[]): Record<number, Particle> =>
-  Object.fromEntries(particles.map((particle) => [particle.id, particle]))
 
 /**
  * Calculate rotation of a point in a 2D space by using the rotation matrix
