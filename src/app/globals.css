@@ -12,6 +12,13 @@
   --font-mono:
     var(--font-nb-international-pro-mono), ui-monospace, SFMono-Regular, Menlo,
     Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+
+  /* The about page's text, scaled with the window: the introduction and
+     headings, and the items under them */
+  --text-intro: clamp(1.75rem, 2.8vw, 3.5rem);
+  --text-intro--line-height: 1.3;
+  --text-item: clamp(1.375rem, 2.3vw, 2.875rem);
+  --text-item--line-height: 1.3;
 }
 
 @theme inline {
