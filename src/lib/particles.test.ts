@@ -116,17 +116,21 @@ const fireTouchStart = (x: number, y: number) => {
 
 // How far the first particle drawn moves in a frame, a frame from now.
 // Particles are drawn by id, so in the tests that's the grabbed one
-const firstParticleStep = (context: ReturnType<typeof stubContext>) => {
+const firstParticleStep = (
+  context: ReturnType<typeof stubContext>,
+  interval = 1000 / 60,
+) => {
   drawnParticles(context)
-  runFrames()
+  runFrames(interval)
   const from = drawnParticles(context)[0]
-  runFrames()
+  runFrames(interval)
   const to = drawnParticles(context)[0]
   return { x: to.x - from.x, y: to.y - from.y }
 }
 
-const runFrames = () => {
-  now += 1000 / 60
+// Run the frames requested so far, the passed number of ms after the last ones
+const runFrames = (interval = 1000 / 60) => {
+  now += interval
   const pending = [...frames.values()]
   frames.clear()
   for (const frame of pending) frame(0)
@@ -575,6 +579,43 @@ describe('throwing', () => {
     game(container)
     fireResize(600, 3000)
     runFrames()
+  })
+
+  it('moves particles as far per second on a 120Hz screen', () => {
+    // Every particle starts moving 1px right and 1px up per 60th of a second
+    const from = drawnParticles(context)[0]
+    runFrames(1000 / 120)
+    drawnParticles(context)
+    runFrames(1000 / 120)
+    const to = drawnParticles(context)[0]
+
+    expect(to.x).toBeCloseTo(from.x + 1)
+    expect(to.y).toBeCloseTo(from.y - 1)
+  })
+
+  it('moves particles at most three steps after a long pause', () => {
+    const from = drawnParticles(context)[0]
+    // As when coming back to a tab that was in the background
+    runFrames(5000)
+    const to = drawnParticles(context)[0]
+
+    expect(to.x).toBeCloseTo(from.x + 3)
+    expect(to.y).toBeCloseTo(from.y - 3)
+  })
+
+  it('throws and slows a particle down at the same speed on a 120Hz screen', () => {
+    firePointer('pointerdown', FIRST_PARTICLE.x, FIRST_PARTICLE.y)
+    for (let step = 0; step <= 12; step++) {
+      firePointer('pointermove', LANE.x, LANE.y + step * 30)
+      runFrames(1000 / 120)
+    }
+    firePointer('pointerup', LANE.x, LANE.y + 360)
+
+    // Thrown at 30 per 60th of a second, so 15 per frame, and slowed by 2% per
+    // 60th of a second over two half-length frames
+    const { x, y } = firstParticleStep(context, 1000 / 120)
+    expect(x).toBeCloseTo(0, 0)
+    expect(y).toBeCloseTo((30 * 0.98) / 2, 0)
   })
 
   it('throws a particle on in the direction it was dragged', () => {
