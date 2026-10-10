@@ -103,6 +103,37 @@ describe('game', () => {
     expect(observers[0].disconnect).toHaveBeenCalled()
   })
 
+  it('draws in the current colour of its canvas', () => {
+    const context = {
+      arc: vi.fn(),
+      beginPath: vi.fn(),
+      clearRect: vi.fn(),
+      closePath: vi.fn(),
+      fill: vi.fn(),
+      fillStyle: '',
+      lineWidth: 0,
+      stroke: vi.fn(),
+      strokeStyle: '',
+    }
+    vi.mocked(HTMLCanvasElement.prototype.getContext).mockReturnValue(
+      context as unknown as CanvasRenderingContext2D,
+    )
+    game(CONTAINER_ID)
+    fireResize()
+    const canvas = document.getElementById('game') as HTMLCanvasElement
+
+    canvas.style.color = 'rgb(255, 0, 0)'
+    runFrames()
+    expect(context.fillStyle).toBe('rgb(255, 0, 0)')
+    expect(context.strokeStyle).toBe('rgb(255, 0, 0)')
+
+    // A theme change only changes the colour, it doesn't restart the game
+    canvas.style.color = 'rgb(0, 0, 255)'
+    runFrames()
+    expect(context.fillStyle).toBe('rgb(0, 0, 255)')
+    expect(context.strokeStyle).toBe('rgb(0, 0, 255)')
+  })
+
   it('stops by itself when its canvas leaves the page before it is finalised', () => {
     // React removes the canvas before it runs the effect's cleanup, so a frame
     // can fire in between
