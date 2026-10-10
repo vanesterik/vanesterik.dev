@@ -46,7 +46,7 @@ type SetInitialStateAction = {
 
 type UpdateParticlePositionAction = {
   type: ActionTypes.UPDATE_PARTICLE_POSITION
-  payload: Pick<Particle, 'id' | 'x' | 'y'>
+  payload: Pick<Particle, 'id' | 'vx' | 'vy' | 'x' | 'y'>
 }
 
 type UpdateParticleBufferAction = {
@@ -142,6 +142,16 @@ const PARTICLE_RADIUS = 20
 
 // Distance around a particle that still grabs it, so a finger can catch it
 const GRAB_MARGIN = 12
+
+// Fastest a thrown particle leaves the pointer, in px per frame, so it can't
+// skip past a wall in one frame
+const MAX_THROW_SPEED = 30
+
+// Fastest a particle moves of its own accord, in px per frame: particles start
+// out moving at most 3 across and 6 up. Faster ones, thrown or hit by a thrown
+// one, slow down by SLOWDOWN per frame until they're back at this speed
+const NORMAL_MAX_SPEED = 7
+const SLOWDOWN = 0.98
 
 // How often to look for a free spot for an added particle before placing it
 // on top of others anyway
@@ -571,8 +581,10 @@ const render = (store: Store) => {
 }
 
 /**
- * Update particle position by adding velocity to x and y coordinates, except
- * for the particle held by the pointer
+ * Update particle position by adding velocity to x and y coordinates. A
+ * particle faster than normal slows down first. The particle held by the
+ * pointer sits under it instead, and takes the speed it's dragged at as its
+ * velocity, so letting go throws it.
  */
 const updateParticlePositions = ({
   dispatch,
@@ -586,23 +598,37 @@ const updateParticlePositions = ({
   particles.forEach(({ id, radius, vx, vy, x, y }) => {
     // A held particle sits under the pointer, inside the canvas
     if (id === drag?.id) {
+      const nextX = clamp(drag.x, radius, canvas.width - radius)
+      const nextY = clamp(drag.y, radius, canvas.height - radius)
+      // Average the last few frames' movement, so a wobble as the pointer
+      // lets go doesn't spoil the throw
+      const velocity = limitSpeed(
+        (vx + nextX - x) / 2,
+        (vy + nextY - y) / 2,
+        MAX_THROW_SPEED,
+      )
+
       dispatch({
         type: ActionTypes.UPDATE_PARTICLE_POSITION,
-        payload: {
-          id,
-          x: clamp(drag.x, radius, canvas.width - radius),
-          y: clamp(drag.y, radius, canvas.height - radius),
-        },
+        payload: { id, ...velocity, x: nextX, y: nextY },
       })
       return
     }
+
+    const speed = Math.hypot(vx, vy)
+    const slowdown =
+      speed > NORMAL_MAX_SPEED
+        ? Math.max(SLOWDOWN, NORMAL_MAX_SPEED / speed)
+        : 1
 
     dispatch({
       type: ActionTypes.UPDATE_PARTICLE_POSITION,
       payload: {
         id,
-        x: x + vx,
-        y: y + vy,
+        vx: vx * slowdown,
+        vy: vy * slowdown,
+        x: x + vx * slowdown,
+        y: y + vy * slowdown,
       },
     })
   })
@@ -868,6 +894,16 @@ const findParticleAt = ({ getParticles }: Store, x: number, y: number) =>
       ({ particle, distance }) => distance <= particle.radius + GRAB_MARGIN,
     )
     .sort((a, b) => a.distance - b.distance)[0]?.particle
+
+/**
+ * Scale the passed velocity down to the passed speed if it's faster
+ */
+const limitSpeed = (vx: number, vy: number, maxSpeed: number) => {
+  const speed = Math.hypot(vx, vy)
+  const scale = speed > maxSpeed ? maxSpeed / speed : 1
+
+  return { vx: vx * scale, vy: vy * scale }
+}
 
 /**
  * Limit the passed value to the passed range
