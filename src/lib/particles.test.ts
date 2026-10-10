@@ -2,7 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { game } from './particles'
 
-const CONTAINER_ID = 'game-container'
+// The element the game draws in, which the home page renders
+let container: HTMLElement
 
 // Controllable stand-ins for the browser APIs the animation is driven by
 let observers: {
@@ -15,7 +16,7 @@ let nextFrameId: number
 let now: number
 
 const fireResize = (width = 300, height = 200) => {
-  const canvas = document.getElementById('game')
+  const canvas = container.querySelector('canvas')
   for (const { callback } of observers) {
     callback(
       [
@@ -86,7 +87,7 @@ const drawnTypes = (context: ReturnType<typeof stubContext>) => {
   }
 }
 
-const getCanvas = () => document.getElementById('game') as HTMLCanvasElement
+const getCanvas = () => container.querySelector('canvas') as HTMLCanvasElement
 
 // jsdom places every element at the page's origin, so client coordinates are
 // canvas coordinates
@@ -162,13 +163,12 @@ beforeEach(() => {
   // jsdom has no pointer capture
   Element.prototype.setPointerCapture = vi.fn()
 
-  const container = document.createElement('div')
-  container.id = CONTAINER_ID
+  container = document.createElement('div')
   document.body.append(container)
 })
 
 afterEach(() => {
-  document.getElementById(CONTAINER_ID)?.remove()
+  container.remove()
   vi.unstubAllGlobals()
   vi.restoreAllMocks()
   delete (Element.prototype as Partial<Element>).setPointerCapture
@@ -176,7 +176,7 @@ afterEach(() => {
 
 describe('game', () => {
   it('starts its render loop once the canvas has a size', () => {
-    game(CONTAINER_ID)
+    game(container)
 
     fireResize()
 
@@ -185,18 +185,18 @@ describe('game', () => {
 
   it('stays stopped when finalised before the canvas has a size', () => {
     // React's development mode mounts, cleans up and remounts effects at once
-    const finalize = game(CONTAINER_ID)
+    const finalize = game(container)
     finalize()
 
     fireResize()
-    document.getElementById(CONTAINER_ID)?.remove()
+    container.remove()
 
     expect(() => runFrames()).not.toThrow()
     expect(frames.size).toBe(0)
   })
 
   it('stops a running loop and its resize observer when finalised', () => {
-    const finalize = game(CONTAINER_ID)
+    const finalize = game(container)
     fireResize()
     runFrames()
 
@@ -206,11 +206,27 @@ describe('game', () => {
     expect(observers[0].disconnect).toHaveBeenCalled()
   })
 
+  it('removes its canvas when finalised', () => {
+    const finalize = game(container)
+
+    finalize()
+
+    expect(container.querySelector('canvas')).toBeNull()
+  })
+
+  it('leaves a single canvas when mounted again', () => {
+    // React's development mode mounts, cleans up and remounts effects at once
+    game(container)()
+    game(container)
+
+    expect(container.querySelectorAll('canvas')).toHaveLength(1)
+  })
+
   it('draws in the current colour of its canvas', () => {
     const context = stubContext()
-    game(CONTAINER_ID)
+    game(container)
     fireResize()
-    const canvas = document.getElementById('game') as HTMLCanvasElement
+    const canvas = getCanvas()
 
     canvas.style.color = 'rgb(255, 0, 0)'
     runFrames()
@@ -235,7 +251,7 @@ describe('game', () => {
     'starts a %ipx by %ipx canvas with %i particles',
     (width, height, count) => {
       const context = stubContext()
-      game(CONTAINER_ID)
+      game(container)
 
       fireResize(width, height)
       runFrames()
@@ -246,7 +262,7 @@ describe('game', () => {
 
   it('keeps its particles when the canvas is resized within a breakpoint', () => {
     const context = stubContext()
-    game(CONTAINER_ID)
+    game(container)
     fireResize(300, 200)
     runFrames()
     const before = drawnParticles(context)
@@ -262,7 +278,7 @@ describe('game', () => {
 
   it('adds and removes particles when the canvas crosses a breakpoint', () => {
     const context = stubContext()
-    game(CONTAINER_ID)
+    game(container)
     fireResize(390, 844)
     runFrames()
     drawnParticles(context)
@@ -278,7 +294,7 @@ describe('game', () => {
 
   it('brings its particles back inside a canvas that shrinks', () => {
     const context = stubContext()
-    game(CONTAINER_ID)
+    game(container)
     fireResize(300, 200)
     runFrames()
     drawnParticles(context)
@@ -299,11 +315,11 @@ describe('game', () => {
   it('stops by itself when its canvas leaves the page before it is finalised', () => {
     // React removes the canvas before it runs the effect's cleanup, so a frame
     // can fire in between
-    game(CONTAINER_ID)
+    game(container)
     fireResize()
     runFrames()
 
-    document.getElementById(CONTAINER_ID)?.remove()
+    container.remove()
 
     expect(() => runFrames()).not.toThrow()
     expect(frames.size).toBe(0)
@@ -323,7 +339,7 @@ describe('dragging', () => {
     // Every particle starts moving 1 right or left and 1 up
     vi.spyOn(Math, 'random').mockReturnValue(0)
     context = stubContext()
-    game(CONTAINER_ID)
+    game(container)
     fireResize(390, 844)
     runFrames()
     drawnParticles(context)
@@ -556,7 +572,7 @@ describe('throwing', () => {
   beforeEach(() => {
     vi.spyOn(Math, 'random').mockReturnValue(0)
     context = stubContext()
-    game(CONTAINER_ID)
+    game(container)
     fireResize(600, 3000)
     runFrames()
   })

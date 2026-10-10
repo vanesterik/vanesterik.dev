@@ -5,6 +5,9 @@ import { random } from '@/lib/random'
 // Everything a running game keeps track of. The render loop changes it in
 // place, every frame
 type State = {
+  canvas: HTMLCanvasElement
+  // Null where the browser can't draw on a canvas
+  context: CanvasRenderingContext2D | null
   drag: Drag | null
   frameId: number
   // Ordered by id
@@ -37,8 +40,6 @@ type Drag = {
 }
 
 // Core ////////////////////////////////////////////////////////////////////////
-
-const GAME_ID = 'game'
 
 // Number of particles per Tailwind breakpoint, widest first: a canvas gets the
 // count of the first breakpoint it is at least as wide as
@@ -78,51 +79,35 @@ const SLOWDOWN = 0.98
 const PLACEMENT_ATTEMPTS = 10
 
 /**
- * Main game function which creates a canvas element and appends it to the
- * passed container id, and starts the render loop, which draws particles once
- * the canvas has a size. Particles are drawn in the canvas's CSS colour, so a
- * theme change recolours them without a restart.
+ * Main game function which adds a canvas to the passed container and starts
+ * the render loop, which draws particles once the canvas has a size.
+ * Particles are drawn in the canvas's CSS colour, so a theme change recolours
+ * them without a restart.
  */
-export const game = (containerId: string) => {
-  const container = document.getElementById(containerId)
+export const game = (container: HTMLElement) => {
+  const canvas = document.createElement('canvas')
+  canvas.classList.add('absolute', 'h-full', 'w-full', 'text-foreground')
+  container.append(canvas)
 
-  if (!container)
-    return () => {
-      console.error('Container not found')
-    }
+  const state: State = {
+    canvas,
+    context: canvas.getContext('2d'),
+    drag: null,
+    frameId: 0,
+    particles: [],
+  }
 
-  const state: State = { drag: null, frameId: 0, particles: [] }
-
-  createCanvas(container)
   const stopResizing = resizeCanvas(state)
   const stopDragging = dragParticles(state)
   state.frameId = requestAnimationFrame(() => render(state))
 
-  // Return a function that stops everything the game set up, so nothing keeps
-  // running once the canvas is gone
+  // Return a function that stops everything the game set up and removes its
+  // canvas, so a game started again in the same container starts afresh
   return () => {
     stopResizing()
     stopDragging()
     cancelAnimationFrame(state.frameId)
-  }
-}
-
-/**
- * Create canvas element and append it to passed container element
- */
-const createCanvas = (container: HTMLElement) => {
-  const canvas = document.createElement('canvas')
-  canvas.setAttribute('id', GAME_ID)
-  canvas.classList.add('absolute', 'h-full', 'w-full', 'text-foreground')
-
-  // Replace or append canvas element to container. This is necessary because of
-  // hot module reloading in development mode. Otherwise new canvas elements are
-  // appended with every hot reload.
-  const oldCanvas = document.getElementById(GAME_ID)
-  if (oldCanvas) {
-    container.replaceChild(canvas, oldCanvas)
-  } else {
-    container.appendChild(canvas)
+    canvas.remove()
   }
 }
 
@@ -132,19 +117,17 @@ const createCanvas = (container: HTMLElement) => {
  * outside a canvas that shrank are brought back in by the boundary detection.
  */
 const resizeCanvas = (state: State) => {
-  const canvas = getCanvas()
+  const { canvas } = state
 
   const observer = new ResizeObserver((entries) => {
     entries.forEach((entry) => {
-      if (entry.target.id === GAME_ID) {
-        const width = entry.contentRect.width
-        const height = entry.contentRect.height
+      const width = entry.contentRect.width
+      const height = entry.contentRect.height
 
-        canvas.setAttribute('width', `${width}`)
-        canvas.setAttribute('height', `${height}`)
+      canvas.setAttribute('width', `${width}`)
+      canvas.setAttribute('height', `${height}`)
 
-        updateParticleCount(state, width, height)
-      }
+      updateParticleCount(state, width, height)
     })
   })
   observer.observe(canvas)
@@ -254,7 +237,7 @@ const createParticle = (
  * still does.
  */
 const dragParticles = (state: State) => {
-  const canvas = getCanvas()
+  const { canvas } = state
 
   const updateCursor = (x: number, y: number) => {
     canvas.style.cursor = state.drag
@@ -270,7 +253,7 @@ const dragParticles = (state: State) => {
     state.drag?.pointerId === event.pointerId
 
   const onPointerDown = (event: PointerEvent) => {
-    const { x, y } = getPointerPosition(event.clientX, event.clientY)
+    const { x, y } = getPointerPosition(canvas, event.clientX, event.clientY)
     const particle = findParticleAt(state, x, y)
 
     if (!particle || state.drag) return
@@ -292,7 +275,7 @@ const dragParticles = (state: State) => {
   }
 
   const onPointerMove = (event: PointerEvent) => {
-    const { x, y } = getPointerPosition(event.clientX, event.clientY)
+    const { x, y } = getPointerPosition(canvas, event.clientX, event.clientY)
 
     if (state.drag && isDragging(event)) {
       state.drag.x = x
@@ -302,7 +285,7 @@ const dragParticles = (state: State) => {
   }
 
   const onPointerUp = (event: PointerEvent) => {
-    const { x, y } = getPointerPosition(event.clientX, event.clientY)
+    const { x, y } = getPointerPosition(canvas, event.clientX, event.clientY)
 
     if (isDragging(event)) state.drag = null
     updateCursor(x, y)
@@ -314,7 +297,7 @@ const dragParticles = (state: State) => {
 
     if (!touch) return
 
-    const { x, y } = getPointerPosition(touch.clientX, touch.clientY)
+    const { x, y } = getPointerPosition(canvas, touch.clientX, touch.clientY)
     if (findParticleAt(state, x, y)) event.preventDefault()
   }
 
@@ -343,14 +326,14 @@ const dragParticles = (state: State) => {
 const render = (state: State) => {
   // Stop when the canvas has left the page: React removes it before it runs the
   // effect cleanup that finalizes the game, so a frame can land in between
-  if (!getCanvas()) return
+  if (!state.canvas.isConnected) return
 
   updateParticlePositions(state)
   detectParticleBoundaries(state)
   detectParticleCollisions(state)
   detectHeldParticleBuffer(state)
 
-  clearCanvas()
+  clearCanvas(state)
   drawBuffer(state)
   drawParticles(state)
 
@@ -363,9 +346,7 @@ const render = (state: State) => {
  * pointer sits under it instead, and takes the speed it's dragged at as its
  * velocity, so letting go throws it.
  */
-const updateParticlePositions = ({ drag, particles }: State) => {
-  const canvas = getCanvas()
-
+const updateParticlePositions = ({ canvas, drag, particles }: State) => {
   particles.forEach((particle) => {
     const { radius, vx, vy, x, y } = particle
 
@@ -404,9 +385,7 @@ const updateParticlePositions = ({ drag, particles }: State) => {
  * particle always bounces towards the inside, so one left outside a canvas
  * that shrank, or resting on an edge, doesn't keep reversing.
  */
-const detectParticleBoundaries = ({ drag, particles }: State) => {
-  const canvas = getCanvas()
-
+const detectParticleBoundaries = ({ canvas, drag, particles }: State) => {
   particles.forEach((particle) => {
     // The pointer keeps a held particle inside the canvas
     if (particle === drag?.particle) return
@@ -528,10 +507,7 @@ const detectHeldParticleBuffer = ({ drag, particles }: State) => {
 /**
  * Clear canvas context based upon canvas width and height
  */
-const clearCanvas = () => {
-  const canvas = getCanvas()
-  const context = getContext()
-
+const clearCanvas = ({ canvas, context }: State) => {
   if (!context) return
 
   context.clearRect(0, 0, canvas.width, canvas.height)
@@ -541,9 +517,7 @@ const clearCanvas = () => {
  * Draw the edge of the buffer around the particle held by the pointer, behind
  * the particles, in the canvas's buffer colour
  */
-const drawBuffer = ({ drag }: State) => {
-  const context = getContext()
-
+const drawBuffer = ({ canvas, context, drag }: State) => {
   if (!drag || !context) return
 
   const held = drag.particle
@@ -554,7 +528,7 @@ const drawBuffer = ({ drag }: State) => {
   context.beginPath()
   context.arc(held.x, held.y, held.radius * (1 + bufferRadii), 0, Math.PI * 2)
   context.lineWidth = 1
-  context.strokeStyle = getComputedStyle(getCanvas())
+  context.strokeStyle = getComputedStyle(canvas)
     .getPropertyValue('--buffer')
     .trim()
   context.stroke()
@@ -564,13 +538,11 @@ const drawBuffer = ({ drag }: State) => {
 /**
  * Draw particle on canvas based on passed properties
  */
-const drawParticles = ({ particles }: State) => {
-  const context = getContext()
-
+const drawParticles = ({ canvas, context, particles }: State) => {
   if (!context) return
 
   // Read the colour every frame, so it follows theme changes
-  const color = getComputedStyle(getCanvas()).color
+  const color = getComputedStyle(canvas).color
 
   particles.forEach(({ radius, type, x, y }) => {
     context.beginPath()
@@ -594,20 +566,14 @@ const drawParticles = ({ particles }: State) => {
 // Utils ///////////////////////////////////////////////////////////////////////
 
 /**
- * Get canvas element by element id
- */
-const getCanvas = () => document.getElementById(GAME_ID) as HTMLCanvasElement
-
-/**
- * Get canvas context by getCanvas() function
- */
-const getContext = () => getCanvas().getContext('2d')
-
-/**
  * Get the pointer position on the canvas from its position in the window
  */
-const getPointerPosition = (clientX: number, clientY: number) => {
-  const { left, top } = getCanvas().getBoundingClientRect()
+const getPointerPosition = (
+  canvas: HTMLCanvasElement,
+  clientX: number,
+  clientY: number,
+) => {
+  const { left, top } = canvas.getBoundingClientRect()
 
   return { x: clientX - left, y: clientY - top }
 }
