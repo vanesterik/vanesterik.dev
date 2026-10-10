@@ -11,7 +11,7 @@ const css = fs.readFileSync(
 )
 
 describe('COLOR_TOKENS', () => {
-  it('lists every colour token defined in globals.css, and no others', () => {
+  it('lists every color token defined in globals.css, and no others', () => {
     // Each token is exposed to Tailwind as --color-<name>
     const defined = [...css.matchAll(/--color-([a-z-]+):/g)].map(
       ([, name]) => name,

@@ -12,7 +12,7 @@ export const ParticleCanvas = () => {
 
     // Start the game in the container and return its finalize function as the
     // effect cleanup. The game follows the theme through its canvas's CSS
-    // colour, so it runs once per mount
+    // color, so it runs once per mount
     return game(containerRef.current)
   }, [])
 
