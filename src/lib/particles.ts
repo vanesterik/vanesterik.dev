@@ -110,11 +110,17 @@ export const game = (containerId: string, isDarkMode = false) => {
   store.dispatch({ type: ActionTypes.SET_INITIAL_STATE })
 
   createCanvas(container)
-  resizeCanvas(store)
-  initialize(store)
+  const stopResizing = resizeCanvas(store)
+  const stopStarting = initialize(store)
 
-  // Directly return finalize function in order to finalize the game
-  return () => finalize(store)
+  // Return a function that stops everything the game set up, so nothing keeps
+  // running once the canvas is gone: React may finalize the game before the
+  // first resize has even started the render loop
+  return () => {
+    stopResizing()
+    stopStarting()
+    finalize(store)
+  }
 }
 
 /**
@@ -133,6 +139,9 @@ const initialize = (store: Store) => {
     // animation frame when finalizing the game
     dispatch({ type: ActionTypes.SET_FRAME_ID, payload: requestId })
   })
+
+  // Stops the loop from starting if the game is finalized before it has
+  return unsubscribe
 }
 
 /**
@@ -258,6 +267,8 @@ const resizeCanvas = (store: Store) => {
     })
   })
   observer.observe(canvas)
+
+  return () => observer.disconnect()
 }
 
 /**
@@ -305,6 +316,10 @@ const createParticles = (
  */
 const render = (store: Store) => {
   const { dispatch } = store
+
+  // Stop when the canvas has left the page: React removes it before it runs the
+  // effect cleanup that finalizes the game, so a frame can land in between
+  if (!getCanvas()) return
 
   updateParticlePositions(store)
   detectParticleBoundaries(store)
