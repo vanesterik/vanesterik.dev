@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.5.0](https://github.com/vanesterik/vanesterik.dev/compare/v1.4.0...v1.5.0) (2026-10-10)
+
+### Features
+
+* add Storybook pages for the design tokens ([92c2e02](https://github.com/vanesterik/vanesterik.dev/commit/92c2e02511a929a4533c6f018300021c152d005e)), references [#68](https://github.com/vanesterik/vanesterik.dev/issues/68)
+* add Storybook stories for the site's components ([5ef7fa7](https://github.com/vanesterik/vanesterik.dev/commit/5ef7fa772cf74fe28ddc53b48e1598aab9739051)), references [#68](https://github.com/vanesterik/vanesterik.dev/issues/68)
+
 ## [1.4.0](https://github.com/vanesterik/vanesterik.dev/compare/v1.3.0...v1.4.0) (2026-10-10)
 
 ### Features
