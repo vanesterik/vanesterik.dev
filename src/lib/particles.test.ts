@@ -53,6 +53,20 @@ const drawnParticles = (context: ReturnType<typeof stubContext>) => {
   return particles
 }
 
+// Whether the particle drawn at the passed centre was filled or outlined
+const drawnTypeAt = (
+  context: ReturnType<typeof stubContext>,
+  at: { x: number; y: number },
+) => {
+  const index = context.arc.mock.calls.findIndex(
+    ([x, y]) => x === at.x && y === at.y,
+  )
+  const order = context.arc.mock.invocationCallOrder[index]
+  const next = (draw: ReturnType<typeof vi.fn>) =>
+    draw.mock.invocationCallOrder.find((call) => call > order) ?? Infinity
+  return next(context.fill) < next(context.stroke) ? 'fill' : 'stroke'
+}
+
 // How many particles were drawn filled and outlined since the last call
 const drawnTypes = (context: ReturnType<typeof stubContext>) => {
   const types = {
@@ -338,6 +352,45 @@ describe('dragging', () => {
     const particles = drawnParticles(context)
     expect(particles).not.toContainEqual({ x: 300, y: 700 })
     expect(particles).not.toContainEqual(FREE_SPOT)
+  })
+
+  it('keeps other particles a radius clear of a held particle', () => {
+    firePointer('pointerdown', FIRST_PARTICLE.x, FIRST_PARTICLE.y)
+
+    // Sweep it down through its column and across the next one
+    for (let step = 1; step <= 10; step++) {
+      const held = { x: 39 + step * 8, y: 52.75 + step * 30 }
+      firePointer('pointermove', held.x, held.y)
+      runFrames()
+
+      const others = drawnParticles(context).filter(
+        ({ x, y }) => x !== held.x || y !== held.y,
+      )
+      expect(others).toHaveLength(35)
+      for (const { x, y } of others) {
+        // Two radii of 20 plus a buffer of one radius
+        expect(Math.hypot(x - held.x, y - held.y)).toBeGreaterThanOrEqual(
+          60 - 1e-9,
+        )
+      }
+    }
+  })
+
+  it('leaves the types of particles that bounce off a held particle', () => {
+    firePointer('pointerdown', FIRST_PARTICLE.x, FIRST_PARTICLE.y)
+    drawnTypes(context)
+
+    // The outlined held particle pushes through filled ones, before the
+    // filled and outlined halves of the field meet
+    for (let step = 1; step <= 10; step++) {
+      const held = { x: 39 + step * 8, y: 52.75 + step * 30 }
+      firePointer('pointermove', held.x, held.y)
+      runFrames()
+
+      expect(drawnTypeAt(context, held)).toBe('stroke')
+      expect(drawnTypes(context)).toEqual({ fill: 14, stroke: 22 })
+      drawnParticles(context)
+    }
   })
 
   it('shows a grab cursor over particles and while dragging', () => {
