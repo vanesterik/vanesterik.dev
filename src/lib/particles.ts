@@ -10,6 +10,10 @@ type State = {
   context: CanvasRenderingContext2D | null
   drag: Drag | null
   frameId: number
+  // Size of the canvas in CSS pixels, which particles move in. The canvas
+  // itself has a pixel for every device pixel, so it's sharp on any screen
+  height: number
+  width: number
   // When the last frame was drawn, in performance.now() time
   lastFrameAt: number
   // Ordered by id
@@ -104,6 +108,8 @@ export const game = (container: HTMLElement) => {
     context: canvas.getContext('2d'),
     drag: null,
     frameId: 0,
+    height: 0,
+    width: 0,
     lastFrameAt: performance.now(),
     particles: [],
   }
@@ -123,20 +129,26 @@ export const game = (container: HTMLElement) => {
 }
 
 /**
- * Set canvas element width and height based on observer entries dimensions,
- * and match the number of particles to the width. Particles that end up
- * outside a canvas that shrank are brought back in by the boundary detection.
+ * Size the canvas to its CSS size times the device pixel ratio, scaled back so
+ * drawing happens in CSS pixels, and match the number of particles to the
+ * width. Particles that end up outside a canvas that shrank are brought back
+ * in by the boundary detection.
  */
 const resizeCanvas = (state: State) => {
-  const { canvas } = state
+  const { canvas, context } = state
 
   const observer = new ResizeObserver((entries) => {
     entries.forEach((entry) => {
       const width = entry.contentRect.width
       const height = entry.contentRect.height
+      const ratio = window.devicePixelRatio || 1
 
-      canvas.setAttribute('width', `${width}`)
-      canvas.setAttribute('height', `${height}`)
+      // Setting the size clears the canvas and resets its transform
+      canvas.width = Math.round(width * ratio)
+      canvas.height = Math.round(height * ratio)
+      context?.setTransform(ratio, 0, 0, ratio, 0, 0)
+      state.width = width
+      state.height = height
 
       updateParticleCount(state, width, height)
     })
@@ -362,7 +374,7 @@ const render = (state: State) => {
  * letting go throws it.
  */
 const updateParticlePositions = (
-  { canvas, drag, particles }: State,
+  { drag, height, particles, width }: State,
   steps: number,
 ) => {
   particles.forEach((particle) => {
@@ -370,8 +382,8 @@ const updateParticlePositions = (
 
     // A held particle sits under the pointer, inside the canvas
     if (particle === drag?.particle) {
-      particle.x = clamp(drag.x, radius, canvas.width - radius)
-      particle.y = clamp(drag.y, radius, canvas.height - radius)
+      particle.x = clamp(drag.x, radius, width - radius)
+      particle.y = clamp(drag.y, radius, height - radius)
 
       if (steps === 0) return
 
@@ -407,22 +419,27 @@ const updateParticlePositions = (
  * particle always bounces towards the inside, so one left outside a canvas
  * that shrank, or resting on an edge, doesn't keep reversing.
  */
-const detectParticleBoundaries = ({ canvas, drag, particles }: State) => {
+const detectParticleBoundaries = ({
+  drag,
+  height,
+  particles,
+  width,
+}: State) => {
   particles.forEach((particle) => {
     // The pointer keeps a held particle inside the canvas
     if (particle === drag?.particle) return
 
-    if (particle.x + particle.radius >= canvas.width) {
+    if (particle.x + particle.radius >= width) {
       particle.vx = -Math.abs(particle.vx)
-      particle.x = canvas.width - particle.radius
+      particle.x = width - particle.radius
     }
     if (particle.x - particle.radius <= 0) {
       particle.vx = Math.abs(particle.vx)
       particle.x = particle.radius
     }
-    if (particle.y + particle.radius >= canvas.height) {
+    if (particle.y + particle.radius >= height) {
       particle.vy = -Math.abs(particle.vy)
-      particle.y = canvas.height - particle.radius
+      particle.y = height - particle.radius
     }
     if (particle.y - particle.radius <= 0) {
       particle.vy = Math.abs(particle.vy)
@@ -527,12 +544,12 @@ const detectHeldParticleBuffer = ({ drag, particles }: State) => {
 }
 
 /**
- * Clear canvas context based upon canvas width and height
+ * Clear the whole canvas
  */
-const clearCanvas = ({ canvas, context }: State) => {
+const clearCanvas = ({ context, height, width }: State) => {
   if (!context) return
 
-  context.clearRect(0, 0, canvas.width, canvas.height)
+  context.clearRect(0, 0, width, height)
 }
 
 /**
