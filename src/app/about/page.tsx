@@ -16,7 +16,7 @@ export default function Page() {
       {/* The large introduction isn't a heading, so the page's heading is only
           for screen readers */}
       <h1 className="sr-only">About</h1>
-      <div className="flex flex-col gap-[1.15em] font-bold text-intro">
+      <div className="flex flex-col gap-[1.15em] text-intro">
         <p>{about.intro}</p>
         <p>{`${layout.tagline.join(' ')} ${about.afterTagline}`}</p>
       </div>
@@ -25,18 +25,18 @@ export default function Page() {
           <li key={`${company} ${period}`}>
             <p>{title}</p>
             <p>{company}</p>
-            <p className="mt-[0.4em] font-mono font-normal text-muted-foreground text-xs uppercase">
+            <p className="mt-[0.4em] font-mono text-muted-foreground text-xs uppercase">
               {period}
             </p>
           </li>
         ))}
       </AboutSection>
-      <AboutSection title="Companies I Worked With">
+      <AboutSection title="Companies I Worked With" isCompact>
         {about.companies.map((company) => (
           <li key={company}>{company}</li>
         ))}
       </AboutSection>
-      <AboutSection title="Get In Touch">
+      <AboutSection title="Get In Touch" isCompact>
         {getContactLinks(layout).map(({ name, url }) => (
           <li key={name}>
             <a
