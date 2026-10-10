@@ -104,7 +104,7 @@ const PLACEMENT_ATTEMPTS = 10
 /**
  * Main game function which adds a canvas to the passed container and starts
  * the render loop, which draws particles once the canvas has a size.
- * Particles are drawn in the canvas's CSS colour, so a theme change recolours
+ * Particles are drawn in the canvas's CSS color, so a theme change recolors
  * them without a restart.
  */
 export const game = (container: HTMLElement) => {
@@ -568,7 +568,7 @@ const clearCanvas = ({ context, height, width }: State) => {
 
 /**
  * Draw the edge of the buffer around the particle held by the pointer, behind
- * the particles, in the canvas's buffer colour
+ * the particles, in the canvas's buffer color
  */
 const drawBuffer = ({ canvas, context, drag }: State) => {
   if (!drag || !context) return
@@ -594,7 +594,7 @@ const drawBuffer = ({ canvas, context, drag }: State) => {
 const drawParticles = ({ canvas, context, particles }: State) => {
   if (!context) return
 
-  // Read the colour every frame, so it follows theme changes
+  // Read the color every frame, so it follows theme changes
   const color = getComputedStyle(canvas).color
 
   particles.forEach(({ radius, type, x, y }) => {

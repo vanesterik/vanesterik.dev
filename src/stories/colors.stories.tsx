@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { COLOR_PAIRS, COLOR_TOKENS } from './tokens'
 import { readToken, useThemeClass } from './use-theme-class'
 
-const Colours = () => {
+const Colors = () => {
   useThemeClass()
 
   return (
@@ -50,10 +50,10 @@ const Colours = () => {
 }
 
 const meta = {
-  title: 'Design tokens/Colours',
-  component: Colours,
+  title: 'Design tokens/Colors',
+  component: Colors,
   parameters: { layout: 'padded' },
-} satisfies Meta<typeof Colours>
+} satisfies Meta<typeof Colors>
 
 export default meta
 

@@ -1,4 +1,4 @@
-// The design tokens the Storybook token pages show. The colours are defined in
+// The design tokens the Storybook token pages show. The colors are defined in
 // src/app/globals.css; a test keeps this list in step with it
 
 export const COLOR_TOKENS = [
@@ -17,7 +17,7 @@ export const COLOR_TOKENS = [
 
 export type ColorToken = (typeof COLOR_TOKENS)[number]
 
-// Text colours as the site sets them on their backgrounds
+// Text colors as the site sets them on their backgrounds
 export const COLOR_PAIRS: { text: ColorToken; background: ColorToken }[] = [
   { text: 'foreground', background: 'background' },
   { text: 'muted-foreground', background: 'background' },

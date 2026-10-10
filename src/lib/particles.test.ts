@@ -39,7 +39,7 @@ type Drawing = {
 }
 
 // Records what the game draws, as jsdom has no canvas implementation: each
-// circle, and whether it was filled or outlined in which colour
+// circle, and whether it was filled or outlined in which color
 const stubContext = () => {
   const drawings: Drawing[] = []
   const finish = (drawing: Omit<Drawing, 'x' | 'y' | 'radius'>) =>
@@ -255,7 +255,7 @@ describe('game', () => {
     expect(container.querySelectorAll('canvas')).toHaveLength(1)
   })
 
-  it('draws in the current colour of its canvas', () => {
+  it('draws in the current color of its canvas', () => {
     const context = stubContext()
     game(container)
     fireResize()
@@ -266,7 +266,7 @@ describe('game', () => {
     expect(context.fillStyle).toBe('rgb(255, 0, 0)')
     expect(context.strokeStyle).toBe('rgb(255, 0, 0)')
 
-    // A theme change only changes the colour, it doesn't restart the game
+    // A theme change only changes the color, it doesn't restart the game
     canvas.style.color = 'rgb(0, 0, 255)'
     runFrames()
     expect(context.fillStyle).toBe('rgb(0, 0, 255)')
@@ -543,7 +543,7 @@ describe('dragging', () => {
     }
   })
 
-  it('draws the buffer behind the particles in the buffer colour', () => {
+  it('draws the buffer behind the particles in the buffer color', () => {
     getCanvas().style.setProperty('--buffer', 'rgb(1, 2, 3)')
     firePointer('pointerdown', FIRST_PARTICLE.x, FIRST_PARTICLE.y)
     runFrames()
