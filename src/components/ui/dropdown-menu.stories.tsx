@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { Moon, Settings, Sun } from 'lucide-react'
+import { Menu, Moon, Settings, Sun } from 'lucide-react'
 import { useState } from 'react'
 
 import { Button } from './button'
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
@@ -49,4 +50,28 @@ type Story = StoryObj<typeof meta>
 
 export const RadioGroupWithIcons: Story = {
   render: () => <RadioMenu />,
+}
+
+// Plain items holding links, as in the menu on narrow screens
+export const ItemsAsLinks: Story = {
+  render: () => (
+    <DropdownMenu defaultOpen>
+      <DropdownMenuTrigger asChild>
+        <Button variant="secondary" aria-label="menu">
+          <Menu />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuItem asChild>
+          <a href="/about">about</a>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <a href="/projects">projects</a>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <a href="/posts">posts</a>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  ),
 }
