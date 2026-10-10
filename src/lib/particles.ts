@@ -245,7 +245,8 @@ const createCanvas = (container: HTMLElement) => {
 
 /**
  * Set canvas element width and height based on observer entries dimensions.
- * Update particles in state based on aforementioned dimensions.
+ * Create particles based on the first of these dimensions; later resizes keep
+ * them, and the boundary detection brings any outside the canvas back in.
  */
 const resizeCanvas = (store: Store) => {
   const canvas = getCanvas()
@@ -259,7 +260,9 @@ const resizeCanvas = (store: Store) => {
         canvas.setAttribute('width', `${width}`)
         canvas.setAttribute('height', `${height}`)
 
-        createParticles(store, width, height)
+        if (store.getParticles().length === 0) {
+          createParticles(store, width, height)
+        }
       }
     })
   })
@@ -351,7 +354,9 @@ const updateParticlePositions = ({ dispatch, getParticles }: Store) => {
 }
 
 /**
- * Detect boundary collision and update particle velocity and position
+ * Detect boundary collision and update particle velocity and position. A
+ * particle always bounces towards the inside, so one left outside a canvas
+ * that shrank, or resting on an edge, doesn't keep reversing.
  */
 const detectParticleBoundaries = ({ dispatch, getParticles }: Store) => {
   const particles = getParticles()
@@ -363,7 +368,7 @@ const detectParticleBoundaries = ({ dispatch, getParticles }: Store) => {
         type: ActionTypes.UPDATE_PARTICLE_HORIZONTAL_BOUNDARY,
         payload: {
           id: particle.id,
-          vx: -particle.vx,
+          vx: -Math.abs(particle.vx),
           x: canvas.width - particle.radius,
         },
       })
@@ -373,7 +378,7 @@ const detectParticleBoundaries = ({ dispatch, getParticles }: Store) => {
         type: ActionTypes.UPDATE_PARTICLE_HORIZONTAL_BOUNDARY,
         payload: {
           id: particle.id,
-          vx: -particle.vx,
+          vx: Math.abs(particle.vx),
           x: particle.radius,
         },
       })
@@ -383,7 +388,7 @@ const detectParticleBoundaries = ({ dispatch, getParticles }: Store) => {
         type: ActionTypes.UPDATE_PARTICLE_VERTICAL_BOUNDARY,
         payload: {
           id: particle.id,
-          vy: -particle.vy,
+          vy: -Math.abs(particle.vy),
           y: canvas.height - particle.radius,
         },
       })
@@ -393,7 +398,7 @@ const detectParticleBoundaries = ({ dispatch, getParticles }: Store) => {
         type: ActionTypes.UPDATE_PARTICLE_VERTICAL_BOUNDARY,
         payload: {
           id: particle.id,
-          vy: -particle.vy,
+          vy: Math.abs(particle.vy),
           y: particle.radius,
         },
       })

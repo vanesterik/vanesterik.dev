@@ -12,19 +12,45 @@ let observers: {
 let frames: Map<number, FrameRequestCallback>
 let nextFrameId: number
 
-const fireResize = () => {
+const fireResize = (width = 300, height = 200) => {
   const canvas = document.getElementById('game')
   for (const { callback } of observers) {
     callback(
       [
         {
           target: canvas ?? document.createElement('canvas'),
-          contentRect: { width: 300, height: 200 },
+          contentRect: { width, height },
         } as unknown as ResizeObserverEntry,
       ],
       {} as ResizeObserver,
     )
   }
+}
+
+// Records what the game draws, as jsdom has no canvas implementation
+const stubContext = () => {
+  const context = {
+    arc: vi.fn(),
+    beginPath: vi.fn(),
+    clearRect: vi.fn(),
+    closePath: vi.fn(),
+    fill: vi.fn(),
+    fillStyle: '',
+    lineWidth: 0,
+    stroke: vi.fn(),
+    strokeStyle: '',
+  }
+  vi.mocked(HTMLCanvasElement.prototype.getContext).mockReturnValue(
+    context as unknown as CanvasRenderingContext2D,
+  )
+  return context
+}
+
+// Centres of the particles drawn since the last call
+const drawnParticles = (context: ReturnType<typeof stubContext>) => {
+  const particles = context.arc.mock.calls.map(([x, y]) => ({ x, y }))
+  context.arc.mockClear()
+  return particles
 }
 
 const runFrames = () => {
@@ -104,20 +130,7 @@ describe('game', () => {
   })
 
   it('draws in the current colour of its canvas', () => {
-    const context = {
-      arc: vi.fn(),
-      beginPath: vi.fn(),
-      clearRect: vi.fn(),
-      closePath: vi.fn(),
-      fill: vi.fn(),
-      fillStyle: '',
-      lineWidth: 0,
-      stroke: vi.fn(),
-      strokeStyle: '',
-    }
-    vi.mocked(HTMLCanvasElement.prototype.getContext).mockReturnValue(
-      context as unknown as CanvasRenderingContext2D,
-    )
+    const context = stubContext()
     game(CONTAINER_ID)
     fireResize()
     const canvas = document.getElementById('game') as HTMLCanvasElement
@@ -132,6 +145,40 @@ describe('game', () => {
     runFrames()
     expect(context.fillStyle).toBe('rgb(0, 0, 255)')
     expect(context.strokeStyle).toBe('rgb(0, 0, 255)')
+  })
+
+  it('keeps its particles when the canvas is resized', () => {
+    const context = stubContext()
+    game(CONTAINER_ID)
+    fireResize(300, 200)
+    runFrames()
+    const before = drawnParticles(context)
+
+    // A new grid at this size would hold 24 particles instead of 6
+    fireResize(600, 400)
+    runFrames()
+
+    expect(drawnParticles(context)).toHaveLength(before.length)
+  })
+
+  it('brings its particles back inside a canvas that shrinks', () => {
+    const context = stubContext()
+    game(CONTAINER_ID)
+    fireResize(300, 200)
+    runFrames()
+    drawnParticles(context)
+
+    fireResize(100, 100)
+    for (let frame = 0; frame < 10; frame++) {
+      runFrames()
+      // Particles have a radius of 20
+      for (const { x, y } of drawnParticles(context)) {
+        expect(x).toBeGreaterThanOrEqual(20)
+        expect(x).toBeLessThanOrEqual(80)
+        expect(y).toBeGreaterThanOrEqual(20)
+        expect(y).toBeLessThanOrEqual(80)
+      }
+    }
   })
 
   it('stops by itself when its canvas leaves the page before it is finalised', () => {
