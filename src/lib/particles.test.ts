@@ -11,6 +11,8 @@ let observers: {
 }[]
 let frames: Map<number, FrameRequestCallback>
 let nextFrameId: number
+// What performance.now() returns; every frame moves it on by a 60th of a second
+let now: number
 
 const fireResize = (width = 300, height = 200) => {
   const canvas = document.getElementById('game')
@@ -27,17 +29,32 @@ const fireResize = (width = 300, height = 200) => {
   }
 }
 
-// Records what the game draws, as jsdom has no canvas implementation
+type Drawing = {
+  x: number
+  y: number
+  radius: number
+  type?: 'fill' | 'stroke'
+  color?: string
+}
+
+// Records what the game draws, as jsdom has no canvas implementation: each
+// circle, and whether it was filled or outlined in which colour
 const stubContext = () => {
+  const drawings: Drawing[] = []
+  const finish = (drawing: Omit<Drawing, 'x' | 'y' | 'radius'>) =>
+    Object.assign(drawings[drawings.length - 1], drawing)
   const context = {
-    arc: vi.fn(),
+    arc: vi.fn((x: number, y: number, radius: number) => {
+      drawings.push({ x, y, radius })
+    }),
     beginPath: vi.fn(),
     clearRect: vi.fn(),
     closePath: vi.fn(),
-    fill: vi.fn(),
+    drawings,
+    fill: vi.fn(() => finish({ type: 'fill', color: context.fillStyle })),
     fillStyle: '',
     lineWidth: 0,
-    stroke: vi.fn(),
+    stroke: vi.fn(() => finish({ type: 'stroke', color: context.strokeStyle })),
     strokeStyle: '',
   }
   vi.mocked(HTMLCanvasElement.prototype.getContext).mockReturnValue(
@@ -46,36 +63,27 @@ const stubContext = () => {
   return context
 }
 
-// Centres of the particles drawn since the last call
-const drawnParticles = (context: ReturnType<typeof stubContext>) => {
-  const particles = context.arc.mock.calls.map(([x, y]) => ({ x, y }))
-  context.arc.mockClear()
-  return particles
+// Everything drawn since the last call, split into particles, which have a
+// radius of 20, and the rings around held particles
+const takeDrawings = (context: ReturnType<typeof stubContext>) => {
+  const drawings = context.drawings.splice(0)
+  return {
+    particles: drawings.filter(({ radius }) => radius === 20),
+    rings: drawings.filter(({ radius }) => radius !== 20),
+  }
 }
 
-// Whether the particle drawn at the passed centre was filled or outlined
-const drawnTypeAt = (
-  context: ReturnType<typeof stubContext>,
-  at: { x: number; y: number },
-) => {
-  const index = context.arc.mock.calls.findIndex(
-    ([x, y]) => x === at.x && y === at.y,
-  )
-  const order = context.arc.mock.invocationCallOrder[index]
-  const next = (draw: ReturnType<typeof vi.fn>) =>
-    draw.mock.invocationCallOrder.find((call) => call > order) ?? Infinity
-  return next(context.fill) < next(context.stroke) ? 'fill' : 'stroke'
-}
+// Centres of the particles drawn since the last call
+const drawnParticles = (context: ReturnType<typeof stubContext>) =>
+  takeDrawings(context).particles.map(({ x, y }) => ({ x, y }))
 
 // How many particles were drawn filled and outlined since the last call
 const drawnTypes = (context: ReturnType<typeof stubContext>) => {
-  const types = {
-    fill: context.fill.mock.calls.length,
-    stroke: context.stroke.mock.calls.length,
+  const { particles } = takeDrawings(context)
+  return {
+    fill: particles.filter(({ type }) => type === 'fill').length,
+    stroke: particles.filter(({ type }) => type === 'stroke').length,
   }
-  context.fill.mockClear()
-  context.stroke.mockClear()
-  return types
 }
 
 const getCanvas = () => document.getElementById('game') as HTMLCanvasElement
@@ -117,6 +125,7 @@ const firstParticleStep = (context: ReturnType<typeof stubContext>) => {
 }
 
 const runFrames = () => {
+  now += 1000 / 60
   const pending = [...frames.values()]
   frames.clear()
   for (const frame of pending) frame(0)
@@ -126,6 +135,8 @@ beforeEach(() => {
   observers = []
   frames = new Map()
   nextFrameId = 1
+  now = 0
+  vi.spyOn(performance, 'now').mockImplementation(() => now)
 
   vi.stubGlobal(
     'ResizeObserver',
@@ -383,6 +394,9 @@ describe('dragging', () => {
 
   it('keeps other particles four radii clear of a held particle', () => {
     firePointer('pointerdown', FIRST_PARTICLE.x, FIRST_PARTICLE.y)
+    // Half a second, for the buffer to grow to its full width
+    for (let frame = 0; frame < 30; frame++) runFrames()
+    takeDrawings(context)
 
     // Sweep it down through its column and across the next one
     for (let step = 1; step <= 10; step++) {
@@ -414,9 +428,12 @@ describe('dragging', () => {
       firePointer('pointermove', held.x, held.y)
       runFrames()
 
-      expect(drawnTypeAt(context, held)).toBe('stroke')
-      expect(drawnTypes(context)).toEqual({ fill: 14, stroke: 22 })
-      drawnParticles(context)
+      const { particles } = takeDrawings(context)
+      expect(
+        particles.find(({ x, y }) => x === held.x && y === held.y)?.type,
+      ).toBe('stroke')
+      expect(particles.filter(({ type }) => type === 'fill')).toHaveLength(14)
+      expect(particles.filter(({ type }) => type === 'stroke')).toHaveLength(22)
     }
   })
 
@@ -442,6 +459,63 @@ describe('dragging', () => {
         Math.hypot(x - from[index].x, y - from[index].y),
       ).toBeLessThanOrEqual(7 + 1e-9)
     })
+  })
+
+  it('grows the buffer to full width over half a second, easing out', () => {
+    firePointer('pointerdown', FIRST_PARTICLE.x, FIRST_PARTICLE.y)
+    // The radius of the ring drawn in the next frame
+    const ringRadius = () => {
+      takeDrawings(context)
+      runFrames()
+      return takeDrawings(context).rings[0]?.radius
+    }
+
+    // A radius of 20 plus a buffer of 80 times the eased progress
+    for (let frame = 1; frame < 15; frame++) runFrames()
+    expect(ringRadius()).toBeCloseTo(20 + 80 * (1 - 0.5 ** 3))
+    for (let frame = 16; frame < 30; frame++) runFrames()
+    expect(ringRadius()).toBeCloseTo(100)
+    expect(ringRadius()).toBeCloseTo(100)
+  })
+
+  it('keeps other particles clear of the buffer while it grows', () => {
+    firePointer('pointerdown', FIRST_PARTICLE.x, FIRST_PARTICLE.y)
+    firePointer('pointermove', FREE_SPOT.x, FREE_SPOT.y)
+    for (let frame = 1; frame < 15; frame++) runFrames()
+    drawnParticles(context)
+    runFrames()
+
+    // Two radii of 20 plus three quarters of the way to a buffer of 80
+    for (const { x, y } of drawnParticles(context)) {
+      if (x === FREE_SPOT.x && y === FREE_SPOT.y) continue
+      expect(
+        Math.hypot(x - FREE_SPOT.x, y - FREE_SPOT.y),
+      ).toBeGreaterThanOrEqual(40 + 80 * (1 - 0.5 ** 3) - 1e-9)
+    }
+  })
+
+  it('draws the buffer behind the particles in the buffer colour', () => {
+    getCanvas().style.setProperty('--buffer', 'rgb(1, 2, 3)')
+    firePointer('pointerdown', FIRST_PARTICLE.x, FIRST_PARTICLE.y)
+    runFrames()
+
+    expect(context.drawings[0]).toMatchObject({
+      x: FIRST_PARTICLE.x,
+      y: FIRST_PARTICLE.y,
+      type: 'stroke',
+      color: 'rgb(1, 2, 3)',
+    })
+    expect(takeDrawings(context).rings).toHaveLength(1)
+  })
+
+  it('removes the buffer when the particle is let go', () => {
+    firePointer('pointerdown', FIRST_PARTICLE.x, FIRST_PARTICLE.y)
+    for (let frame = 0; frame < 30; frame++) runFrames()
+    firePointer('pointerup', FIRST_PARTICLE.x, FIRST_PARTICLE.y)
+    takeDrawings(context)
+    runFrames()
+
+    expect(takeDrawings(context).rings).toHaveLength(0)
   })
 
   it('shows a grab cursor over particles and while dragging', () => {

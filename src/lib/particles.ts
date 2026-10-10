@@ -115,10 +115,12 @@ type Particle = {
   y: number
 }
 
-// The particle held by the pointer, the pointer holding it, and where
+// The particle held by the pointer, the pointer holding it, when it was
+// grabbed (in performance.now() time) and where it is
 type Drag = {
   id: number
   pointerId: number
+  startedAt: number
   x: number
   y: number
 }
@@ -146,6 +148,9 @@ const GRAB_MARGIN = 12
 // Width of the buffer other particles keep around a held particle, in radii
 // of the held particle
 const BUFFER_RADII = 4
+
+// How long the buffer takes to grow from nothing to its full width, in ms
+const BUFFER_GROWTH_DURATION = 500
 
 // Fastest a thrown particle leaves the pointer, in px per frame, so it can't
 // skip past a wall in one frame
@@ -509,7 +514,13 @@ const dragParticles = (store: Store) => {
     canvas.setPointerCapture(event.pointerId)
     dispatch({
       type: ActionTypes.START_DRAG,
-      payload: { id: particle.id, pointerId: event.pointerId, x, y },
+      payload: {
+        id: particle.id,
+        pointerId: event.pointerId,
+        startedAt: performance.now(),
+        x,
+        y,
+      },
     })
     updateCursor(x, y)
   }
@@ -575,6 +586,7 @@ const render = (store: Store) => {
   detectHeldParticleBuffer(store)
 
   clearCanvas()
+  drawBuffer(store)
   drawParticles(store)
 
   // Call render function recursively by requesting animation frame again
@@ -775,8 +787,9 @@ const detectParticleCollisions = ({
 }
 
 /**
- * Keep other particles out of a buffer BUFFER_RADII radii wide around the
- * particle held by the pointer. The held particle is an immovable wall: a
+ * Keep other particles out of the buffer around the particle held by the
+ * pointer, which grows to BUFFER_RADII radii wide. The held particle is an
+ * immovable wall: a
  * particle moving into the buffer is mirrored off it, and one inside it is
  * pushed back to its edge, so a fast drag can't leave it stuck. Neither changes
  * type.
@@ -787,14 +800,17 @@ const detectHeldParticleBuffer = ({
   getParticles,
 }: Store) => {
   const particles = getParticles()
-  const held = particles.find(({ id }) => id === getDrag()?.id)
+  const drag = getDrag()
+  const held = particles.find(({ id }) => id === drag?.id)
 
-  if (!held) return
+  if (!drag || !held) return
+
+  const bufferRadius = held.radius * getBufferRadii(drag)
 
   particles.forEach((particle) => {
     if (particle.id === held.id) return
 
-    const reach = particle.radius + held.radius * (1 + BUFFER_RADII)
+    const reach = particle.radius + held.radius + bufferRadius
     const distanceX = particle.x - held.x
     const distanceY = particle.y - held.y
     const distance = Math.hypot(distanceX, distanceY)
@@ -832,6 +848,31 @@ const clearCanvas = () => {
   if (!context) return
 
   context.clearRect(0, 0, canvas.width, canvas.height)
+}
+
+/**
+ * Draw the edge of the buffer around the particle held by the pointer, behind
+ * the particles, in the canvas's buffer colour
+ */
+const drawBuffer = ({ getDrag, getParticles }: Store) => {
+  const drag = getDrag()
+  const held = getParticles().find(({ id }) => id === drag?.id)
+  const context = getContext()
+
+  if (!drag || !held || !context) return
+
+  const bufferRadii = getBufferRadii(drag)
+
+  if (bufferRadii === 0) return
+
+  context.beginPath()
+  context.arc(held.x, held.y, held.radius * (1 + bufferRadii), 0, Math.PI * 2)
+  context.lineWidth = 1
+  context.strokeStyle = getComputedStyle(getCanvas())
+    .getPropertyValue('--buffer')
+    .trim()
+  context.stroke()
+  context.closePath()
 }
 
 /**
@@ -899,6 +940,24 @@ const findParticleAt = ({ getParticles }: Store, x: number, y: number) =>
       ({ particle, distance }) => distance <= particle.radius + GRAB_MARGIN,
     )
     .sort((a, b) => a.distance - b.distance)[0]?.particle
+
+/**
+ * Get the width of the buffer around the held particle, in its radii: it grows
+ * from nothing to BUFFER_RADII over BUFFER_GROWTH_DURATION, easing out
+ */
+const getBufferRadii = ({ startedAt }: Drag) => {
+  const progress = Math.min(
+    (performance.now() - startedAt) / BUFFER_GROWTH_DURATION,
+    1,
+  )
+
+  return BUFFER_RADII * easeOutCubic(progress)
+}
+
+/**
+ * Ease the passed progress from 0 to 1 so it starts fast and settles
+ */
+const easeOutCubic = (progress: number) => 1 - (1 - progress) ** 3
 
 /**
  * Scale the passed velocity down to the passed speed if it's faster
