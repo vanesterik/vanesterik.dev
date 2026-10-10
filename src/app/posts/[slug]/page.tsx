@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 
+import { PostContent } from '@/components/post-content'
 import { formatPostDate, getPost, getPosts } from '@/lib/posts'
 
 type PageProps = {
@@ -19,7 +20,7 @@ export const generateMetadata = async ({
 }
 
 export default async function Page({ params }: PageProps) {
-  const { title, date, html } = await getPost((await params).slug)
+  const { title, date, tree } = await getPost((await params).slug)
 
   return (
     <article className="mx-auto w-full max-w-160">
@@ -34,11 +35,9 @@ export default async function Page({ params }: PageProps) {
           {title}
         </h1>
       </header>
-      <div
-        className="prose"
-        // biome-ignore lint/security/noDangerouslySetInnerHtml: the HTML is built from the repository's own Markdown at build time
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
+      <div className="prose">
+        <PostContent tree={tree} />
+      </div>
     </article>
   )
 }

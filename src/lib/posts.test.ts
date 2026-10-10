@@ -1,5 +1,6 @@
 import path from 'node:path'
 
+import { toHtml } from 'hast-util-to-html'
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import { formatPostDate, getPost, getPosts } from './posts'
@@ -42,14 +43,14 @@ describe('getPost', () => {
   }, 30_000)
 
   it('renders Markdown to HTML', async () => {
-    const { html } = await getPost('older-post', fixtures('posts'))
+    const html = toHtml((await getPost('older-post', fixtures('posts'))).tree)
     expect(html).toContain('<h2>A heading</h2>')
     expect(html).toContain('<li>one</li>')
     expect(html).toContain('<code>inline</code>')
   })
 
   it('highlights code blocks with both themes as CSS variables', async () => {
-    const { html } = await getPost('older-post', fixtures('posts'))
+    const html = toHtml((await getPost('older-post', fixtures('posts'))).tree)
     expect(html).toContain(
       '<pre class="shiki shiki-themes github-light github-dark"',
     )

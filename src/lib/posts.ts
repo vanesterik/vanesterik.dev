@@ -3,7 +3,7 @@ import path from 'node:path'
 
 import rehypeShiki from '@shikijs/rehype'
 import matter from 'gray-matter'
-import rehypeStringify from 'rehype-stringify'
+import type { Root } from 'hast'
 import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
@@ -15,7 +15,9 @@ export type PostMeta = {
   date: string
   description: string
 }
-export type Post = PostMeta & { html: string }
+// The rendered post as an HTML syntax tree, turned into React elements by
+// PostContent so code blocks can become interactive components
+export type Post = PostMeta & { tree: Root }
 
 const POSTS_DIR = path.join(process.cwd(), 'content', 'posts')
 const DATE = /^\d{4}-\d{2}-\d{2}$/
@@ -59,7 +61,7 @@ export const getPosts = (dir = POSTS_DIR): PostMeta[] =>
 
 export const getPost = async (slug: string, dir = POSTS_DIR): Promise<Post> => {
   const { meta, content } = readPost(dir, `${slug}.md`)
-  const file = await unified()
+  const processor = unified()
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkRehype)
@@ -67,9 +69,8 @@ export const getPost = async (slug: string, dir = POSTS_DIR): Promise<Post> => {
       themes: { light: 'github-light', dark: 'github-dark' },
       defaultColor: false,
     })
-    .use(rehypeStringify)
-    .process(content)
-  return { ...meta, html: String(file) }
+  const tree = await processor.run(processor.parse(content))
+  return { ...meta, tree }
 }
 
 const MONTHS = [
