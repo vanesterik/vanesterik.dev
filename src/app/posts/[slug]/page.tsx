@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 
 import { PostContent } from '@/components/post-content'
-import { formatPostDate, getPost, getPosts } from '@/lib/posts'
+import { formatPostDate } from '@/lib/post-date'
+import { getPost, getPosts } from '@/lib/posts'
 
 type PageProps = {
   params: Promise<{ slug: string }>

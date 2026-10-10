@@ -1,6 +1,7 @@
 import Link from 'next/link'
 
-import { formatPostDate, type PostMeta } from '@/lib/posts'
+import { formatPostDate } from '@/lib/post-date'
+import type { PostMeta } from '@/lib/posts'
 
 type PostListProps = {
   posts: PostMeta[]

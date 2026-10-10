@@ -72,25 +72,3 @@ export const getPost = async (slug: string, dir = POSTS_DIR): Promise<Post> => {
   const tree = await processor.run(processor.parse(content))
   return { ...meta, tree }
 }
-
-const MONTHS = [
-  'JAN',
-  'FEB',
-  'MAR',
-  'APR',
-  'MAY',
-  'JUN',
-  'JUL',
-  'AUG',
-  'SEP',
-  'OCT',
-  'NOV',
-  'DEC',
-]
-
-// Built by hand: Intl abbreviates September as "Sept" in en-GB, and parsing
-// the date would bring time zones into it
-export const formatPostDate = (date: string) => {
-  const [year, month, day] = date.split('-')
-  return `${day} ${MONTHS[Number(month) - 1]} ${year}`
-}
