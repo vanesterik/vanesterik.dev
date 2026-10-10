@@ -143,6 +143,10 @@ const PARTICLE_RADIUS = 20
 // Distance around a particle that still grabs it, so a finger can catch it
 const GRAB_MARGIN = 12
 
+// Width of the buffer other particles keep around a held particle, in radii
+// of the held particle
+const BUFFER_RADII = 4
+
 // Fastest a thrown particle leaves the pointer, in px per frame, so it can't
 // skip past a wall in one frame
 const MAX_THROW_SPEED = 30
@@ -771,10 +775,11 @@ const detectParticleCollisions = ({
 }
 
 /**
- * Keep other particles out of a buffer one radius wide around the particle
- * held by the pointer. The held particle is an immovable wall: a particle
- * moving into the buffer is mirrored off it, and one inside it is pushed back
- * to its edge, so a fast drag can't leave it stuck. Neither changes type.
+ * Keep other particles out of a buffer BUFFER_RADII radii wide around the
+ * particle held by the pointer. The held particle is an immovable wall: a
+ * particle moving into the buffer is mirrored off it, and one inside it is
+ * pushed back to its edge, so a fast drag can't leave it stuck. Neither changes
+ * type.
  */
 const detectHeldParticleBuffer = ({
   dispatch,
@@ -789,7 +794,7 @@ const detectHeldParticleBuffer = ({
   particles.forEach((particle) => {
     if (particle.id === held.id) return
 
-    const reach = particle.radius + held.radius * 2
+    const reach = particle.radius + held.radius * (1 + BUFFER_RADII)
     const distanceX = particle.x - held.x
     const distanceY = particle.y - held.y
     const distance = Math.hypot(distanceX, distanceY)

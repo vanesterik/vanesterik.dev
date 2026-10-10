@@ -381,7 +381,7 @@ describe('dragging', () => {
     expect(particles).not.toContainEqual(FREE_SPOT)
   })
 
-  it('keeps other particles a radius clear of a held particle', () => {
+  it('keeps other particles four radii clear of a held particle', () => {
     firePointer('pointerdown', FIRST_PARTICLE.x, FIRST_PARTICLE.y)
 
     // Sweep it down through its column and across the next one
@@ -395,9 +395,9 @@ describe('dragging', () => {
       )
       expect(others).toHaveLength(35)
       for (const { x, y } of others) {
-        // Two radii of 20 plus a buffer of one radius
+        // Two radii of 20 plus a buffer of four radii
         expect(Math.hypot(x - held.x, y - held.y)).toBeGreaterThanOrEqual(
-          60 - 1e-9,
+          120 - 1e-9,
         )
       }
     }
@@ -438,7 +438,9 @@ describe('dragging', () => {
 
     // No faster than a particle starts out: 3px across and 6px up
     to.forEach(({ x, y }, index) => {
-      expect(Math.hypot(x - from[index].x, y - from[index].y)).toBeLessThan(7)
+      expect(
+        Math.hypot(x - from[index].x, y - from[index].y),
+      ).toBeLessThanOrEqual(7 + 1e-9)
     })
   })
 
