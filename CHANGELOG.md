@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.3.0](https://github.com/vanesterik/vanesterik.dev/compare/v1.2.1...v1.3.0) (2026-10-10)
+
+### Features
+
+* grab and drag a particle ([6b6b2c9](https://github.com/vanesterik/vanesterik.dev/commit/6b6b2c9a973fa8ef7adb850c3b5a8fb1b4bc64db)), references [#58](https://github.com/vanesterik/vanesterik.dev/issues/58)
+* grow the buffer around a held particle and draw its edge ([0f0a56a](https://github.com/vanesterik/vanesterik.dev/commit/0f0a56a9c961ce2a09f94587c4c33175e593688a)), references [#58](https://github.com/vanesterik/vanesterik.dev/issues/58)
+* keep other particles clear of a held particle ([bf6a465](https://github.com/vanesterik/vanesterik.dev/commit/bf6a465751ac3c8c52a8ae313d1fbb8778719742)), references [#58](https://github.com/vanesterik/vanesterik.dev/issues/58)
+* keep the particle animation running when the theme changes ([6cc790a](https://github.com/vanesterik/vanesterik.dev/commit/6cc790aa084cecd3e82f96e24731bf9ec06d761f)), references [#56](https://github.com/vanesterik/vanesterik.dev/issues/56)
+* keep the particle animation running when the viewport resizes ([15906fa](https://github.com/vanesterik/vanesterik.dev/commit/15906facccbd47c01c1d374c776a2989ddc6e009)), references [#56](https://github.com/vanesterik/vanesterik.dev/issues/56)
+* keep the particles still for visitors who ask for reduced motion ([e404210](https://github.com/vanesterik/vanesterik.dev/commit/e4042108936c1f1866ef789b35a91350712868a3)), references [#60](https://github.com/vanesterik/vanesterik.dev/issues/60)
+* let the particle animation fill the viewport ([bb05a74](https://github.com/vanesterik/vanesterik.dev/commit/bb05a746200b8dbfb7929016845d03b033a2b4af)), references [#56](https://github.com/vanesterik/vanesterik.dev/issues/56)
+* set the number of particles per breakpoint ([18f8230](https://github.com/vanesterik/vanesterik.dev/commit/18f8230f90f68dff4bf8f228d0d6e6ed18f512e8)), references [#56](https://github.com/vanesterik/vanesterik.dev/issues/56)
+* throw a particle and let it slow back down ([ff6227f](https://github.com/vanesterik/vanesterik.dev/commit/ff6227f7ec33f1fb17da8e5c92b94ce306338f1b)), references [#58](https://github.com/vanesterik/vanesterik.dev/issues/58)
+* tone down the ring around a held particle ([b4e6fb4](https://github.com/vanesterik/vanesterik.dev/commit/b4e6fb413db3ab7d943c18c546f5204e1d9bc893)), references [#58](https://github.com/vanesterik/vanesterik.dev/issues/58)
+* tone the ring around a held particle down further ([f2ee39e](https://github.com/vanesterik/vanesterik.dev/commit/f2ee39e3a9cc2ba7b0381ba7fae1f7ef14c60757)), references [#58](https://github.com/vanesterik/vanesterik.dev/issues/58)
+* widen the buffer around a held particle to four radii ([5417712](https://github.com/vanesterik/vanesterik.dev/commit/5417712d48193d3e893d06e52285c84f60db6139)), references [#58](https://github.com/vanesterik/vanesterik.dev/issues/58)
+
+### Bug Fixes
+
+* draw the particles sharply on high-density screens ([9e80986](https://github.com/vanesterik/vanesterik.dev/commit/9e809864b05cbca5e529fd73597375d69c2a16d2)), references [#60](https://github.com/vanesterik/vanesterik.dev/issues/60)
+* keep collision velocities exact instead of rounding them ([54774e2](https://github.com/vanesterik/vanesterik.dev/commit/54774e20076efbe65a312bf92176b99326bcae15)), references [#60](https://github.com/vanesterik/vanesterik.dev/issues/60)
+* move a held particle with only the pointer that grabbed it ([ba3110a](https://github.com/vanesterik/vanesterik.dev/commit/ba3110ae8b02ba7bd96de461d7739305c5edc40f)), references [#58](https://github.com/vanesterik/vanesterik.dev/issues/58)
+* move particles at the same speed on every refresh rate ([e2149b8](https://github.com/vanesterik/vanesterik.dev/commit/e2149b8bb83e956d9cfe57b3a0d1a2a25377c7ee)), references [#60](https://github.com/vanesterik/vanesterik.dev/issues/60)
+* return a number from the first to the second in random ([d42aa7a](https://github.com/vanesterik/vanesterik.dev/commit/d42aa7ad52ebf6390ced84c425ffc1a5c2744111)), references [#60](https://github.com/vanesterik/vanesterik.dev/issues/60)
+
 ## [1.2.1](https://github.com/vanesterik/vanesterik.dev/compare/v1.2.0...v1.2.1) (2026-10-10)
 
 ## [1.2.0](https://github.com/vanesterik/vanesterik.dev/compare/v1.1.0...v1.2.0) (2026-10-10)
