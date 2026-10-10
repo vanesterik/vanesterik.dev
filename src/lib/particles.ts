@@ -504,13 +504,12 @@ const detectParticleCollisions = ({ drag, particles }: State) => {
             -angle,
           )
 
-          const typeA = getParticleType(particleA.type, particleB.type)
-          const typeB = getParticleType(particleB.type, particleA.type)
-
-          particleA.type = typeA
+          // Colliding particles swap types
+          const typeA = particleA.type
+          particleA.type = particleB.type
           particleA.vx = velocityA.x
           particleA.vy = velocityA.y
-          particleB.type = typeB
+          particleB.type = typeA
           particleB.vx = velocityB.x
           particleB.vy = velocityB.y
         }
@@ -712,9 +711,3 @@ const calculateRotation = (x: number, y: number, angle: number) => ({
   x: Math.round(x * Math.cos(angle) - y * Math.sin(angle)),
   y: Math.round(x * Math.sin(angle) + y * Math.cos(angle)),
 })
-
-/**
- * Get particle type by other particle type
- */
-const getParticleType = (typeA: ParticleTypes, typeB: ParticleTypes) =>
-  typeA === typeB ? typeA : typeB
