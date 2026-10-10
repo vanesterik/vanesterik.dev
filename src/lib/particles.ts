@@ -3,7 +3,7 @@ import { random } from '@/lib/random'
 // Types ///////////////////////////////////////////////////////////////////////
 
 enum ActionTypes {
-  CREATE_PARTICLES,
+  SET_PARTICLES,
   SET_FRAME_ID,
   SET_INITIAL_STATE,
   UPDATE_PARTICLE_COLLISION,
@@ -12,8 +12,8 @@ enum ActionTypes {
   UPDATE_PARTICLE_VERTICAL_BOUNDARY,
 }
 
-type CreateParticlesAction = {
-  type: ActionTypes.CREATE_PARTICLES
+type SetParticlesAction = {
+  type: ActionTypes.SET_PARTICLES
   payload: Record<number, Particle>
 }
 
@@ -47,7 +47,7 @@ type UpdateParticleVerticalBoundaryAction = {
 }
 
 type Action =
-  | CreateParticlesAction
+  | SetParticlesAction
   | SetFrameIdAction
   | SetInitialStateAction
   | UpdateParticleCollisionAction
@@ -89,6 +89,23 @@ type Particle = {
 // Core ////////////////////////////////////////////////////////////////////////
 
 const GAME_ID = 'game'
+
+// Number of particles per Tailwind breakpoint, widest first: a canvas gets the
+// count of the first breakpoint it is at least as wide as
+const PARTICLE_COUNTS = [
+  { minWidth: 1536, count: 180 }, // 2xl
+  { minWidth: 1280, count: 135 }, // xl
+  { minWidth: 1024, count: 104 }, // lg
+  { minWidth: 768, count: 88 }, // md
+  { minWidth: 640, count: 48 }, // sm
+  { minWidth: 0, count: 36 },
+]
+
+const PARTICLE_RADIUS = 20
+
+// How often to look for a free spot for an added particle before placing it
+// on top of others anyway
+const PLACEMENT_ATTEMPTS = 10
 
 /**
  * Main game function which creates a canvas element and appends it to the
@@ -200,7 +217,7 @@ const createReducer =
           ...state,
           frameId: action.payload,
         }
-      case ActionTypes.CREATE_PARTICLES:
+      case ActionTypes.SET_PARTICLES:
         return {
           ...state,
           particles: action.payload,
@@ -244,9 +261,9 @@ const createCanvas = (container: HTMLElement) => {
 }
 
 /**
- * Set canvas element width and height based on observer entries dimensions.
- * Create particles based on the first of these dimensions; later resizes keep
- * them, and the boundary detection brings any outside the canvas back in.
+ * Set canvas element width and height based on observer entries dimensions,
+ * and match the number of particles to the width. Particles that end up
+ * outside a canvas that shrank are brought back in by the boundary detection.
  */
 const resizeCanvas = (store: Store) => {
   const canvas = getCanvas()
@@ -260,9 +277,7 @@ const resizeCanvas = (store: Store) => {
         canvas.setAttribute('width', `${width}`)
         canvas.setAttribute('height', `${height}`)
 
-        if (store.getParticles().length === 0) {
-          createParticles(store, width, height)
-        }
+        updateParticleCount(store, width, height)
       }
     })
   })
@@ -272,40 +287,108 @@ const resizeCanvas = (store: Store) => {
 }
 
 /**
- * Calculate particle position based on canvas width and height
+ * Match the number of particles to the breakpoint of the canvas width. The
+ * first size lays them out on a grid. Crossing a breakpoint later adds
+ * particles in free spots or removes the newest ones, and leaves the others
+ * where they are, so the animation carries on.
  */
-const createParticles = (
-  { dispatch }: Store,
+const updateParticleCount = (
+  { dispatch, getParticles }: Store,
   width: number,
   height: number,
 ) => {
-  const radius = 20
-  const gridSize = 100
-  const gridX = Math.ceil(width / gridSize)
-  const gridY = Math.ceil(height / gridSize)
+  const particles = getParticles()
+  const count = getParticleCount(width)
 
-  const particles: Record<number, Particle> = Object.fromEntries(
-    Array.from(Array(gridX * gridY).keys()).map((id) => {
-      const cellX = Math.floor(id % gridX)
-      const cellY = Math.floor((id / gridX) % gridY)
-      const isLeftCells = cellX < gridX / 2
+  if (particles.length === count) return
 
-      return [
-        id,
-        {
-          id,
-          radius,
-          type: isLeftCells ? ParticleTypes.FILL : ParticleTypes.STROKE,
-          vx: isLeftCells ? random(1, 2) : random(-1, -2),
-          vy: random(-1, -5),
-          x: gridSize * cellX,
-          y: gridSize * cellY,
-        },
-      ]
-    }),
+  if (particles.length === 0) {
+    dispatch({
+      type: ActionTypes.SET_PARTICLES,
+      payload: toRecord(createParticleGrid(count, width, height)),
+    })
+    return
+  }
+
+  // Particles are listed by ascending id, so the newest are removed first
+  const kept = particles.slice(0, count)
+  const nextId = Math.max(...particles.map(({ id }) => id)) + 1
+  const added: Particle[] = []
+
+  for (let index = 0; index < count - kept.length; index++) {
+    const { x, y } = findFreeSpot([...kept, ...added], width, height)
+    added.push(createParticle(nextId + index, x, y, width))
+  }
+
+  dispatch({
+    type: ActionTypes.SET_PARTICLES,
+    payload: toRecord([...kept, ...added]),
+  })
+}
+
+/**
+ * Lay out the passed number of particles on a grid that fits the canvas
+ */
+const createParticleGrid = (count: number, width: number, height: number) => {
+  const columns = Math.ceil(Math.sqrt((count * width) / height))
+  const rows = Math.ceil(count / columns)
+  const cellWidth = width / columns
+  const cellHeight = height / rows
+
+  return Array.from(Array(count).keys()).map((id) =>
+    createParticle(
+      id,
+      cellWidth * ((id % columns) + 0.5),
+      cellHeight * (Math.floor(id / columns) + 0.5),
+      width,
+    ),
   )
+}
 
-  dispatch({ type: ActionTypes.CREATE_PARTICLES, payload: particles })
+/**
+ * Find a random spot inside the canvas that doesn't overlap the passed
+ * particles, or the last spot tried when there's no room
+ */
+const findFreeSpot = (particles: Particle[], width: number, height: number) => {
+  let spot = { x: 0, y: 0 }
+
+  for (let attempt = 0; attempt < PLACEMENT_ATTEMPTS; attempt++) {
+    spot = {
+      x: PARTICLE_RADIUS + Math.random() * (width - PARTICLE_RADIUS * 2),
+      y: PARTICLE_RADIUS + Math.random() * (height - PARTICLE_RADIUS * 2),
+    }
+    const isFree = particles.every(
+      ({ radius, x, y }) =>
+        Math.hypot(x - spot.x, y - spot.y) >= radius + PARTICLE_RADIUS,
+    )
+    if (isFree) break
+  }
+
+  return spot
+}
+
+/**
+ * Create a particle at the passed position. Particles in the left half of the
+ * canvas are filled and move right, those in the right half are outlined and
+ * move left, so the two halves meet.
+ */
+const createParticle = (
+  id: number,
+  x: number,
+  y: number,
+  width: number,
+): Particle => {
+  const isLeftHalf = x < width / 2
+
+  return {
+    id,
+    radius: PARTICLE_RADIUS,
+    type: isLeftHalf ? ParticleTypes.FILL : ParticleTypes.STROKE,
+    vx: isLeftHalf ? random(1, 2) : random(-1, -2),
+    vy: random(-1, -5),
+    x,
+    y,
+  }
 }
 
 /**
@@ -525,6 +608,18 @@ const getCanvas = () => document.getElementById(GAME_ID) as HTMLCanvasElement
  * Get canvas context by getCanvas() function
  */
 const getContext = () => getCanvas().getContext('2d')
+
+/**
+ * Get the number of particles for the breakpoint of the passed canvas width
+ */
+const getParticleCount = (width: number) =>
+  PARTICLE_COUNTS.find(({ minWidth }) => width >= minWidth)?.count ?? 0
+
+/**
+ * Key particles by their id, as they're kept in state
+ */
+const toRecord = (particles: Particle[]): Record<number, Particle> =>
+  Object.fromEntries(particles.map((particle) => [particle.id, particle]))
 
 /**
  * Calculate rotation of a point in a 2D space by using the rotation matrix

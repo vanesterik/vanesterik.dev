@@ -147,18 +147,56 @@ describe('game', () => {
     expect(context.strokeStyle).toBe('rgb(0, 0, 255)')
   })
 
-  it('keeps its particles when the canvas is resized', () => {
+  it.each([
+    [390, 844, 36],
+    [700, 400, 48],
+    [768, 1024, 88],
+    [1024, 768, 104],
+    [1440, 900, 135],
+    [1920, 1080, 180],
+  ])(
+    'starts a %ipx by %ipx canvas with %i particles',
+    (width, height, count) => {
+      const context = stubContext()
+      game(CONTAINER_ID)
+
+      fireResize(width, height)
+      runFrames()
+
+      expect(drawnParticles(context)).toHaveLength(count)
+    },
+  )
+
+  it('keeps its particles when the canvas is resized within a breakpoint', () => {
     const context = stubContext()
     game(CONTAINER_ID)
     fireResize(300, 200)
     runFrames()
     const before = drawnParticles(context)
 
-    // A new grid at this size would hold 24 particles instead of 6
     fireResize(600, 400)
     runFrames()
+    const after = drawnParticles(context)
 
-    expect(drawnParticles(context)).toHaveLength(before.length)
+    expect(after).toHaveLength(before.length)
+    // Every particle moved on from where it was instead of starting over
+    expect(after).not.toEqual(before)
+  })
+
+  it('adds and removes particles when the canvas crosses a breakpoint', () => {
+    const context = stubContext()
+    game(CONTAINER_ID)
+    fireResize(390, 844)
+    runFrames()
+    drawnParticles(context)
+
+    fireResize(1440, 900)
+    runFrames()
+    expect(drawnParticles(context)).toHaveLength(135)
+
+    fireResize(390, 844)
+    runFrames()
+    expect(drawnParticles(context)).toHaveLength(36)
   })
 
   it('brings its particles back inside a canvas that shrinks', () => {
