@@ -708,6 +708,6 @@ const getParticleCount = (width: number) =>
  * Calculate rotation of a point in a 2D space by using the rotation matrix
  */
 const calculateRotation = (x: number, y: number, angle: number) => ({
-  x: Math.round(x * Math.cos(angle) - y * Math.sin(angle)),
-  y: Math.round(x * Math.sin(angle) + y * Math.cos(angle)),
+  x: x * Math.cos(angle) - y * Math.sin(angle),
+  y: x * Math.sin(angle) + y * Math.cos(angle),
 })
