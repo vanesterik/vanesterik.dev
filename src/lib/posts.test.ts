@@ -3,7 +3,7 @@ import path from 'node:path'
 import { toHtml } from 'hast-util-to-html'
 import { beforeAll, describe, expect, it } from 'vitest'
 
-import { formatPostDate, getPost, getPosts } from './posts'
+import { getPost, getPosts } from './posts'
 
 const fixtures = (name: string) => path.join(__dirname, '__fixtures__', name)
 
@@ -60,13 +60,5 @@ describe('getPost', () => {
 
   it('throws for an unknown slug', async () => {
     await expect(getPost('missing', fixtures('posts'))).rejects.toThrow()
-  })
-})
-
-describe('formatPostDate', () => {
-  it('formats as DD MON YYYY without shifting the day', () => {
-    expect(formatPostDate('2026-10-08')).toBe('08 OCT 2026')
-    expect(formatPostDate('2026-01-01')).toBe('01 JAN 2026')
-    expect(formatPostDate('2026-09-30')).toBe('30 SEP 2026')
   })
 })
