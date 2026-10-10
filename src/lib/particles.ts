@@ -14,6 +14,9 @@ type State = {
   // itself has a pixel for every device pixel, so it's sharp on any screen
   height: number
   width: number
+  // Whether the visitor asked for reduced motion when the game started: the
+  // particles then start still, and a thrown one slows to a stop
+  isReducedMotion: boolean
   // When the last frame was drawn, in performance.now() time
   lastFrameAt: number
   // Ordered by id
@@ -88,6 +91,11 @@ const MAX_THROW_SPEED = 30
 const NORMAL_MAX_SPEED = 7
 const SLOWDOWN = 0.98
 
+// With reduced motion, moving particles slow down by this much per step and
+// stop below STOP_SPEED, so a throw settles within a second
+const REDUCED_MOTION_SLOWDOWN = 0.9
+const STOP_SPEED = 0.05
+
 // How often to look for a free spot for an added particle before placing it
 // on top of others anyway
 const PLACEMENT_ATTEMPTS = 10
@@ -110,6 +118,9 @@ export const game = (container: HTMLElement) => {
     frameId: 0,
     height: 0,
     width: 0,
+    // jsdom has no matchMedia
+    isReducedMotion:
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false,
     lastFrameAt: performance.now(),
     particles: [],
   }
@@ -165,13 +176,13 @@ const resizeCanvas = (state: State) => {
  * where they are, so the animation carries on.
  */
 const updateParticleCount = (state: State, width: number, height: number) => {
-  const { particles } = state
+  const { isReducedMotion, particles } = state
   const count = getParticleCount(width)
 
   if (particles.length === count) return
 
   if (particles.length === 0) {
-    state.particles = createParticleGrid(count, width, height)
+    state.particles = createParticleGrid(count, width, height, isReducedMotion)
     return
   }
 
@@ -182,7 +193,7 @@ const updateParticleCount = (state: State, width: number, height: number) => {
 
   for (let index = 0; index < count - kept.length; index++) {
     const { x, y } = findFreeSpot([...kept, ...added], width, height)
-    added.push(createParticle(nextId + index, x, y, width))
+    added.push(createParticle(nextId + index, x, y, width, isReducedMotion))
   }
 
   state.particles = [...kept, ...added]
@@ -191,7 +202,12 @@ const updateParticleCount = (state: State, width: number, height: number) => {
 /**
  * Lay out the passed number of particles on a grid that fits the canvas
  */
-const createParticleGrid = (count: number, width: number, height: number) => {
+const createParticleGrid = (
+  count: number,
+  width: number,
+  height: number,
+  isStill: boolean,
+) => {
   const columns = Math.ceil(Math.sqrt((count * width) / height))
   const rows = Math.ceil(count / columns)
   const cellWidth = width / columns
@@ -203,6 +219,7 @@ const createParticleGrid = (count: number, width: number, height: number) => {
       cellWidth * ((id % columns) + 0.5),
       cellHeight * (Math.floor(id / columns) + 0.5),
       width,
+      isStill,
     ),
   )
 }
@@ -232,13 +249,14 @@ const findFreeSpot = (particles: Particle[], width: number, height: number) => {
 /**
  * Create a particle at the passed position. Particles in the left half of the
  * canvas are filled and move right, those in the right half are outlined and
- * move left, so the two halves meet.
+ * move left, so the two halves meet; still particles don't move at all.
  */
 const createParticle = (
   id: number,
   x: number,
   y: number,
   width: number,
+  isStill: boolean,
 ): Particle => {
   const isLeftHalf = x < width / 2
 
@@ -246,8 +264,8 @@ const createParticle = (
     id,
     radius: PARTICLE_RADIUS,
     type: isLeftHalf ? ParticleTypes.FILL : ParticleTypes.STROKE,
-    vx: isLeftHalf ? random(1, 2) : random(-1, -2),
-    vy: random(-1, -5),
+    vx: isStill ? 0 : isLeftHalf ? random(1, 2) : random(-1, -2),
+    vy: isStill ? 0 : random(-1, -5),
     x,
     y,
   }
@@ -374,7 +392,7 @@ const render = (state: State) => {
  * letting go throws it.
  */
 const updateParticlePositions = (
-  { drag, height, particles, width }: State,
+  { drag, height, isReducedMotion, particles, width }: State,
   steps: number,
 ) => {
   particles.forEach((particle) => {
@@ -401,11 +419,7 @@ const updateParticlePositions = (
       return
     }
 
-    const speed = Math.hypot(vx, vy)
-    const slowdown =
-      speed > NORMAL_MAX_SPEED
-        ? Math.max(SLOWDOWN ** steps, NORMAL_MAX_SPEED / speed)
-        : 1
+    const slowdown = getSlowdown(Math.hypot(vx, vy), steps, isReducedMotion)
 
     particle.vx = vx * slowdown
     particle.vy = vy * slowdown
@@ -648,6 +662,26 @@ const getBufferRadii = ({ startedAt }: Drag) => {
  * Ease the passed progress from 0 to 1 so it starts fast and settles
  */
 const easeOutCubic = (progress: number) => 1 - (1 - progress) ** 3
+
+/**
+ * Get the factor to scale a particle's velocity by over the passed steps:
+ * faster than normal, it slows down until it's back at normal speed. With
+ * reduced motion, any moving particle slows down until it stops.
+ */
+const getSlowdown = (
+  speed: number,
+  steps: number,
+  isReducedMotion: boolean,
+) => {
+  if (isReducedMotion) {
+    const slowdown = REDUCED_MOTION_SLOWDOWN ** steps
+    return speed * slowdown < STOP_SPEED ? 0 : slowdown
+  }
+
+  return speed > NORMAL_MAX_SPEED
+    ? Math.max(SLOWDOWN ** steps, NORMAL_MAX_SPEED / speed)
+    : 1
+}
 
 /**
  * Scale the passed velocity down to the passed speed if it's faster
