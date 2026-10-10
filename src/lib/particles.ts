@@ -9,6 +9,7 @@ enum ActionTypes {
   SET_FRAME_ID,
   SET_INITIAL_STATE,
   START_DRAG,
+  UPDATE_PARTICLE_BUFFER,
   UPDATE_PARTICLE_COLLISION,
   UPDATE_PARTICLE_HORIZONTAL_BOUNDARY,
   UPDATE_PARTICLE_POSITION,
@@ -48,6 +49,11 @@ type UpdateParticlePositionAction = {
   payload: Pick<Particle, 'id' | 'x' | 'y'>
 }
 
+type UpdateParticleBufferAction = {
+  type: ActionTypes.UPDATE_PARTICLE_BUFFER
+  payload: Pick<Particle, 'id' | 'vx' | 'vy' | 'x' | 'y'>
+}
+
 type UpdateParticleCollisionAction = {
   type: ActionTypes.UPDATE_PARTICLE_COLLISION
   payload: Pick<Particle, 'id' | 'type' | 'vx' | 'vy'>
@@ -70,6 +76,7 @@ type Action =
   | SetFrameIdAction
   | SetInitialStateAction
   | StartDragAction
+  | UpdateParticleBufferAction
   | UpdateParticleCollisionAction
   | UpdateParticleHorizontalBoundaryAction
   | UpdateParticlePositionAction
@@ -286,6 +293,7 @@ const createReducer =
           particles: action.payload,
         }
       case ActionTypes.UPDATE_PARTICLE_POSITION:
+      case ActionTypes.UPDATE_PARTICLE_BUFFER:
       case ActionTypes.UPDATE_PARTICLE_COLLISION:
       case ActionTypes.UPDATE_PARTICLE_HORIZONTAL_BOUNDARY:
       case ActionTypes.UPDATE_PARTICLE_VERTICAL_BOUNDARY:
@@ -541,6 +549,7 @@ const render = (store: Store) => {
   updateParticlePositions(store)
   detectParticleBoundaries(store)
   detectParticleCollisions(store)
+  detectHeldParticleBuffer(store)
 
   clearCanvas()
   drawParticles(store)
@@ -652,15 +661,25 @@ const detectParticleBoundaries = ({
 }
 
 /**
- * Detect collision between two particles and update particle velocities
+ * Detect collision between two particles and update particle velocities. The
+ * particle held by the pointer is left to detectHeldParticleBuffer.
  */
-const detectParticleCollisions = ({ dispatch, getParticles }: Store) => {
+const detectParticleCollisions = ({
+  dispatch,
+  getDrag,
+  getParticles,
+}: Store) => {
   const particles = getParticles()
+  const drag = getDrag()
 
   particles.forEach((particleA, indexA) => {
+    if (particleA.id === drag?.id) return
+
     // Only check for collisions with particles that have a higher index,
     // otherwise the same particle is checked twice
     particles.slice(indexA + 1).forEach((particleB) => {
+      if (particleB.id === drag?.id) return
+
       const distanceX = particleB.x - particleA.x
       const distanceY = particleB.y - particleA.y
       const distance = Math.sqrt(distanceX ** 2 + distanceY ** 2)
@@ -712,6 +731,53 @@ const detectParticleCollisions = ({ dispatch, getParticles }: Store) => {
           })
         }
       }
+    })
+  })
+}
+
+/**
+ * Keep other particles out of a buffer one radius wide around the particle
+ * held by the pointer. The held particle is an immovable wall: a particle
+ * moving into the buffer is mirrored off it, and one inside it is pushed back
+ * to its edge, so a fast drag can't leave it stuck. Neither changes type.
+ */
+const detectHeldParticleBuffer = ({
+  dispatch,
+  getDrag,
+  getParticles,
+}: Store) => {
+  const particles = getParticles()
+  const held = particles.find(({ id }) => id === getDrag()?.id)
+
+  if (!held) return
+
+  particles.forEach((particle) => {
+    if (particle.id === held.id) return
+
+    const reach = particle.radius + held.radius * 2
+    const distanceX = particle.x - held.x
+    const distanceY = particle.y - held.y
+    const distance = Math.hypot(distanceX, distanceY)
+
+    if (distance >= reach) return
+
+    // Unit vector from the held particle to the other one; straight up when
+    // they share a centre
+    const normalX = distance === 0 ? 0 : distanceX / distance
+    const normalY = distance === 0 ? -1 : distanceY / distance
+    const approach = particle.vx * normalX + particle.vy * normalY
+    // Only mirror a particle that moves towards the held one
+    const bounce = Math.min(approach, 0) * 2
+
+    dispatch({
+      type: ActionTypes.UPDATE_PARTICLE_BUFFER,
+      payload: {
+        id: particle.id,
+        vx: particle.vx - bounce * normalX,
+        vy: particle.vy - bounce * normalY,
+        x: held.x + normalX * reach,
+        y: held.y + normalY * reach,
+      },
     })
   })
 }
