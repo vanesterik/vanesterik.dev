@@ -37,7 +37,7 @@
   --secondary: oklch(92.3% 0.003 48.717); /* stone-200 */
   --secondary-foreground: #000;
   --accent: oklch(86.9% 0.005 56.366); /* stone-300 */
-  --buffer: oklch(44.4% 0.011 73.639); /* stone-600 */
+  --buffer: oklch(55.3% 0.013 58.071); /* stone-500 */
   --highlight: oklch(79.5% 0.184 86.047); /* yellow-500 */
   --highlight-foreground: #000;
   --muted-foreground: oklch(86.9% 0.005 56.366); /* stone-300 */
@@ -51,7 +51,7 @@
   --secondary: oklch(26.8% 0.007 34.298); /* stone-800 */
   --secondary-foreground: #fff;
   --accent: oklch(26.8% 0.007 34.298); /* stone-800 */
-  --buffer: oklch(70.9% 0.01 56.259); /* stone-400 */
+  --buffer: oklch(55.3% 0.013 58.071); /* stone-500 */
   --highlight: oklch(79.5% 0.184 86.047); /* yellow-500 */
   --highlight-foreground: #000;
   --muted-foreground: oklch(37.4% 0.01 67.558); /* stone-700 */
