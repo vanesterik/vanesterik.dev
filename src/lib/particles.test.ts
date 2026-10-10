@@ -53,6 +53,39 @@ const drawnParticles = (context: ReturnType<typeof stubContext>) => {
   return particles
 }
 
+// How many particles were drawn filled and outlined since the last call
+const drawnTypes = (context: ReturnType<typeof stubContext>) => {
+  const types = {
+    fill: context.fill.mock.calls.length,
+    stroke: context.stroke.mock.calls.length,
+  }
+  context.fill.mockClear()
+  context.stroke.mockClear()
+  return types
+}
+
+const getCanvas = () => document.getElementById('game') as HTMLCanvasElement
+
+// jsdom places every element at the page's origin, so client coordinates are
+// canvas coordinates
+const firePointer = (type: string, x: number, y: number) =>
+  getCanvas().dispatchEvent(
+    new PointerEvent(type, { bubbles: true, clientX: x, clientY: y }),
+  )
+
+const fireTouchStart = (x: number, y: number) => {
+  const event = new TouchEvent('touchstart', {
+    bubbles: true,
+    cancelable: true,
+  })
+  // jsdom has no Touch constructor
+  Object.defineProperty(event, 'touches', {
+    value: [{ clientX: x, clientY: y }],
+  })
+  getCanvas().dispatchEvent(event)
+  return event
+}
+
 const runFrames = () => {
   const pending = [...frames.values()]
   frames.clear()
@@ -85,6 +118,8 @@ beforeEach(() => {
   })
   // jsdom has no canvas implementation
   vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null)
+  // jsdom has no pointer capture
+  Element.prototype.setPointerCapture = vi.fn()
 
   const container = document.createElement('div')
   container.id = CONTAINER_ID
@@ -95,6 +130,7 @@ afterEach(() => {
   document.getElementById(CONTAINER_ID)?.remove()
   vi.unstubAllGlobals()
   vi.restoreAllMocks()
+  delete (Element.prototype as Partial<Element>).setPointerCapture
 })
 
 describe('game', () => {
@@ -230,5 +266,103 @@ describe('game', () => {
 
     expect(() => runFrames()).not.toThrow()
     expect(frames.size).toBe(0)
+  })
+})
+
+describe('dragging', () => {
+  // On a 390 by 844 canvas the 36 particles sit in the middle of a 5 by 8 grid
+  // of 78 by 105.5 cells; the first 2 columns are filled, the rest outlined
+  const FIRST_PARTICLE = { x: 39, y: 52.75 }
+  // Between cells, clear of every particle
+  const FREE_SPOT = { x: 156, y: 422 }
+
+  let context: ReturnType<typeof stubContext>
+
+  beforeEach(() => {
+    // Every particle starts moving 1 right or left and 1 up
+    vi.spyOn(Math, 'random').mockReturnValue(0)
+    context = stubContext()
+    game(CONTAINER_ID)
+    fireResize(390, 844)
+    runFrames()
+    drawnParticles(context)
+    drawnTypes(context)
+  })
+
+  it('flips a particle it grabs from filled to outlined', () => {
+    firePointer('pointerdown', FIRST_PARTICLE.x, FIRST_PARTICLE.y)
+    runFrames()
+
+    expect(drawnTypes(context)).toEqual({ fill: 14, stroke: 22 })
+  })
+
+  it('keeps the flipped type after letting go', () => {
+    firePointer('pointerdown', FIRST_PARTICLE.x, FIRST_PARTICLE.y)
+    firePointer('pointerup', FIRST_PARTICLE.x, FIRST_PARTICLE.y)
+    runFrames()
+
+    expect(drawnTypes(context)).toEqual({ fill: 14, stroke: 22 })
+  })
+
+  it('grabs nothing when pressed beside a particle', () => {
+    firePointer('pointerdown', 78, 105)
+    runFrames()
+
+    expect(drawnTypes(context)).toEqual({ fill: 15, stroke: 21 })
+  })
+
+  it('moves a grabbed particle with the pointer', () => {
+    firePointer('pointerdown', FIRST_PARTICLE.x, FIRST_PARTICLE.y)
+    firePointer('pointermove', FREE_SPOT.x, FREE_SPOT.y)
+    runFrames()
+
+    expect(drawnParticles(context)).toContainEqual(FREE_SPOT)
+  })
+
+  it('keeps a grabbed particle inside the canvas', () => {
+    firePointer('pointerdown', FIRST_PARTICLE.x, FIRST_PARTICLE.y)
+    firePointer('pointermove', -50, 2000)
+    runFrames()
+
+    // Particles have a radius of 20
+    expect(drawnParticles(context)).toContainEqual({ x: 20, y: 824 })
+  })
+
+  it('lets go of a particle when the pointer is released', () => {
+    firePointer('pointerdown', FIRST_PARTICLE.x, FIRST_PARTICLE.y)
+    firePointer('pointermove', FREE_SPOT.x, FREE_SPOT.y)
+    firePointer('pointerup', FREE_SPOT.x, FREE_SPOT.y)
+    firePointer('pointermove', 300, 700)
+    runFrames()
+
+    const particles = drawnParticles(context)
+    expect(particles).not.toContainEqual({ x: 300, y: 700 })
+    expect(particles).not.toContainEqual(FREE_SPOT)
+  })
+
+  it('shows a grab cursor over particles and while dragging', () => {
+    const canvas = getCanvas()
+
+    firePointer('pointermove', FIRST_PARTICLE.x, FIRST_PARTICLE.y)
+    expect(canvas.style.cursor).toBe('grab')
+
+    firePointer('pointerdown', FIRST_PARTICLE.x, FIRST_PARTICLE.y)
+    expect(canvas.style.cursor).toBe('grabbing')
+
+    firePointer('pointerup', FIRST_PARTICLE.x, FIRST_PARTICLE.y)
+    firePointer('pointermove', FREE_SPOT.x, FREE_SPOT.y)
+    expect(canvas.style.cursor).toBe('')
+  })
+
+  it('stops a touch on a particle from scrolling the page', () => {
+    expect(
+      fireTouchStart(FIRST_PARTICLE.x, FIRST_PARTICLE.y).defaultPrevented,
+    ).toBe(true)
+  })
+
+  it('lets a touch beside the particles scroll the page', () => {
+    expect(fireTouchStart(FREE_SPOT.x, FREE_SPOT.y).defaultPrevented).toBe(
+      false,
+    )
   })
 })

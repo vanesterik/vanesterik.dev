@@ -3,13 +3,30 @@ import { random } from '@/lib/random'
 // Types ///////////////////////////////////////////////////////////////////////
 
 enum ActionTypes {
+  END_DRAG,
+  MOVE_DRAG,
   SET_PARTICLES,
   SET_FRAME_ID,
   SET_INITIAL_STATE,
+  START_DRAG,
   UPDATE_PARTICLE_COLLISION,
   UPDATE_PARTICLE_HORIZONTAL_BOUNDARY,
   UPDATE_PARTICLE_POSITION,
   UPDATE_PARTICLE_VERTICAL_BOUNDARY,
+}
+
+type EndDragAction = {
+  type: ActionTypes.END_DRAG
+}
+
+type MoveDragAction = {
+  type: ActionTypes.MOVE_DRAG
+  payload: Pick<Drag, 'x' | 'y'>
+}
+
+type StartDragAction = {
+  type: ActionTypes.START_DRAG
+  payload: Drag
 }
 
 type SetParticlesAction = {
@@ -47,9 +64,12 @@ type UpdateParticleVerticalBoundaryAction = {
 }
 
 type Action =
+  | EndDragAction
+  | MoveDragAction
   | SetParticlesAction
   | SetFrameIdAction
   | SetInitialStateAction
+  | StartDragAction
   | UpdateParticleCollisionAction
   | UpdateParticleHorizontalBoundaryAction
   | UpdateParticlePositionAction
@@ -60,12 +80,14 @@ type Listener = (state: State, previousState: State) => void
 type Reducer = (state: State, action: Action) => State
 
 type State = {
+  drag: Drag | null
   particles: Record<number, Particle>
   frameId: number
 }
 
 type Store = {
   dispatch: (action: Action) => void
+  getDrag: () => Drag | null
   getParticles: () => Particle[]
   getFrameId: () => number
   subscribe: (listener: Listener) => () => void
@@ -82,6 +104,13 @@ type Particle = {
   type: ParticleTypes
   vx: number
   vy: number
+  x: number
+  y: number
+}
+
+// The particle held by the pointer, and where the pointer holds it
+type Drag = {
+  id: number
   x: number
   y: number
 }
@@ -103,6 +132,9 @@ const PARTICLE_COUNTS = [
 
 const PARTICLE_RADIUS = 20
 
+// Distance around a particle that still grabs it, so a finger can catch it
+const GRAB_MARGIN = 12
+
 // How often to look for a free spot for an added particle before placing it
 // on top of others anyway
 const PLACEMENT_ATTEMPTS = 10
@@ -121,12 +153,13 @@ export const game = (containerId: string) => {
       console.error('Container not found')
     }
 
-  const reducer = createReducer({ frameId: 0, particles: {} })
+  const reducer = createReducer({ drag: null, frameId: 0, particles: {} })
   const store = createStore(reducer)
   store.dispatch({ type: ActionTypes.SET_INITIAL_STATE })
 
   createCanvas(container)
   const stopResizing = resizeCanvas(store)
+  const stopDragging = dragParticles(store)
   const stopStarting = initialize(store)
 
   // Return a function that stops everything the game set up, so nothing keeps
@@ -134,6 +167,7 @@ export const game = (containerId: string) => {
   // first resize has even started the render loop
   return () => {
     stopResizing()
+    stopDragging()
     stopStarting()
     finalize(store)
   }
@@ -185,6 +219,7 @@ const createStore = (reducer: Reducer) => {
   }
 
   const getParticles = () => Object.values(state.particles)
+  const getDrag = () => state.drag
   const getFrameId = () => state.frameId
 
   const subscribe = (listener: Listener) => {
@@ -195,6 +230,7 @@ const createStore = (reducer: Reducer) => {
 
   return {
     dispatch,
+    getDrag,
     getParticles,
     getFrameId,
     subscribe,
@@ -212,6 +248,33 @@ const createReducer =
     switch (action.type) {
       case ActionTypes.SET_INITIAL_STATE:
         return state
+      case ActionTypes.START_DRAG: {
+        const particle = state.particles[action.payload.id]
+        return {
+          ...state,
+          drag: action.payload,
+          // Grabbing a particle flips its type, as a collision would
+          particles: {
+            ...state.particles,
+            [particle.id]: {
+              ...particle,
+              type:
+                particle.type === ParticleTypes.FILL
+                  ? ParticleTypes.STROKE
+                  : ParticleTypes.FILL,
+            },
+          },
+        }
+      }
+      case ActionTypes.MOVE_DRAG:
+        return state.drag
+          ? { ...state, drag: { ...state.drag, ...action.payload } }
+          : state
+      case ActionTypes.END_DRAG:
+        return {
+          ...state,
+          drag: null,
+        }
       case ActionTypes.SET_FRAME_ID:
         return {
           ...state,
@@ -392,6 +455,77 @@ const createParticle = (
 }
 
 /**
+ * Let the pointer grab a particle and drag it around. The cursor shows a grab
+ * hand over particles, and a touch that lands on a particle doesn't scroll the
+ * page; one that misses still does.
+ */
+const dragParticles = (store: Store) => {
+  const { dispatch, getDrag } = store
+  const canvas = getCanvas()
+
+  const updateCursor = (x: number, y: number) => {
+    canvas.style.cursor = getDrag()
+      ? 'grabbing'
+      : findParticleAt(store, x, y)
+        ? 'grab'
+        : ''
+  }
+
+  const onPointerDown = (event: PointerEvent) => {
+    const { x, y } = getPointerPosition(event.clientX, event.clientY)
+    const particle = findParticleAt(store, x, y)
+
+    if (!particle) return
+
+    // Keep receiving the pointer's moves when it leaves the canvas
+    canvas.setPointerCapture(event.pointerId)
+    dispatch({
+      type: ActionTypes.START_DRAG,
+      payload: { id: particle.id, x, y },
+    })
+    updateCursor(x, y)
+  }
+
+  const onPointerMove = (event: PointerEvent) => {
+    const { x, y } = getPointerPosition(event.clientX, event.clientY)
+
+    if (getDrag()) dispatch({ type: ActionTypes.MOVE_DRAG, payload: { x, y } })
+    updateCursor(x, y)
+  }
+
+  const onPointerUp = (event: PointerEvent) => {
+    const { x, y } = getPointerPosition(event.clientX, event.clientY)
+
+    if (getDrag()) dispatch({ type: ActionTypes.END_DRAG })
+    updateCursor(x, y)
+  }
+
+  const onTouchStart = (event: TouchEvent) => {
+    const touch = event.touches[0]
+
+    if (!touch) return
+
+    const { x, y } = getPointerPosition(touch.clientX, touch.clientY)
+    if (findParticleAt(store, x, y)) event.preventDefault()
+  }
+
+  canvas.addEventListener('pointerdown', onPointerDown)
+  canvas.addEventListener('pointermove', onPointerMove)
+  canvas.addEventListener('pointerup', onPointerUp)
+  canvas.addEventListener('pointercancel', onPointerUp)
+  // Not passive, so it can stop the page from scrolling
+  canvas.addEventListener('touchstart', onTouchStart, { passive: false })
+
+  return () => {
+    canvas.removeEventListener('pointerdown', onPointerDown)
+    canvas.removeEventListener('pointermove', onPointerMove)
+    canvas.removeEventListener('pointerup', onPointerUp)
+    canvas.removeEventListener('pointercancel', onPointerUp)
+    canvas.removeEventListener('touchstart', onTouchStart)
+  }
+}
+
+/**
  * Render function which is called recursively by requestAnimationFrame, which
  * calls all functions that should be executed on every frame - ie. particle
  * position updates, collision detection, etc. You could see this as the game
@@ -419,12 +553,32 @@ const render = (store: Store) => {
 }
 
 /**
- * Update particle position by adding velocity to x and y coordinates
+ * Update particle position by adding velocity to x and y coordinates, except
+ * for the particle held by the pointer
  */
-const updateParticlePositions = ({ dispatch, getParticles }: Store) => {
+const updateParticlePositions = ({
+  dispatch,
+  getDrag,
+  getParticles,
+}: Store) => {
   const particles = getParticles()
+  const drag = getDrag()
+  const canvas = getCanvas()
 
-  particles.forEach(({ id, vx, vy, x, y }) => {
+  particles.forEach(({ id, radius, vx, vy, x, y }) => {
+    // A held particle sits under the pointer, inside the canvas
+    if (id === drag?.id) {
+      dispatch({
+        type: ActionTypes.UPDATE_PARTICLE_POSITION,
+        payload: {
+          id,
+          x: clamp(drag.x, radius, canvas.width - radius),
+          y: clamp(drag.y, radius, canvas.height - radius),
+        },
+      })
+      return
+    }
+
     dispatch({
       type: ActionTypes.UPDATE_PARTICLE_POSITION,
       payload: {
@@ -441,11 +595,19 @@ const updateParticlePositions = ({ dispatch, getParticles }: Store) => {
  * particle always bounces towards the inside, so one left outside a canvas
  * that shrank, or resting on an edge, doesn't keep reversing.
  */
-const detectParticleBoundaries = ({ dispatch, getParticles }: Store) => {
+const detectParticleBoundaries = ({
+  dispatch,
+  getDrag,
+  getParticles,
+}: Store) => {
   const particles = getParticles()
+  const drag = getDrag()
   const canvas = getCanvas()
 
   particles.forEach((particle) => {
+    // The pointer keeps a held particle inside the canvas
+    if (particle.id === drag?.id) return
+
     if (particle.x + particle.radius >= canvas.width) {
       dispatch({
         type: ActionTypes.UPDATE_PARTICLE_HORIZONTAL_BOUNDARY,
@@ -608,6 +770,35 @@ const getCanvas = () => document.getElementById(GAME_ID) as HTMLCanvasElement
  * Get canvas context by getCanvas() function
  */
 const getContext = () => getCanvas().getContext('2d')
+
+/**
+ * Get the pointer position on the canvas from its position in the window
+ */
+const getPointerPosition = (clientX: number, clientY: number) => {
+  const { left, top } = getCanvas().getBoundingClientRect()
+
+  return { x: clientX - left, y: clientY - top }
+}
+
+/**
+ * Find the particle closest to the passed position within its grab distance
+ */
+const findParticleAt = ({ getParticles }: Store, x: number, y: number) =>
+  getParticles()
+    .map((particle) => ({
+      particle,
+      distance: Math.hypot(particle.x - x, particle.y - y),
+    }))
+    .filter(
+      ({ particle, distance }) => distance <= particle.radius + GRAB_MARGIN,
+    )
+    .sort((a, b) => a.distance - b.distance)[0]?.particle
+
+/**
+ * Limit the passed value to the passed range
+ */
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(Math.max(value, min), max)
 
 /**
  * Get the number of particles for the breakpoint of the passed canvas width
