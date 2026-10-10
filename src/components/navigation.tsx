@@ -18,7 +18,8 @@ export const Navigation = ({ items }: NavigationProps) => {
     <nav>
       <ul className="flex flex-row gap-x-0.5">
         {items.map(({ name, url }) => (
-          <li key={name}>
+          // Below md, MobileMenu holds the pages besides home
+          <li key={name} className={url === '/' ? undefined : 'max-md:hidden'}>
             <Button asChild variant={url === '/' ? 'ghost' : 'secondary'}>
               <Link href={url}>{name}</Link>
             </Button>

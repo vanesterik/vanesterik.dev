@@ -5,6 +5,7 @@ import type { ReactNode } from 'react'
 import { Footer } from '@/components/footer'
 import { Header } from '@/components/header'
 import { LinkList } from '@/components/link-list'
+import { MobileMenu } from '@/components/mobile-menu'
 import { Navigation } from '@/components/navigation'
 import { Prompt } from '@/components/prompt'
 import { ThemeProvider } from '@/components/theme-provider'
@@ -29,7 +30,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
           <div className="flex min-h-screen flex-col gap-0.5 px-3">
             <Header>
               <Navigation items={layout.menu} />
-              <ThemeSelector options={layout.theme} />
+              <div className="flex flex-row gap-x-0.5">
+                <div className="md:hidden">
+                  <MobileMenu items={layout.menu} />
+                </div>
+                <ThemeSelector options={layout.theme} />
+              </div>
             </Header>
             <main className="flex flex-auto flex-col">{children}</main>
             <Footer>

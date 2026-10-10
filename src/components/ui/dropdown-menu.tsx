@@ -43,6 +43,23 @@ function DropdownMenuContent({
   )
 }
 
+// Shared by plain and radio items
+const itemClassName =
+  "relative flex cursor-pointer select-none flex-row items-center gap-x-2 bg-secondary/80 px-2 font-mono font-normal text-secondary-foreground text-xs uppercase leading-8 outline-hidden hover:bg-accent active:bg-highlight active:text-highlight-foreground focus:bg-accent data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+
+function DropdownMenuItem({
+  className,
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Item>) {
+  return (
+    <DropdownMenuPrimitive.Item
+      data-slot="dropdown-menu-item"
+      className={cn(itemClassName, className)}
+      {...props}
+    />
+  )
+}
+
 function DropdownMenuRadioGroup({
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.RadioGroup>) {
@@ -66,10 +83,7 @@ function DropdownMenuRadioItem({
     <DropdownMenuPrimitive.RadioItem
       data-slot="dropdown-menu-radio-item"
       data-inset={inset}
-      className={cn(
-        "relative flex cursor-pointer select-none flex-row items-center gap-x-2 bg-secondary/80 px-2 font-mono font-normal text-secondary-foreground text-xs uppercase leading-8 outline-hidden hover:bg-accent active:bg-highlight active:text-highlight-foreground focus:bg-accent data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        className,
-      )}
+      className={cn(itemClassName, className)}
       {...props}
     >
       {children}
@@ -80,6 +94,7 @@ function DropdownMenuRadioItem({
 export {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
