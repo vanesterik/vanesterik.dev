@@ -674,3 +674,43 @@ describe('throwing', () => {
     expect(y).toBeCloseTo(30 * 0.98 ** 2, 0)
   })
 })
+
+describe('reduced motion', () => {
+  // The same lanes as in the throwing tests
+  const FIRST_PARTICLE = { x: 100, y: 125 }
+  const LANE = { x: 200, y: 250 }
+
+  let context: ReturnType<typeof stubContext>
+
+  beforeEach(() => {
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      matches: query === '(prefers-reduced-motion: reduce)',
+    }))
+    context = stubContext()
+    game(container)
+    fireResize(600, 3000)
+    runFrames()
+  })
+
+  it('keeps the particles still', () => {
+    const from = drawnParticles(context)
+    for (let frame = 0; frame < 10; frame++) runFrames()
+    drawnParticles(context)
+    runFrames()
+
+    expect(drawnParticles(context)).toEqual(from)
+  })
+
+  it('brings a thrown particle to a stop within a second', () => {
+    firePointer('pointerdown', FIRST_PARTICLE.x, FIRST_PARTICLE.y)
+    for (let step = 0; step <= 6; step++) {
+      firePointer('pointermove', LANE.x, LANE.y + step * 60)
+      runFrames()
+    }
+    firePointer('pointerup', LANE.x, LANE.y + 360)
+
+    expect(firstParticleStep(context).y).toBeGreaterThan(20)
+    for (let frame = 0; frame < 60; frame++) runFrames()
+    expect(firstParticleStep(context)).toEqual({ x: 0, y: 0 })
+  })
+})
