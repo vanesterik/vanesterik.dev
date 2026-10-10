@@ -41,7 +41,8 @@ export const ThemeSelector = ({ options }: ThemeSelectorProps) => {
         <Button variant="secondary">
           <Sun className="dark:hidden" />
           <Moon className="hidden dark:block" />
-          {current}
+          {/* Only the icon shows below md, to leave room for the menu */}
+          <span className="max-md:sr-only">{current}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
