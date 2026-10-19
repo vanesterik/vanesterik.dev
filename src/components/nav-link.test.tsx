@@ -24,6 +24,15 @@ describe('isCurrentPath', () => {
     expect(isCurrentPath('/projects/', '/')).toBe(false)
   })
 
+  it('matches the pages below a section', () => {
+    expect(isCurrentPath('/projects/zsh-git-alias/', '/projects')).toBe(true)
+    expect(isCurrentPath('/posts/a-post/', '/posts')).toBe(true)
+  })
+
+  it('needs a whole segment', () => {
+    expect(isCurrentPath('/projectsfoo/', '/projects')).toBe(false)
+  })
+
   it('matches nothing without a path', () => {
     expect(isCurrentPath(null, '/')).toBe(false)
   })
@@ -37,6 +46,16 @@ describe('NavLink', () => {
     const link = screen.getByRole('link', { name: 'projects' })
     expect(link).toHaveAttribute('aria-current', 'page')
     expect(link).toHaveAttribute('data-variant', 'default')
+  })
+
+  it('marks its section on a page below it', () => {
+    pathname.value = '/projects/zsh-git-alias/'
+    render(<NavLink name="projects" url="/projects" />)
+
+    expect(screen.getByRole('link', { name: 'projects' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
   })
 
   it('leaves other pages unmarked, in their usual style', () => {

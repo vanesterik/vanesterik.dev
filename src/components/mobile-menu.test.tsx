@@ -38,6 +38,19 @@ describe('MobileMenu', () => {
     )
   })
 
+  it('marks its section on a page below it', async () => {
+    pathname.value = '/posts/a-post/'
+    const user = userEvent.setup()
+    render(<MobileMenu items={items} />)
+
+    await user.click(screen.getByRole('button', { name: 'menu' }))
+
+    expect(screen.getByRole('menuitem', { name: 'posts' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
+  })
+
   it('keeps the current item readable on hover and focus', async () => {
     pathname.value = '/about/'
     const user = userEvent.setup()
