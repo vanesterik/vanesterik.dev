@@ -1,5 +1,6 @@
 import './globals.css'
 
+import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 
 import { Footer } from '@/components/footer'
@@ -13,6 +14,11 @@ import { ThemeSelector } from '@/components/theme-selector'
 import layout from '@/content/layout.json'
 
 import { lausanne, nbInternationalProMono } from './fonts'
+
+// Resolves the canonical URLs pages give as paths
+export const metadata: Metadata = {
+  metadataBase: new URL('https://www.vanesterik.dev'),
+}
 
 type RootLayoutProps = {
   children: ReactNode
