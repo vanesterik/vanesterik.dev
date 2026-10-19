@@ -47,7 +47,7 @@ sequenceDiagram
 What's going on:
 
 - **Claude Code** is the conversation. It decides which tool to call, shows me the results as tables, and asks before anything gets written.
-- **The MCP server** holds the rules. It reads from the accountancy software, matches against what it has learned, and refuses anything that doesn't add up. A booking for a transaction it didn't just propose, for example, or one that was booked in the web app in the meantime.
+- **The MCP server** holds the rules. It reads from the accountancy software, matches against what it has learned, and refuses anything that doesn't add up: a booking for a transaction it didn't just propose, say, or for one that was already booked in the web app in the meantime.
 - **The accountancy software** stays the source of truth. The server checks it again right before every booking, so nothing gets booked twice.
 
 The nice part about this split: Claude is great at the conversation ("that one's a business lunch, not groceries") and terrible at being trusted blindly with money. The server is the other way around. Together they make a pretty good bookkeeper.
