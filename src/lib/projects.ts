@@ -220,4 +220,4 @@ export const getProjects = (items: unknown = projects): Project[] => {
 /**
  * A project's page title, on /projects/<slug>/ and when its row is opened
  */
-export const projectTitle = (name: string) => `van_esterik | ${name}`
+export const projectTitle = (name: string) => `Van Esterik · ${name}`

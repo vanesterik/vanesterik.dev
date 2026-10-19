@@ -171,6 +171,6 @@ describe('getProjects', () => {
 
 describe('projectTitle', () => {
   it('names the site and the project', () => {
-    expect(projectTitle('CrossVision')).toBe('van_esterik | CrossVision')
+    expect(projectTitle('CrossVision')).toBe('Van Esterik · CrossVision')
   })
 })
