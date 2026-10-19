@@ -214,14 +214,14 @@ describe('ProjectIndex on a project path', () => {
     const { rerender } = render(<ProjectIndex projects={projects} />)
 
     await user.click(row(/^lorem/))
-    expect(document.title).toBe('lorem · Projects')
+    expect(document.title).toBe('van_esterik | lorem')
     await user.click(row(/^lorem/))
     expect(document.title).toBe('Projects')
 
     // Back to an entry whose address names another project than its page
     pathname.value = '/projects/ipsum/'
     rerender(<ProjectIndex projects={projects} />)
-    expect(document.title).toBe('ipsum · Projects')
+    expect(document.title).toBe('van_esterik | ipsum')
   })
 
   it('leaves the title alone off the projects route', async () => {

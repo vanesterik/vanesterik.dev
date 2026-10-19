@@ -15,7 +15,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 import { withBasePath } from '@/lib/base-path'
-import type { Project } from '@/lib/projects'
+import { type Project, projectTitle } from '@/lib/projects'
 
 // Name, type, year and the status dot; narrow enough for a phone as well
 const COLUMNS = 'grid grid-cols-[1fr_3rem_3rem_1rem] gap-x-4'
@@ -93,7 +93,7 @@ export const ProjectIndex = ({ projects }: ProjectIndexProps) => {
   const onProjectsPath = isProjectsPath(pathname)
   useEffect(() => {
     if (!onProjectsPath) return
-    document.title = openName ? `${openName} · Projects` : 'Projects'
+    document.title = openName ? projectTitle(openName) : 'Projects'
   }, [onProjectsPath, openName])
 
   // A deep link scrolls its row into view, clear of the sticky header
