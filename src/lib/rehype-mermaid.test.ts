@@ -55,6 +55,9 @@ describe('rehypeMermaid', () => {
       expect(html).toContain('var(--muted-foreground)')
       expect(html).not.toContain('@import')
       expect(html).not.toContain('fonts.googleapis.com')
+      // The import's URL has semicolons; nothing of it may break the rules
+      expect(html).not.toContain('display=swap')
+      expect(html).toMatch(/<style>\s*(\.mono \{[^}]*\}\s*)?svg \{/)
     }
   })
 

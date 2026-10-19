@@ -53,7 +53,7 @@ const splitAccessibility = (source: string) => {
 // the diagram makes no third-party requests
 const withoutFonts = (svg: string) =>
   svg
-    .replace(/@import[^;]*;/g, '')
+    .replace(/@import\s+url\([^)]*\)[^;]*;/g, '')
     .replace(/(^|\n)\s*text\s*\{\s*font-family:[^}]*\}/g, '')
 
 // Ids must be unique on the page: a participant "You" becomes id="You"
