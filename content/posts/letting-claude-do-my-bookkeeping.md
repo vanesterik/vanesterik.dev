@@ -105,25 +105,66 @@ And that's the bit I want to leave you with. MCP isn't only for big platforms wi
 
 ## The cheat sheet
 
-The tools my server offers, by what they're for:
+What I type, chore by chore, and the tools it sets off. Each line is ready to paste into a fresh session.
+
+### Seed the suggestions, once
 
 ```text
-# Look up
-list_categories, list_vat_codes      what the software offers
-list_suggestions                     what has been learned, grouped
-
-# Learn
-seed_suggestions, save_suggestions   once, from the whole history
-relearn_providers                    after listing a payment provider
-
-# Propose (never write)
-propose_bookings                     a period's bank transactions
-propose_split                        a credit card statement
-propose_receipts                     unlinked receipts to expenses
-
-# Write (only after a yes)
-book, book_split, link_receipts
-undo_booking                         and take back what it learned
+Seed the suggestions from the booking history.
 ```
+
+`seed_suggestions` reads every booking ever made and lists the counterparties booked more than one way. Once I've picked a category and VAT rate for each, or *always ask*, `save_suggestions` writes the file.
+
+### Book a quarter
+
+```text
+Book Q3 2026.
+```
+
+`propose_bookings` proposes a category and VAT rate for every unbooked transaction in the quarter. For one it has never seen, Claude picks from `list_categories` and `list_vat_codes`. After my yes, `book` books them and learns from each.
+
+### Split the credit card collection
+
+```text
+Split the card collection from this statement: ~/Desktop/statement.csv
+```
+
+`propose_split` reads the statement, finds the collection it adds up to and proposes a line per purchase. `book_split` books them, all or nothing.
+
+### Link the receipts
+
+```text
+Link the receipts for Q3 2026.
+```
+
+`propose_receipts` matches the unlinked receipts to the quarter's expenses by amount and date, and `link_receipts` links the pairs I approve.
+
+### Check what it has learned
+
+```text
+What do you know about Spotify?
+```
+
+```text
+Show me the suggestions by VAT code.
+```
+
+`list_suggestions` lists every learned counterparty under the category and VAT rate it would get, grouped by category, by VAT rate, or by how it's matched. It writes nothing.
+
+### Add a payment provider
+
+```text
+Relearn the payment providers.
+```
+
+After I've added a provider's IBAN to the suggestions file by hand, `relearn_providers` learns the bookings on it again, one entry per merchant.
+
+### Undo a booking
+
+```text
+Undo the booking for the parking garage.
+```
+
+`undo_booking` deletes the booking and takes back what it taught.
 
 That's it. My quarterly bookkeeping is now me typing "book Q3", reading a table, and saying yes. My accountant hasn't noticed a thing. Which, for bookkeeping, is exactly the point.
