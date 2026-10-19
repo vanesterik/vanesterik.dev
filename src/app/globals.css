@@ -131,22 +131,24 @@
   pre {
     border-radius: 0.25rem;
   }
+}
 
-  /* Diagrams stay at their drawn size, too small to read when shrunk to a
-     phone, and scroll sideways inside their figure instead */
-  figure.mermaid {
-    overflow-x: auto;
-  }
+/* Diagrams stay at their drawn size, too small to read when shrunk to a phone,
+   and scroll sideways inside their figure instead. Kept out of the prose
+   utility: Tailwind orders the two .prose rules (the plugin's and the site's)
+   by their contents, and more rules here put the plugin's grey colors last */
+figure.mermaid {
+  overflow-x: auto;
+}
 
-  .mermaid svg {
-    display: block;
-    max-width: none;
-    margin-inline: auto;
-  }
+.mermaid svg {
+  display: block;
+  max-width: none;
+  margin-inline: auto;
+}
 
-  .mermaid text {
-    font-family: var(--font-sans);
-  }
+.mermaid text {
+  font-family: var(--font-sans);
 }
 
 /* Shiki emits both themes as CSS variables; show the one matching the site's theme */
