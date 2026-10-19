@@ -9,11 +9,15 @@ import { Button } from '@/components/ui/button'
 const withoutTrailingSlash = (path: string) => path.replace(/(.)\/$/, '$1')
 
 /**
- * Whether the passed URL is the page being shown
+ * Whether the passed URL is the page being shown, or a section above it (the
+ * projects page on /projects/<slug>/); home matches only itself
  */
-export const isCurrentPath = (pathname: string | null, url: string) =>
-  pathname !== null &&
-  withoutTrailingSlash(pathname) === withoutTrailingSlash(url)
+export const isCurrentPath = (pathname: string | null, url: string) => {
+  if (pathname === null) return false
+  const path = withoutTrailingSlash(pathname)
+  const section = withoutTrailingSlash(url)
+  return path === section || (section !== '/' && path.startsWith(`${section}/`))
+}
 
 type NavLinkProps = {
   name: string
