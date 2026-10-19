@@ -87,6 +87,15 @@ export const ProjectIndex = ({ projects }: ProjectIndexProps) => {
     )
   }
 
+  // The title names the open project too, so a bookmark does: the address
+  // changes without a new page, and Back restores an entry's first title
+  const openName = projects.find(({ slug }) => slug === open)?.name
+  const onProjectsPath = isProjectsPath(pathname)
+  useEffect(() => {
+    if (!onProjectsPath) return
+    document.title = openName ? `${openName} · Projects` : 'Projects'
+  }, [onProjectsPath, openName])
+
   // A deep link scrolls its row into view, clear of the sticky header
   // biome-ignore lint/correctness/useExhaustiveDependencies: only on the first render
   useEffect(() => {

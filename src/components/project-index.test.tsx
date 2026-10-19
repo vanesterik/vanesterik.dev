@@ -207,6 +207,33 @@ describe('ProjectIndex on a project path', () => {
     expect(pushState).not.toHaveBeenCalled()
   })
 
+  it('names the open project in the title', async () => {
+    pathname.value = '/projects/'
+    document.title = 'Projects'
+    const user = userEvent.setup()
+    const { rerender } = render(<ProjectIndex projects={projects} />)
+
+    await user.click(row(/^lorem/))
+    expect(document.title).toBe('lorem · Projects')
+    await user.click(row(/^lorem/))
+    expect(document.title).toBe('Projects')
+
+    // Back to an entry whose address names another project than its page
+    pathname.value = '/projects/ipsum/'
+    rerender(<ProjectIndex projects={projects} />)
+    expect(document.title).toBe('ipsum · Projects')
+  })
+
+  it('leaves the title alone off the projects route', async () => {
+    pathname.value = '/'
+    document.title = 'Storybook'
+    const user = userEvent.setup()
+    render(<ProjectIndex projects={projects} />)
+
+    await user.click(row(/^lorem/))
+    expect(document.title).toBe('Storybook')
+  })
+
   it('leaves the address alone off the projects route', async () => {
     pathname.value = '/'
     const replaceState = vi.spyOn(window.history, 'replaceState')
