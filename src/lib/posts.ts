@@ -9,6 +9,8 @@ import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import { unified } from 'unified'
 
+import { rehypeMermaid } from './rehype-mermaid'
+
 export type PostMeta = {
   slug: string
   title: string
@@ -65,10 +67,17 @@ export const getPost = async (slug: string, dir = POSTS_DIR): Promise<Post> => {
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkRehype)
+    .use(rehypeMermaid)
     .use(rehypeShiki, {
       themes: { light: 'github-light', dark: 'github-dark' },
       defaultColor: false,
     })
-  const tree = await processor.run(processor.parse(content))
-  return { ...meta, tree }
+  try {
+    const tree = await processor.run(processor.parse(content))
+    return { ...meta, tree }
+  } catch (error) {
+    // Name the post, as a broken front matter does, so the build says where
+    const message = error instanceof Error ? error.message : String(error)
+    throw new Error(`${slug}.md: ${message}`)
+  }
 }

@@ -58,6 +58,20 @@ describe('getPost', () => {
     expect(html).toContain('--shiki-dark:')
   })
 
+  it('draws mermaid diagrams', async () => {
+    const html = toHtml((await getPost('newer-post', fixtures('posts'))).tree)
+    expect(html).toContain('<figure class="mermaid">')
+    expect(html).toContain('<title id="mermaid-1-title">A greeting</title>')
+  })
+
+  it('names the file when a diagram is broken', async () => {
+    await expect(
+      getPost('broken-diagram', fixtures('broken-diagram')),
+    ).rejects.toThrow(
+      'broken-diagram.md: a mermaid diagram needs an "accTitle:" line',
+    )
+  })
+
   it('throws for an unknown slug', async () => {
     await expect(getPost('missing', fixtures('posts'))).rejects.toThrow()
   })
