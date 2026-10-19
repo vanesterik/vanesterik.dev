@@ -126,7 +126,7 @@ export const ProjectIndex = ({ projects }: ProjectIndexProps) => {
               )}
             >
               <span>{project.name}</span>
-              <span className="text-muted-foreground group-data-[state=open]:text-primary-foreground">
+              <span className="text-muted-foreground group-data-[state=open]:text-primary-foreground/60">
                 {project.type}
               </span>
               <span>{project.year}</span>
