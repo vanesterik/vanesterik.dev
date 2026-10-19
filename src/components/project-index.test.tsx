@@ -133,9 +133,9 @@ describe('ProjectIndex', () => {
       'data-[state=open]:text-primary-foreground',
       'data-[state=open]:hover:bg-primary/80',
     )
-    // The muted type column turns to the row's text color, to stay readable
+    // The type column stays toned down, in the row's own text color
     expect(screen.getAllByText('web')[0]).toHaveClass(
-      'group-data-[state=open]:text-primary-foreground',
+      'group-data-[state=open]:text-primary-foreground/60',
     )
   })
 
