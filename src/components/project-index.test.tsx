@@ -1,10 +1,30 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { Project } from '@/lib/projects'
 
-import { ProjectIndex } from './project-index'
+import { openSlugFromPath, ProjectIndex } from './project-index'
+
+const pathname = vi.hoisted(() => ({ value: null as string | null }))
+
+vi.mock('next/navigation', () => ({
+  usePathname: () => pathname.value,
+}))
+
+const scrollIntoView = vi.fn()
+let reducedMotion = false
+
+beforeEach(() => {
+  pathname.value = null
+  reducedMotion = false
+  scrollIntoView.mockClear()
+  Element.prototype.scrollIntoView = scrollIntoView
+  window.matchMedia = vi.fn((query: string) => ({
+    matches: reducedMotion && query === '(prefers-reduced-motion: reduce)',
+  })) as unknown as typeof window.matchMedia
+  vi.restoreAllMocks()
+})
 
 const project = (overrides: Partial<Project>): Project => ({
   slug: 'lorem',
@@ -120,5 +140,107 @@ describe('ProjectIndex', () => {
     expect(screen.queryByRole('img')).toBeNull()
     expect(screen.queryByText(/^zsh —/)).toBeNull()
     expect(screen.getByText('Sit amet.')).toBeInTheDocument()
+  })
+})
+
+describe('openSlugFromPath', () => {
+  const slugs = projects.map(({ slug }) => slug)
+
+  it('takes the slug from a project path', () => {
+    expect(openSlugFromPath('/projects/ipsum/', slugs)).toBe('ipsum')
+    expect(openSlugFromPath('/projects/ipsum', slugs)).toBe('ipsum')
+  })
+
+  it('opens nothing for any other path', () => {
+    for (const path of [
+      '/projects/',
+      '/projects/unknown/',
+      '/projects/ipsum/extra/',
+      '/',
+      null,
+    ]) {
+      expect(openSlugFromPath(path, slugs)).toBe('')
+    }
+  })
+})
+
+describe('ProjectIndex on a project path', () => {
+  const expanded = () =>
+    screen
+      .getAllByRole('button')
+      .filter((button) => button.getAttribute('aria-expanded') === 'true')
+      .map((button) => button.textContent)
+
+  it('opens the row the address names', () => {
+    pathname.value = '/projects/ipsum/'
+    render(<ProjectIndex projects={projects} />)
+    expect(expanded()).toEqual([expect.stringMatching(/^ipsum/)])
+  })
+
+  it('follows the address when it changes', () => {
+    pathname.value = '/projects/ipsum/'
+    const { rerender } = render(<ProjectIndex projects={projects} />)
+
+    pathname.value = '/projects/'
+    rerender(<ProjectIndex projects={projects} />)
+    expect(expanded()).toEqual([])
+
+    pathname.value = '/projects/lorem/'
+    rerender(<ProjectIndex projects={projects} />)
+    expect(expanded()).toEqual([expect.stringMatching(/^lorem/)])
+  })
+
+  it('replaces the address as rows open and close', async () => {
+    pathname.value = '/projects/'
+    const replaceState = vi.spyOn(window.history, 'replaceState')
+    const pushState = vi.spyOn(window.history, 'pushState')
+    const user = userEvent.setup()
+    render(<ProjectIndex projects={projects} />)
+
+    await user.click(row(/^lorem/))
+    // At once, before the router has passed on the new path
+    expect(row(/^lorem/)).toHaveAttribute('aria-expanded', 'true')
+    expect(replaceState).toHaveBeenLastCalledWith(null, '', '/projects/lorem/')
+
+    await user.click(row(/^lorem/))
+    expect(replaceState).toHaveBeenLastCalledWith(null, '', '/projects/')
+    expect(pushState).not.toHaveBeenCalled()
+  })
+
+  it('leaves the address alone off the projects route', async () => {
+    pathname.value = '/'
+    const replaceState = vi.spyOn(window.history, 'replaceState')
+    const user = userEvent.setup()
+    render(<ProjectIndex projects={projects} />)
+
+    await user.click(row(/^lorem/))
+    expect(row(/^lorem/)).toHaveAttribute('aria-expanded', 'true')
+    expect(replaceState).not.toHaveBeenCalled()
+  })
+
+  it('scrolls a deep-linked row into view', () => {
+    pathname.value = '/projects/ipsum/'
+    render(<ProjectIndex projects={projects} />)
+    expect(scrollIntoView).toHaveBeenCalledOnce()
+    expect(scrollIntoView).toHaveBeenCalledWith({
+      block: 'start',
+      behavior: 'smooth',
+    })
+  })
+
+  it("doesn't animate the scroll with reduced motion", () => {
+    pathname.value = '/projects/ipsum/'
+    reducedMotion = true
+    render(<ProjectIndex projects={projects} />)
+    expect(scrollIntoView).toHaveBeenCalledWith({
+      block: 'start',
+      behavior: 'auto',
+    })
+  })
+
+  it('scrolls nowhere without a project in the path', () => {
+    pathname.value = '/projects/'
+    render(<ProjectIndex projects={projects} />)
+    expect(scrollIntoView).not.toHaveBeenCalled()
   })
 })
