@@ -119,12 +119,16 @@ export const ProjectIndex = ({ projects }: ProjectIndexProps) => {
               className={cn(
                 COLUMNS,
                 // The header and footer's text style, rounded and padded like
-                // their buttons
-                'min-h-11 items-baseline rounded px-2 py-3.5 text-xs uppercase hover:bg-secondary',
+                // their buttons; the open row inverted, like the current page
+                // in the navigation
+                'group min-h-11 items-baseline rounded px-2 py-3.5 text-xs uppercase hover:bg-secondary',
+                'data-[state=open]:bg-primary data-[state=open]:text-primary-foreground data-[state=open]:hover:bg-primary/80',
               )}
             >
               <span>{project.name}</span>
-              <span className="text-muted-foreground">{project.type}</span>
+              <span className="text-muted-foreground group-data-[state=open]:text-primary-foreground">
+                {project.type}
+              </span>
               <span>{project.year}</span>
               <span className="justify-self-end">
                 <ProjectStatus status={project.status} />

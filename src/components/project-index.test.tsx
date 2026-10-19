@@ -120,6 +120,25 @@ describe('ProjectIndex', () => {
     expect(screen.queryByText('zsh — ipsum')).toBeNull()
   })
 
+  it('shows the open row inverted, like the current page in the navigation', async () => {
+    const user = userEvent.setup()
+    render(<ProjectIndex projects={projects} />)
+
+    await user.click(row(/^lorem/))
+
+    const open = row(/^lorem/)
+    expect(open).toHaveAttribute('data-state', 'open')
+    expect(open).toHaveClass(
+      'data-[state=open]:bg-primary',
+      'data-[state=open]:text-primary-foreground',
+      'data-[state=open]:hover:bg-primary/80',
+    )
+    // The muted type column turns to the row's text color, to stay readable
+    expect(screen.getAllByText('web')[0]).toHaveClass(
+      'group-data-[state=open]:text-primary-foreground',
+    )
+  })
+
   it('shows a terminal app screenshot in the terminal frame', async () => {
     const user = userEvent.setup()
     render(<ProjectIndex projects={projects} />)
