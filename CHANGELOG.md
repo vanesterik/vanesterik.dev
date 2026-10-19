@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.7.0](https://github.com/vanesterik/vanesterik.dev/compare/v1.6.1...v1.7.0) (2026-10-19)
+
+### Features
+
+* draw mermaid diagrams in posts at build time ([7af6fe9](https://github.com/vanesterik/vanesterik.dev/commit/7af6fe908653c741987d40fc0436713388b1f9fc))
+* publish letting claude do my bookkeeping ([974d60d](https://github.com/vanesterik/vanesterik.dev/commit/974d60d7cd02b11a207c3a1e1b728815c4bec104))
+
+### Bug Fixes
+
+* count zsh-git-alias's 182 aliases ([768cf9b](https://github.com/vanesterik/vanesterik.dev/commit/768cf9b55e0cc16c04c1257fc500e5056ab4693c))
+* keep the site's accent out of mermaid arrowheads ([0db7984](https://github.com/vanesterik/vanesterik.dev/commit/0db7984ad8b37ee2c54375dd32ffc18013f52b2d))
+* remove the whole font import from mermaid diagrams ([6e389d4](https://github.com/vanesterik/vanesterik.dev/commit/6e389d45352086908313aaa75ddc6d0edf104b5a))
+* restore the site's prose colors on posts ([1ef2236](https://github.com/vanesterik/vanesterik.dev/commit/1ef223633562c2eb3cbefb6c5898e98a7411783e))
+
 ## [1.6.1](https://github.com/vanesterik/vanesterik.dev/compare/v1.6.0...v1.6.1) (2026-10-13)
 
 ### Bug Fixes
