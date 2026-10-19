@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 
-import { getProjects } from '@/lib/projects'
+import { getProjects, projectTitle } from '@/lib/projects'
 
 import { ProjectsPage } from '../projects-page'
 
@@ -20,7 +20,7 @@ export const generateMetadata = async ({
   const { slug } = await params
   const project = getProjects().find((item) => item.slug === slug)
   return {
-    title: `${project?.name} · Projects`,
+    title: projectTitle(project?.name ?? slug),
     alternates: { canonical: '/projects/' },
   }
 }

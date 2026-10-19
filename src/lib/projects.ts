@@ -216,3 +216,8 @@ export const getProjects = (items: unknown = projects): Project[] => {
   // Array sort is stable, so projects of one year keep the file's order
   return [...result].sort((a, b) => b.year - a.year)
 }
+
+/**
+ * A project's page title, on /projects/<slug>/ and when its row is opened
+ */
+export const projectTitle = (name: string) => `van_esterik | ${name}`

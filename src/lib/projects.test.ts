@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { getProjects } from './projects'
+import { getProjects, projectTitle } from './projects'
 
 const project = (overrides: Record<string, unknown> = {}) => ({
   slug: 'lorem',
@@ -166,5 +166,11 @@ describe('getProjects', () => {
     expect(() => getProjects([project(), project()])).toThrow(
       'lorem: the slug is used twice',
     )
+  })
+})
+
+describe('projectTitle', () => {
+  it('names the site and the project', () => {
+    expect(projectTitle('CrossVision')).toBe('van_esterik | CrossVision')
   })
 })
