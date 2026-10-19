@@ -5,7 +5,7 @@
     "name": "CrossVision",
     "stack": ["python", "pytorch", "fastapi", "react"],
     "year": 2026,
-    "status": "live",
+    "status": "wip",
     "role": "data scientist",
     "description": "Self-supervised vision models, pretrained on Utrecht's aerial imagery, fine-tuned to detect tree canopy and solar panels.",
     "preview": { "image": "/projects/crossvision.jpg" },
