@@ -3,11 +3,20 @@ import type { Element, ElementContent, Root, RootContent, Text } from 'hast'
 import { fromHtml } from 'hast-util-from-html'
 
 // The site's tokens, resolved by the page, so a theme switch recolors the
-// diagram without drawing it again
+// diagram without drawing it again. The renderer reads --line, --accent,
+// --surface and --border from the page when they're not given, and the site
+// has an --accent of its own, so all are set here, with the renderer's mixes
+const mix = (percent: number) =>
+  `color-mix(in srgb, var(--foreground) ${percent}%, var(--background))`
+
 const COLORS = {
   bg: 'var(--background)',
   fg: 'var(--foreground)',
   muted: 'var(--muted-foreground)',
+  line: mix(50),
+  accent: mix(85),
+  surface: mix(3),
+  border: mix(20),
   transparent: true,
 }
 

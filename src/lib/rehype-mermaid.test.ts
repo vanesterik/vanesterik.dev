@@ -61,6 +61,13 @@ describe('rehypeMermaid', () => {
     }
   })
 
+  it("sets every color itself, so the site's --accent can't leak in", async () => {
+    const style = /<svg[^>]* style="([^"]*)"/.exec(await render(diagram()))?.[1]
+    for (const name of ['--line', '--accent', '--surface', '--border']) {
+      expect(style).toMatch(new RegExp(`${name}:[^;]*var\\(--foreground\\)`))
+    }
+  })
+
   it('gives every diagram its own ids', async () => {
     const html = await render(`${diagram()}\n${diagram('Another flow')}`)
     expect(new Set(ids(html)).size).toBe(ids(html).length)
