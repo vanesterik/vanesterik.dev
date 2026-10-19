@@ -7,7 +7,7 @@ Every quarter I sit down to book my bank transactions. I run a one-person compan
 
 My accountancy software has a web app for this, and it's fine. But it makes me click through every single line, and it doesn't really remember what I taught it the quarter before. After years of history, *I* know what every counterparty is. The software just doesn't seem to.
 
-So I built an MCP server that lets Claude Code do the dull part, while I do the part that actually needs me: saying yes.
+So I developed an MCP server together with Claude Code, one that lets it do the dull part, while I do the part that actually needs me: saying yes.
 
 ## MCP in one paragraph
 
@@ -99,7 +99,7 @@ None of this works if I can't trust it, so a few rules are built into the server
 
 ## What this is really about
 
-I didn't set out to build an AI product. I set out to stop clicking through hundreds of lines a quarter. What surprised me is how *little* it took. My accountancy software never had to offer an integration. Claude Code didn't need a plugin. A couple of thousand lines of my own code, written to my own rules (my VAT rule for foreign merchants, my always-ask list, my "never show the card number"), was enough to turn a chore into a five-minute conversation.
+I didn't set out to build an AI product. I set out to stop clicking through hundreds of lines a quarter. What surprised me is how *little* it took. My accountancy software never had to offer an integration. Claude Code didn't need a plugin. A couple of thousand lines of code, developed with Claude Code to my own rules (my VAT rule for foreign merchants, my always-ask list, my "never show the card number"), was enough to turn a chore into a five-minute conversation.
 
 And that's the bit I want to leave you with. MCP isn't only for big platforms wiring up their APIs. It's just as much for the small, personal, slightly annoying things only you have. Your energy meter's export. The spreadsheet you update every month. The home automation you keep meaning to script. The photo library you keep meaning to sort. If there's a chore you do the same way every time, and you can reach the data from code, you can give it to an LLM as a tool, with your rules around it.
 
