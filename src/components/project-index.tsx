@@ -114,6 +114,8 @@ export const ProjectIndex = ({ projects }: ProjectIndexProps) => {
             key={project.slug}
             value={project.slug}
             data-slug={project.slug}
+            // Space around the open row, so its inverted header stands apart
+            className="data-[state=open]:my-2"
           >
             <AccordionTrigger
               className={cn(

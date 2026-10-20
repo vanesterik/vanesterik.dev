@@ -139,6 +139,17 @@ describe('ProjectIndex', () => {
     )
   })
 
+  it('sets the open row apart from the others', async () => {
+    const user = userEvent.setup()
+    render(<ProjectIndex projects={projects} />)
+
+    await user.click(row(/^lorem/))
+
+    const item = row(/^lorem/).closest('[data-slot="accordion-item"]')
+    expect(item).toHaveAttribute('data-state', 'open')
+    expect(item).toHaveClass('data-[state=open]:my-2')
+  })
+
   it('shows a terminal app screenshot in the terminal frame', async () => {
     const user = userEvent.setup()
     render(<ProjectIndex projects={projects} />)
