@@ -150,6 +150,17 @@ describe('ProjectIndex', () => {
     expect(item).toHaveClass('data-[state=open]:my-16')
   })
 
+  it('lets the open row break out of the column on wide screens', async () => {
+    const user = userEvent.setup()
+    render(<ProjectIndex projects={projects} />)
+
+    await user.click(row(/^lorem/))
+
+    expect(row(/^lorem/).closest('[data-slot="accordion-item"]')).toHaveClass(
+      'lg:data-[state=open]:-mx-24',
+    )
+  })
+
   it('shows a terminal app screenshot in the terminal frame', async () => {
     const user = userEvent.setup()
     render(<ProjectIndex projects={projects} />)
