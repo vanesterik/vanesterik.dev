@@ -147,7 +147,7 @@ describe('ProjectIndex', () => {
 
     const item = row(/^lorem/).closest('[data-slot="accordion-item"]')
     expect(item).toHaveAttribute('data-state', 'open')
-    expect(item).toHaveClass('data-[state=open]:my-2')
+    expect(item).toHaveClass('data-[state=open]:my-16')
   })
 
   it('shows a terminal app screenshot in the terminal frame', async () => {
