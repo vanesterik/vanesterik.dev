@@ -49,7 +49,8 @@ export const TerminalFrame = (props: TerminalFrameProps) => (
         className="aspect-[16/10] w-full object-cover"
       />
     ) : (
-      <pre className="whitespace-pre-wrap font-mono">
+      // A path without spaces breaks mid-word rather than past a phone's edge
+      <pre className="wrap-break-word whitespace-pre-wrap font-mono">
         {props.lines.map(({ text, tone }, index) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: the lines are static and never reorder
           <span key={index} className={cn('block', TONE_COLORS[tone])}>
