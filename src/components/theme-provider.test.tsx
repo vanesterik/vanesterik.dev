@@ -34,13 +34,22 @@ const stubSystemPreference = (isDark: boolean) => {
   )
 }
 
+let consoleError: ReturnType<typeof vi.spyOn>
+
 beforeEach(() => {
   localStorage.clear()
   document.documentElement.classList.remove('dark', 'light')
   document.documentElement.removeAttribute('data-theme')
+  consoleError = vi.spyOn(console, 'error')
 })
 
 afterEach(() => {
+  // React warns about a client-rendered script once per file, so every test
+  // checks: whichever renders first would see it
+  expect(consoleError).not.toHaveBeenCalledWith(
+    expect.stringContaining('Encountered a script tag'),
+  )
+  consoleError.mockRestore()
   vi.unstubAllGlobals()
 })
 
