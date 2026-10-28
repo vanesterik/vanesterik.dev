@@ -114,31 +114,31 @@ export const ProjectIndex = ({ projects }: ProjectIndexProps) => {
             key={project.slug}
             value={project.slug}
             data-slug={project.slug}
-            // Space around the open row, so its inverted header stands apart,
-            // and on wide screens it breaks out of the column
-            className="data-[state=open]:my-16 lg:data-[state=open]:-mx-24"
+            // The open row, its preview and details framed together in a
+            // rounded hairline, with room inside and space around; on wide
+            // screens it breaks out of the column
+            className={cn(
+              'rounded-lg',
+              'data-[state=open]:my-16 data-[state=open]:border data-[state=open]:border-accent data-[state=open]:p-4 sm:data-[state=open]:p-6',
+              'lg:data-[state=open]:-mx-24',
+            )}
           >
             <AccordionTrigger
               className={cn(
                 COLUMNS,
                 // The header and footer's text style, rounded and padded like
-                // their buttons; the open row inverted, like the current page
-                // in the navigation
-                'group min-h-11 items-baseline rounded px-2 py-3.5 text-xs uppercase hover:bg-secondary',
-                'data-[state=open]:bg-primary data-[state=open]:text-primary-foreground data-[state=open]:hover:bg-primary/80',
+                // their buttons
+                'min-h-11 items-baseline rounded px-2 py-3.5 text-xs uppercase hover:bg-secondary',
               )}
             >
               <span>{project.name}</span>
-              <span className="text-muted-foreground group-data-[state=open]:text-primary-foreground/60">
-                {project.type}
-              </span>
+              <span className="text-muted-foreground">{project.type}</span>
               <span>{project.year}</span>
               <span className="justify-self-end">
                 <ProjectStatus status={project.status} />
               </span>
             </AccordionTrigger>
-            {/* A hairline under an open panel eases the step back into the rows */}
-            <AccordionContent className="flex flex-col gap-8 border-accent border-b pt-2 pb-8">
+            <AccordionContent className="flex flex-col gap-8 pt-2">
               <ProjectPreview project={project} />
               <ProjectDetails project={project} />
             </AccordionContent>

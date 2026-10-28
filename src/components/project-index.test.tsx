@@ -120,7 +120,7 @@ describe('ProjectIndex', () => {
     expect(screen.queryByText('zsh — ipsum')).toBeNull()
   })
 
-  it('shows the open row inverted, like the current page in the navigation', async () => {
+  it('frames the open row in a rounded hairline, on the page background', async () => {
     const user = userEvent.setup()
     render(<ProjectIndex projects={projects} />)
 
@@ -128,15 +128,19 @@ describe('ProjectIndex', () => {
 
     const open = row(/^lorem/)
     expect(open).toHaveAttribute('data-state', 'open')
-    expect(open).toHaveClass(
-      'data-[state=open]:bg-primary',
-      'data-[state=open]:text-primary-foreground',
-      'data-[state=open]:hover:bg-primary/80',
+    expect(open).not.toHaveClass('data-[state=open]:bg-primary')
+    expect(open.closest('[data-slot="accordion-item"]')).toHaveClass(
+      'rounded-lg',
+      'data-[state=open]:border',
+      'data-[state=open]:border-accent',
+      'data-[state=open]:p-4',
     )
-    // The type column stays toned down, in the row's own text color
-    expect(screen.getAllByText('web')[0]).toHaveClass(
-      'group-data-[state=open]:text-primary-foreground/60',
-    )
+    // The frame replaces the hairline under the panel
+    expect(
+      open
+        .closest('[data-slot="accordion-item"]')
+        ?.querySelector('[data-slot="accordion-content"]'),
+    ).not.toHaveClass('border-b')
   })
 
   it('sets the open row apart from the others', async () => {
