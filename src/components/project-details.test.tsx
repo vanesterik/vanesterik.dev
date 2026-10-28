@@ -30,12 +30,15 @@ const pairs = (list: HTMLElement) =>
   ])
 
 describe('ProjectDetails', () => {
-  it('leads with the description in large bold Lausanne', () => {
+  it('leads with the description in very large, tightly set bold Lausanne', () => {
     render(<ProjectDetails project={project} />)
     expect(screen.getByText('Lorem ipsum dolor sit amet.')).toHaveClass(
       'font-sans',
       'font-bold',
-      'text-2xl',
+      'text-4xl',
+      'sm:text-5xl',
+      'leading-none',
+      'tracking-tight',
     )
   })
 
