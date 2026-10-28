@@ -32,7 +32,8 @@ export default async function Page({ params }: PageProps) {
         >
           {formatPostDate(date)}
         </time>
-        <h1 className="font-bold text-5xl text-foreground leading-tight">
+        {/* 36px on a phone, where 48px leaves a word or two per line */}
+        <h1 className="font-bold text-4xl text-foreground leading-tight sm:text-5xl">
           {title}
         </h1>
       </header>
