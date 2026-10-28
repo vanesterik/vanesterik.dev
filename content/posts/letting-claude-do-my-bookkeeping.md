@@ -7,13 +7,13 @@ Every quarter I sit down to book my bank transactions. I run a one-person compan
 
 My accountancy software has a web app for this, and it's fine. But it makes me click through every single line, and it doesn't really remember what I taught it the quarter before. After years of history, *I* know what every counterparty is. The software just doesn't seem to.
 
-So I developed an MCP server together with Claude Code, one that lets it do the dull part, while I do the part that actually needs me: saying yes.
+So I developed an MCP server together with Claude Code, one that lets it do the dull part, while I do the part that actually needs me: saying yes. The code is on GitHub as [hamurai](https://github.com/vanesterik/hamurai). In there, my accountancy software is called Hamurai, a stand-in name for the real thing.
 
 ## MCP in one paragraph
 
 MCP, the Model Context Protocol, is a way to give an LLM tools. You write a small server that offers a handful of functions, each with a name, typed arguments and a description in plain words, and an MCP client like Claude Code can call them in the middle of a conversation. That's it. No plugin store, no SaaS integration, no permission from anyone. If you can reach something from code, you can hand it to Claude.
 
-Mine is a Python server of a couple of thousand lines, started by Claude Code from a `.mcp.json` in the project folder. It talks to my accountancy software over the same HTTP API its web app uses, and it keeps what it learns in one YAML file on my disk.
+Mine is a [Python server](https://github.com/vanesterik/hamurai) of a couple of thousand lines, started by Claude Code from a `.mcp.json` in the project folder. It talks to my accountancy software over the same HTTP API its web app uses, and it keeps what it learns in one YAML file on my disk.
 
 ## How a booking flows
 
@@ -105,7 +105,7 @@ And that's the bit I want to leave you with. MCP isn't only for big platforms wi
 
 ## The cheat sheet
 
-What I type, chore by chore, and the tools it sets off. Each line is ready to paste into a fresh session.
+What I type, chore by chore, and the tools it sets off. Each line is ready to paste into a fresh session. To run it yourself, the [README](https://github.com/vanesterik/hamurai#installation) covers the setup (`task setup`, and the `.env` values you copy from the browser's DevTools) and every tool in more detail.
 
 ### Seed the suggestions, once
 
