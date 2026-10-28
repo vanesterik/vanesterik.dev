@@ -30,6 +30,14 @@ describe('TerminalFrame', () => {
     expect(screen.getByText('wrote lorem.tar.zst')).toHaveClass('text-success')
   })
 
+  it('wraps a line too long for a phone, even within a word', () => {
+    render(<TerminalFrame name="ipsum" lines={[...lines]} />)
+    expect(screen.getByText('wrote lorem.tar.zst').closest('pre')).toHaveClass(
+      'whitespace-pre-wrap',
+      'wrap-break-word',
+    )
+  })
+
   it('stays dark in either theme and ends on a prompt', () => {
     const { container } = render(
       <TerminalFrame name="ipsum" lines={[...lines]} />,
