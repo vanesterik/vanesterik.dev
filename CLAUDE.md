@@ -98,9 +98,9 @@ Things that take more than one file to see:
 - **Icons are Lucide** (`lucide-react`). The theme options' `icon` values in `content/layout.json` are Lucide icon names, mapped in `src/components/theme-selector.tsx`.
 - **Storybook** covers every reusable component (not Header, Footer, PostContent, ParticleCanvas or ThemeProvider), with stories next to each (`*.stories.tsx`), using the real content from `content/` where it exists. Its "Design tokens" pages in `src/stories/` read the colors and text sizes from the running CSS, so they follow `globals.css` and the toolbar's theme; a test fails when a color token is added to or removed from `globals.css` without updating `src/stories/tokens.ts`. Stories render in the browser, so a component they show can't import Node-only code such as `src/lib/posts.ts`. Its preview adds the fonts' variable classes to `<html>`, because the theme's font tokens resolve there; wrapping a story in them isn't enough. A story that needs `next-themes` must give its provider `attribute="data-theme"` and its own `storageKey`, so it doesn't fight the toolbar over the `dark` class.
 - **The root layout sets `metadataBase`** (`https://www.vanesterik.dev`), so a page's canonical URL can be given as a path.
-- **All code lives in `src/`;** the root holds configuration, `content/`, `public/`, `docs/` and build output. **The `@/*` alias** resolves to `src/`, except `@/content/*`, which resolves to the root `content/` folder. Both are set in `tsconfig.json` (Next.js, Storybook) and `vitest.config.ts` (Vitest).
+- **All code lives in `src/`;** the root holds configuration, `content/`, `public/`, `docs/` and build output. **The `@/*` alias** resolves to `src/`, except `@/content/*`, which resolves to the root `content/` folder. Both are set in `tsconfig.json` (Next.js, Storybook) and `vitest.config.mts` (Vitest).
 
-Component tests are Vitest with Testing Library and user-event in jsdom (`vitest.config.ts`, `vitest.setup.ts`). `vitest.setup.ts` stubs `ResizeObserver`, which jsdom lacks and Radix needs.
+Component tests are Vitest with Testing Library and user-event in jsdom (`vitest.config.mts`, `vitest.setup.ts`). `vitest.setup.ts` stubs `ResizeObserver`, which jsdom lacks and Radix needs.
 
 ## CI and deployment
 
