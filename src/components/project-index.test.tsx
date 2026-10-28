@@ -333,71 +333,75 @@ describe('ProjectIndex on a project path', () => {
   })
 })
 
-describe('ProjectIndex, browsed with Cmd+↑ and Cmd+↓', () => {
+describe('ProjectIndex, browsed with J and K', () => {
   const openSlug = () =>
     document
       .querySelector('[data-slot="accordion-item"][data-state="open"]')
       ?.getAttribute('data-slug')
 
-  it('opens the next and the previous project', async () => {
+  it('activates the next project with J and the previous with K, as a click does', async () => {
     pathname.value = '/projects/ipsum/'
     const replaceState = vi.spyOn(window.history, 'replaceState')
     const user = userEvent.setup()
     render(<ProjectIndex projects={projects} />)
 
-    await user.keyboard('{Meta>}{ArrowDown}{/Meta}')
+    await user.keyboard('j')
     expect(openSlug()).toBe('dolor')
+    expect(row(/^dolor/)).toHaveAttribute('aria-expanded', 'true')
+    expect(row(/^dolor/)).toHaveFocus()
     expect(replaceState).toHaveBeenLastCalledWith(null, '', '/projects/dolor/')
 
-    await user.keyboard('{Meta>}{ArrowUp}{ArrowUp}{/Meta}')
+    await user.keyboard('kk')
     expect(openSlug()).toBe('lorem')
+    expect(row(/^lorem/)).toHaveAttribute('aria-expanded', 'true')
+    expect(row(/^lorem/)).toHaveFocus()
   })
 
-  it('moves focus to the project it opens', async () => {
+  it('takes capitals too, for Caps Lock and Shift', async () => {
     pathname.value = '/projects/ipsum/'
     const user = userEvent.setup()
     render(<ProjectIndex projects={projects} />)
 
-    await user.keyboard('{Meta>}{ArrowDown}{/Meta}')
-    expect(row(/^dolor/)).toHaveFocus()
+    await user.keyboard('J')
+    expect(openSlug()).toBe('dolor')
   })
 
-  it('starts at the first project going down, and the last going up', async () => {
+  it('starts at the first project with J, and the last with K', async () => {
     pathname.value = '/projects/'
     const user = userEvent.setup()
     const { unmount } = render(<ProjectIndex projects={projects} />)
 
-    await user.keyboard('{Meta>}{ArrowDown}{/Meta}')
+    await user.keyboard('j')
     expect(openSlug()).toBe('lorem')
     unmount()
 
     render(<ProjectIndex projects={projects} />)
-    await user.keyboard('{Meta>}{ArrowUp}{/Meta}')
+    await user.keyboard('k')
     expect(openSlug()).toBe('sit')
   })
 
-  it('stays on the last project going down, and the first going up', async () => {
+  it('stays on the last project with J, and the first with K', async () => {
     pathname.value = '/projects/sit/'
     const user = userEvent.setup()
     const { unmount } = render(<ProjectIndex projects={projects} />)
 
-    await user.keyboard('{Meta>}{ArrowDown}{/Meta}')
+    await user.keyboard('j')
     expect(openSlug()).toBe('sit')
     unmount()
 
     pathname.value = '/projects/lorem/'
     render(<ProjectIndex projects={projects} />)
-    await user.keyboard('{Meta>}{ArrowUp}{/Meta}')
+    await user.keyboard('k')
     expect(openSlug()).toBe('lorem')
   })
 
-  it('works with Ctrl, for keyboards without Cmd', async () => {
+  it('leaves Cmd+J and other shortcuts to the browser', async () => {
     pathname.value = '/projects/ipsum/'
     const user = userEvent.setup()
     render(<ProjectIndex projects={projects} />)
 
-    await user.keyboard('{Control>}{ArrowDown}{/Control}')
-    expect(openSlug()).toBe('dolor')
+    await user.keyboard('{Meta>}j{/Meta}{Control>}j{/Control}{Alt>}j{/Alt}')
+    expect(openSlug()).toBe('ipsum')
   })
 
   it('leaves the keys to a text field', async () => {
@@ -411,7 +415,7 @@ describe('ProjectIndex, browsed with Cmd+↑ and Cmd+↓', () => {
     )
 
     await user.click(screen.getByLabelText('search'))
-    await user.keyboard('{Meta>}{ArrowDown}{/Meta}')
+    await user.keyboard('j')
     expect(openSlug()).toBe('ipsum')
   })
 })

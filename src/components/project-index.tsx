@@ -96,15 +96,14 @@ export const ProjectIndex = ({ projects }: ProjectIndexProps) => {
     document.title = openName ? projectTitle(openName) : 'Projects'
   }, [onProjectsPath, openName])
 
-  // Cmd+↑ and Cmd+↓ (Ctrl off a Mac) open the previous and the next project,
-  // to browse a long list from the keyboard; with none open they start at
-  // the last and the first. They take over the browser's jump to the top or
-  // bottom of the page, but not a text field's own use of them
+  // J and K open the next and the previous project, as in a mail or feed
+  // reader, to browse a long list from the keyboard; with none open they
+  // start at the first and the last. A shortcut with Cmd, Ctrl or Alt stays
+  // the browser's, and a text field keeps its letters
   const step = useEffectEvent((event: KeyboardEvent) => {
-    if (!(event.metaKey || event.ctrlKey) || event.altKey || event.shiftKey) {
-      return
-    }
-    if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return
+    if (event.metaKey || event.ctrlKey || event.altKey) return
+    const key = event.key.toLowerCase()
+    if (key !== 'j' && key !== 'k') return
     const { target } = event
     if (
       target instanceof HTMLElement &&
@@ -117,7 +116,7 @@ export const ProjectIndex = ({ projects }: ProjectIndexProps) => {
     const slugs = projects.map(({ slug }) => slug)
     const index = slugs.indexOf(open)
     const slug =
-      event.key === 'ArrowDown'
+      key === 'j'
         ? slugs[index + 1]
         : slugs[index === -1 ? slugs.length - 1 : index - 1]
     if (!slug) return
