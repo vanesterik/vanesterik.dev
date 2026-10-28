@@ -35,7 +35,8 @@ describe('ProjectDetails', () => {
     expect(screen.getByText('Lorem ipsum dolor sit amet.')).toHaveClass(
       'font-sans',
       'font-bold',
-      'text-5xl',
+      'text-4xl',
+      'sm:text-5xl',
       'leading-tight',
     )
   })
