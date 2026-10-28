@@ -103,20 +103,20 @@ describe('getProjects', () => {
     ).toThrow('lorem: a web project shows an image, not a terminal session')
   })
 
-  it('accepts zsh and ml projects, and a screenshot for any type', () => {
+  it('accepts zsh and mcp projects, and a screenshot for any type', () => {
     const projects = getProjects([
       project({
         type: 'zsh',
         preview: { terminal: [{ text: 'cd', tone: 'command' }] },
       }),
-      project({ slug: 'ipsum', type: 'ml', preview: { image: '/a.jpg' } }),
+      project({ slug: 'ipsum', type: 'mcp', preview: { image: '/a.jpg' } }),
       project({
         slug: 'dolor',
         type: 'cli',
         preview: { image: '/b.png', frame: 'terminal' },
       }),
     ])
-    expect(projects.map(({ type }) => type)).toEqual(['zsh', 'ml', 'cli'])
+    expect(projects.map(({ type }) => type)).toEqual(['zsh', 'mcp', 'cli'])
     expect(projects[2].preview.frame).toBe('terminal')
   })
 
