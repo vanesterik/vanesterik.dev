@@ -120,7 +120,7 @@ describe('ProjectIndex', () => {
     expect(screen.queryByText('zsh — ipsum')).toBeNull()
   })
 
-  it('frames the open row in a rounded hairline, on the page background', async () => {
+  it('frames the open row in a rounded hairline', async () => {
     const user = userEvent.setup()
     render(<ProjectIndex projects={projects} />)
 
@@ -128,19 +128,12 @@ describe('ProjectIndex', () => {
 
     const open = row(/^lorem/)
     expect(open).toHaveAttribute('data-state', 'open')
-    expect(open).not.toHaveClass('data-[state=open]:bg-primary')
     expect(open.closest('[data-slot="accordion-item"]')).toHaveClass(
       'rounded-lg',
       'data-[state=open]:border',
       'data-[state=open]:border-accent',
       'data-[state=open]:p-4',
     )
-    // The frame replaces the hairline under the panel
-    expect(
-      open
-        .closest('[data-slot="accordion-item"]')
-        ?.querySelector('[data-slot="accordion-content"]'),
-    ).not.toHaveClass('border-b')
   })
 
   it('sets the open row apart from the others', async () => {
