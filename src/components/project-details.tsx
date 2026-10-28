@@ -8,7 +8,7 @@ const PRIMARY_LABELS: Record<ProjectType, string> = {
   cli: 'install',
   lib: 'npm',
   zsh: 'install',
-  ml: 'results',
+  mcp: 'install',
 }
 
 // Label column and spacing shared by both lists
