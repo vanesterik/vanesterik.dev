@@ -7,7 +7,6 @@ const PRIMARY_LABELS: Record<ProjectType, string> = {
   web: 'visit site',
   cli: 'install',
   lib: 'npm',
-  zsh: 'install',
   mcp: 'install',
 }
 

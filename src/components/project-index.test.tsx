@@ -56,7 +56,7 @@ const projects = [
   }),
   project({
     slug: 'sit',
-    type: 'zsh',
+    type: 'mcp',
     name: 'sit',
     description: 'Sit amet.',
   }),

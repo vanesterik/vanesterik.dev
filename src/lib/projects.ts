@@ -1,6 +1,6 @@
 import projects from '@/content/projects.json'
 
-export const PROJECT_TYPES = ['web', 'cli', 'lib', 'zsh', 'mcp'] as const
+export const PROJECT_TYPES = ['web', 'cli', 'lib', 'mcp'] as const
 export const STATUSES = ['live', 'wip', 'archived'] as const
 export const TONES = ['command', 'info', 'warn', 'success'] as const
 export const FRAMES = ['browser', 'terminal'] as const
