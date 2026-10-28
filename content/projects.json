@@ -28,7 +28,7 @@
   },
   {
     "slug": "zsh-venv-auto-switch",
-    "type": "zsh",
+    "type": "cli",
     "name": "zsh-venv-auto-switch",
     "stack": ["zsh", "python", "zap"],
     "year": 2026,
@@ -92,7 +92,7 @@
   },
   {
     "slug": "zsh-git-alias",
-    "type": "zsh",
+    "type": "cli",
     "name": "zsh-git-alias",
     "stack": ["zsh", "git", "zap"],
     "year": 2023,

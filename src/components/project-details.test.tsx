@@ -57,7 +57,6 @@ describe('ProjectDetails', () => {
     ['web', 'visit site'],
     ['cli', 'install'],
     ['lib', 'npm'],
-    ['zsh', 'install'],
     ['mcp', 'install'],
   ] as const)('lists the links of a %s project, by address', (type, label) => {
     const { container } = render(
