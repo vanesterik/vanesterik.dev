@@ -13,16 +13,11 @@ vi.mock('next/navigation', () => ({
 }))
 
 const scrollIntoView = vi.fn()
-let reducedMotion = false
 
 beforeEach(() => {
   pathname.value = null
-  reducedMotion = false
   scrollIntoView.mockClear()
   Element.prototype.scrollIntoView = scrollIntoView
-  window.matchMedia = vi.fn((query: string) => ({
-    matches: reducedMotion && query === '(prefers-reduced-motion: reduce)',
-  })) as unknown as typeof window.matchMedia
   vi.restoreAllMocks()
 })
 
@@ -283,24 +278,45 @@ describe('ProjectIndex on a project path', () => {
     expect(replaceState).not.toHaveBeenCalled()
   })
 
-  it('scrolls a deep-linked row into view', () => {
+  it('snaps a deep-linked row to the top', () => {
     pathname.value = '/projects/ipsum/'
     render(<ProjectIndex projects={projects} />)
     expect(scrollIntoView).toHaveBeenCalledOnce()
     expect(scrollIntoView).toHaveBeenCalledWith({
       block: 'start',
-      behavior: 'smooth',
+      behavior: 'instant',
     })
+    expect(scrollIntoView.mock.contexts[0]).toHaveAttribute(
+      'data-slug',
+      'ipsum',
+    )
   })
 
-  it("doesn't animate the scroll with reduced motion", () => {
-    pathname.value = '/projects/ipsum/'
-    reducedMotion = true
+  it('snaps a row that opens to the top', async () => {
+    pathname.value = '/projects/'
+    const user = userEvent.setup()
     render(<ProjectIndex projects={projects} />)
+
+    await user.click(row(/^ipsum/))
+    expect(scrollIntoView).toHaveBeenCalledOnce()
     expect(scrollIntoView).toHaveBeenCalledWith({
       block: 'start',
-      behavior: 'auto',
+      behavior: 'instant',
     })
+    expect(scrollIntoView.mock.contexts[0]).toHaveAttribute(
+      'data-slug',
+      'ipsum',
+    )
+  })
+
+  it('stays put when the open row closes', async () => {
+    pathname.value = '/projects/ipsum/'
+    const user = userEvent.setup()
+    render(<ProjectIndex projects={projects} />)
+    scrollIntoView.mockClear()
+
+    await user.click(row(/^ipsum/))
+    expect(scrollIntoView).not.toHaveBeenCalled()
   })
 
   it('scrolls nowhere without a project in the path', () => {

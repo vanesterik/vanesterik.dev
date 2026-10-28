@@ -96,15 +96,15 @@ export const ProjectIndex = ({ projects }: ProjectIndexProps) => {
     document.title = openName ? projectTitle(openName) : 'Projects'
   }, [onProjectsPath, openName])
 
-  // A deep link scrolls its row into view, clear of the sticky header
-  // biome-ignore lint/correctness/useExhaustiveDependencies: only on the first render
+  // A row that opens, by a click or a deep link, snaps to the top of the
+  // page, clear of the sticky header; after the render, so a row closing
+  // above it has already moved it
   useEffect(() => {
-    if (!fromPath) return
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (!open) return
     list.current
-      ?.querySelector(`[data-slug="${fromPath}"]`)
-      ?.scrollIntoView({ block: 'start', behavior: reduce ? 'auto' : 'smooth' })
-  }, [])
+      ?.querySelector(`[data-slug="${open}"]`)
+      ?.scrollIntoView({ block: 'start', behavior: 'instant' })
+  }, [open])
 
   return (
     <div ref={list} className="font-mono">
