@@ -119,14 +119,7 @@ export const ProjectIndex = ({ projects }: ProjectIndexProps) => {
       key === 'j'
         ? slugs[index + 1]
         : slugs[index === -1 ? slugs.length - 1 : index - 1]
-    if (!slug) return
-    change(slug)
-    // Focus follows, so a screen reader announces the row; the snap scrolls
-    list.current
-      ?.querySelector<HTMLElement>(
-        `[data-slug="${slug}"] [data-slot="accordion-trigger"]`,
-      )
-      ?.focus({ preventScroll: true })
+    if (slug) change(slug)
   })
   useEffect(() => {
     window.addEventListener('keydown', step)

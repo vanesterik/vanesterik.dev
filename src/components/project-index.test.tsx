@@ -348,13 +348,11 @@ describe('ProjectIndex, browsed with J and K', () => {
     await user.keyboard('j')
     expect(openSlug()).toBe('dolor')
     expect(row(/^dolor/)).toHaveAttribute('aria-expanded', 'true')
-    expect(row(/^dolor/)).toHaveFocus()
     expect(replaceState).toHaveBeenLastCalledWith(null, '', '/projects/dolor/')
 
     await user.keyboard('kk')
     expect(openSlug()).toBe('lorem')
     expect(row(/^lorem/)).toHaveAttribute('aria-expanded', 'true')
-    expect(row(/^lorem/)).toHaveFocus()
   })
 
   it('takes capitals too, for Caps Lock and Shift', async () => {
