@@ -20,16 +20,16 @@ The README gets status badges and a link to the published Storybook.
 
 ## Decisions
 
-| Topic | Decision |
-|---|---|
-| Deploy trigger | A pushed `v*.*.*` tag, as made by `npm run release` |
-| Checks before deploying | `deploy.yml` reuses `ci.yml` (`workflow_call`); deploy jobs need it to pass |
-| AWS access | The existing access-key secrets (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION`, `AWS_S3_BUCKET_NAME`); OIDC is a possible later story |
-| Storybook hosting | GitHub Pages of this repository, https://vanesterik.github.io/vanesterik.dev/, deployed by `deploy.yml` |
-| Setup | Inline `actions/setup-node` with `node-version-file: .nvmrc` and the npm cache; the composite action is removed |
-| Action versions | Pinned by commit SHA with a version comment, which Dependabot updates |
-| Version badge | Shields.io `github/package-json/v` (the site isn't published to npm) |
-| Licence | `LICENSE` stays MIT with the year 2023-2026; `package.json` gets `"license": "MIT"` |
+| Topic                   | Decision                                                                                                                                                   |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Deploy trigger          | A pushed `v*.*.*` tag, as made by `npm run release`                                                                                                        |
+| Checks before deploying | `deploy.yml` reuses `ci.yml` (`workflow_call`); deploy jobs need it to pass                                                                                |
+| AWS access              | The existing access-key secrets (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION`, `AWS_S3_BUCKET_NAME`); OIDC is a possible later story |
+| Storybook hosting       | GitHub Pages of this repository, https://vanesterik.github.io/vanesterik.dev/, deployed by `deploy.yml`                                                    |
+| Setup                   | Inline `actions/setup-node` with `node-version-file: .nvmrc` and the npm cache; the composite action is removed                                            |
+| Action versions         | Pinned by commit SHA with a version comment, which Dependabot updates                                                                                      |
+| Version badge           | Shields.io `github/package-json/v` (the site isn't published to npm)                                                                                       |
+| Licence                 | `LICENSE` stays MIT with the year 2023-2026; `package.json` gets `"license": "MIT"`                                                                        |
 
 ## `ci.yml`
 

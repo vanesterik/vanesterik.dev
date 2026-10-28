@@ -430,7 +430,7 @@ Expected: a count of at least `2`. Both fonts are still preloaded by the exporte
 Run `npx -y serve@14 storybook-static -l 6106`. Then open http://localhost:6106/iframe?id=ui-button--secondary&globals=theme:dark&viewMode=story and run this in the console:
 
 ```js
-(() => {
+;(() => {
   const b = document.querySelector('#storybook-root button')
   const s = getComputedStyle(b)
   return {
@@ -439,7 +439,9 @@ Run `npx -y serve@14 storybook-static -l 6106`. Then open http://localhost:6106/
     background: s.backgroundColor,
     font: s.fontFamily,
     height: s.height,
-    loadedFonts: [...document.fonts].filter((f) => f.status === 'loaded').map((f) => f.family),
+    loadedFonts: [...document.fonts]
+      .filter((f) => f.status === 'loaded')
+      .map((f) => f.family),
   }
 })()
 ```
@@ -594,7 +596,10 @@ Run `npx -y serve@14 storybook-static -l 6106`.
 Open http://localhost:6106/iframe?id=ui-dropdown-menu--radio-group-with-icons&globals=theme:dark&viewMode=story and run:
 
 ```js
-[...document.querySelectorAll('[role=menuitemradio]')].map((i) => `${i.textContent} ${i.querySelector('svg')?.getAttribute('class')} ${getComputedStyle(i).backgroundColor}`)
+;[...document.querySelectorAll('[role=menuitemradio]')].map(
+  (i) =>
+    `${i.textContent} ${i.querySelector('svg')?.getAttribute('class')} ${getComputedStyle(i).backgroundColor}`,
+)
 ```
 
 Expected: three items (`system`, `dark`, `light`) with `lucide-settings`, `lucide-moon` and `lucide-sun`, each on `oklab(0.268 ... / 0.8)`. The menu content renders in a portal outside `#storybook-root` and still gets the dark tokens. With `globals=theme:light`, the items are on `oklab(0.923 ... / 0.8)`.
@@ -602,7 +607,7 @@ Expected: three items (`system`, `dark`, `light`) with `lucide-settings`, `lucid
 Open http://localhost:6106/iframe?id=theme-selector--default&globals=theme:dark&viewMode=story and run:
 
 ```js
-(() => ({
+;(() => ({
   htmlClassHasDark: document.documentElement.classList.contains('dark'),
   dataTheme: document.documentElement.getAttribute('data-theme'),
   button: document.querySelector('#storybook-root button').textContent,
@@ -644,8 +649,8 @@ git push
 In `.github/workflows/continuous-integration.yml`, add this step after the `Build application` step:
 
 ```yaml
-      - name: Build Storybook
-        run: npm run build-storybook
+- name: Build Storybook
+  run: npm run build-storybook
 ```
 
 - [ ] **Step 2: Document Storybook**

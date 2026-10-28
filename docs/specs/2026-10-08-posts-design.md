@@ -17,18 +17,18 @@ Success means:
 
 ## Decisions
 
-| Topic | Decision |
-|---|---|
-| Location | `content/posts/<slug>.md`; the file name without `.md` is the slug and the URL, `/posts/<slug>/` |
-| Metadata | YAML front matter with `title`, `date` (`YYYY-MM-DD`) and `description`, all required. The body has no `# H1`, because the title comes from front matter |
-| Parsing | `gray-matter` for front matter; unified with `remark-parse`, `remark-gfm`, `remark-rehype`, `@shikijs/rehype` and `rehype-stringify` for the body, at build time in server components |
-| Code highlighting | Shiki with `github-light` and `github-dark`, both emitted as CSS variables and switched by the site's `dark` class |
-| Prose styling | `@tailwindcss/typography` (0.5, loaded with `@plugin`), with its colour variables pointed at the site's tokens |
-| Detail column | Centred, `max-w-160` (40rem, 640px) |
-| List | Newest first. Each entry shows the date, the title as a link and the description |
-| Dates | Formatted in UTC as `DD MON YYYY` (e.g. `08 OCT 2026`), shown in the mono uppercase style |
-| Metadata tags | Each post sets `<title>` and `<meta name="description">` through `generateMetadata` |
-| Coming soon | Stays for About and Projects; the posts page stops using it |
+| Topic             | Decision                                                                                                                                                                              |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Location          | `content/posts/<slug>.md`; the file name without `.md` is the slug and the URL, `/posts/<slug>/`                                                                                      |
+| Metadata          | YAML front matter with `title`, `date` (`YYYY-MM-DD`) and `description`, all required. The body has no `# H1`, because the title comes from front matter                              |
+| Parsing           | `gray-matter` for front matter; unified with `remark-parse`, `remark-gfm`, `remark-rehype`, `@shikijs/rehype` and `rehype-stringify` for the body, at build time in server components |
+| Code highlighting | Shiki with `github-light` and `github-dark`, both emitted as CSS variables and switched by the site's `dark` class                                                                    |
+| Prose styling     | `@tailwindcss/typography` (0.5, loaded with `@plugin`), with its colour variables pointed at the site's tokens                                                                        |
+| Detail column     | Centred, `max-w-160` (40rem, 640px)                                                                                                                                                   |
+| List              | Newest first. Each entry shows the date, the title as a link and the description                                                                                                      |
+| Dates             | Formatted in UTC as `DD MON YYYY` (e.g. `08 OCT 2026`), shown in the mono uppercase style                                                                                             |
+| Metadata tags     | Each post sets `<title>` and `<meta name="description">` through `generateMetadata`                                                                                                   |
+| Coming soon       | Stays for About and Projects; the posts page stops using it                                                                                                                           |
 
 `@next/mdx` was considered and not chosen. The posts are Markdown, not MDX, and `@next/mdx` would turn each post into a route file instead of content beside `content/layout.json`.
 

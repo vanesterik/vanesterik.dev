@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task, in this session, on the branch `feat/mermaid-diagrams`. Subagents may review; they never implement (see `~/.claude/CLAUDE.md`). Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Draw ```` ```mermaid ```` fences in posts as inline SVG at build time, themed with the site's tokens, and publish "Letting Claude do my bookkeeping" with its diagram. This is story #88.
+**Goal:** Draw ` ```mermaid ` fences in posts as inline SVG at build time, themed with the site's tokens, and publish "Letting Claude do my bookkeeping" with its diagram. This is story #88.
 
 **Architecture:** Two tasks, one commit each:
 
@@ -38,7 +38,7 @@
 
 1. **Node ids colliding with the page:** a participant named `You` gets `id="You"`; a heading or a second diagram with the same name must not clash. Every id is prefixed (test: two diagrams, all ids distinct, each `url(#…)` points into its own SVG).
 2. **`accTitle` with a colon or extra spaces** (`accTitle:   How: a flow`): the title is everything after the first `accTitle:`, trimmed (test in Task 1).
-3. **A `mermaid` fence with a meta string or uppercase** (```` ```Mermaid ````): only the exact `language-mermaid` class is a diagram; anything else stays a code block (no test; noted for the reviewer).
+3. **A `mermaid` fence with a meta string or uppercase** (` ```Mermaid `): only the exact `language-mermaid` class is a diagram; anything else stays a code block (no test; noted for the reviewer).
 4. **The diagram on a phone:** full size, scrolling inside the figure, the page not scrolling sideways (browser check in Task 2).
 5. **Theme switch on an open page:** the SVG recolors without reload (browser check in Task 2).
 
@@ -56,15 +56,15 @@
 
 - [ ] **Step 1: Install** `npm install --save-exact beautiful-mermaid@1.1.3` and `npm install hast-util-from-html@^2.0.3`. Check `hast-util-from-html`'s current options with Context7 (`fromHtml(value, { fragment: true, space: 'svg' })` is expected).
 
-- [ ] **Step 2: Write the failing tests** in `src/lib/rehype-mermaid.test.ts`. A helper `render(markdown: string): Promise<string>` runs `unified().use(remarkParse).use(remarkRehype).use(rehypeMermaid).use(rehypeShiki, {themes: {light: 'github-light', dark: 'github-dark'}, defaultColor: false})` and returns `toHtml` of the tree (Shiki's cold start needs the same `beforeAll` warm-up as `posts.test.ts`). With `diagram(title = 'A flow', body = 'A->>B: hi')` building ```` ```mermaid\nsequenceDiagram\n  accTitle: ${title}\n  accDescr: A talks to B\n  ${body}\n``` ````:
+- [ ] **Step 2: Write the failing tests** in `src/lib/rehype-mermaid.test.ts`. A helper `render(markdown: string): Promise<string>` runs `unified().use(remarkParse).use(remarkRehype).use(rehypeMermaid).use(rehypeShiki, {themes: {light: 'github-light', dark: 'github-dark'}, defaultColor: false})` and returns `toHtml` of the tree (Shiki's cold start needs the same `beforeAll` warm-up as `posts.test.ts`). With `diagram(title = 'A flow', body = 'A->>B: hi')` building ` ```mermaid\nsequenceDiagram\n  accTitle: ${title}\n  accDescr: A talks to B\n  ${body}\n``` `:
   - `draws a mermaid fence as an accessible SVG`: output contains `<figure class="mermaid"><svg`, `role="img"`, `<title id="mermaid-1-title">A flow</title>`, `<desc id="mermaid-1-desc">A talks to B</desc>`, `aria-labelledby="mermaid-1-title"`, `aria-describedby="mermaid-1-desc"`, and no `<pre`.
   - `colors it with the site's tokens, without fetching fonts`: contains `var(--background)`, `var(--foreground)`, `var(--muted-foreground)`; contains no `@import` and no `fonts.googleapis.com`. Same assertions for a `classDiagram` fence (`A <|-- B`, with an `accTitle`).
   - `gives every diagram its own ids`: two diagrams in one string; every `id="…"` in the output is unique; every `url(#x)` in the first `<svg>…</svg>` has its `x` among that SVG's ids, and the same for the second; ids start with `mermaid-1-` and `mermaid-2-`.
   - `keeps curly quotes in labels`: `body = 'A->>B: “Book Q3”'` → output contains `“Book Q3”`.
   - `takes everything after accTitle: as the title`: `title = '  How: a flow  '` → `<title id="mermaid-1-title">How: a flow</title>`.
   - `requires an accTitle`: a fence without `accTitle` rejects with `a mermaid diagram needs an "accTitle:" line`.
-  - `fails on a diagram type it can't draw`: ```` ```mermaid\npie\n  accTitle: x\n  "a": 1\n``` ```` rejects with a message containing `Invalid mermaid header`.
-  - `leaves other code blocks to Shiki`: a ```` ```text ```` fence still gives `<pre class="shiki`.
+  - `fails on a diagram type it can't draw`: ` ```mermaid\npie\n  accTitle: x\n  "a": 1\n``` ` rejects with a message containing `Invalid mermaid header`.
+  - `leaves other code blocks to Shiki`: a ` ```text ` fence still gives `<pre class="shiki`.
 
 - [ ] **Step 3: Run** `npx vitest run src/lib/rehype-mermaid.test.ts`. Expected: FAIL, `rehype-mermaid` not found.
 
@@ -90,7 +90,7 @@
   - `.mermaid svg { display: block; max-width: none; margin-inline: auto; }`
   - `.mermaid text { font-family: var(--font-sans); }`
 
-- [ ] **Step 8: Document** in `CLAUDE.md`'s "Posts" paragraph: a ```` ```mermaid ```` fence is drawn at build time by `src/lib/rehype-mermaid.ts` (`beautiful-mermaid`, no browser) in the site's tokens and Lausanne, at full size and scrolling inside its figure on narrow screens; it needs an `accTitle:` line (and may have `accDescr:`); only flowchart, state, sequence, class, ER and XY chart diagrams work, another type fails the build, and a malformed line inside a diagram is dropped silently; use curly quotes in labels. Add `rehype-mermaid.ts` to the `src/lib/` line of the architecture block.
+- [ ] **Step 8: Document** in `CLAUDE.md`'s "Posts" paragraph: a ` ```mermaid ` fence is drawn at build time by `src/lib/rehype-mermaid.ts` (`beautiful-mermaid`, no browser) in the site's tokens and Lausanne, at full size and scrolling inside its figure on narrow screens; it needs an `accTitle:` line (and may have `accDescr:`); only flowchart, state, sequence, class, ER and XY chart diagrams work, another type fails the build, and a malformed line inside a diagram is dropped silently; use curly quotes in labels. Add `rehype-mermaid.ts` to the `src/lib/` line of the architecture block.
 
 - [ ] **Step 9: Verify** `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`: all pass.
 
@@ -112,7 +112,7 @@ That's 11 files with the lock file and fixtures, an integration task; the commit
 **Interfaces:**
 - Consumes: Task 1's `mermaid` fences in posts.
 
-- [ ] **Step 1: Replace the diagram.** In "How a booking flows", replace the ```` ```text ```` block (from `You             Claude Code` to the last `│◀──…┤` line) with the ```` ```mermaid ```` block from the spec's "The post" section, verbatim, curly quotes included. Nothing else in the post changes; the cheat sheet stays a `text` block.
+- [ ] **Step 1: Replace the diagram.** In "How a booking flows", replace the ` ```text ` block (from `You             Claude Code` to the last `│◀──…┤` line) with the ` ```mermaid ` block from the spec's "The post" section, verbatim, curly quotes included. Nothing else in the post changes; the cheat sheet stays a `text` block.
 
 - [ ] **Step 2: Build** `npm run build`. Expected: passes; `grep -c '<figure class="mermaid">' out/posts/letting-claude-do-my-bookkeeping/index.html` prints `1`, and `grep -c 'fonts.googleapis' out/posts/letting-claude-do-my-bookkeeping/index.html` prints `0`.
 

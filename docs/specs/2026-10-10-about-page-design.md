@@ -26,19 +26,19 @@ Left out: the minimap on the left, the Awards & Recognition and Credits sections
 
 ## Decisions
 
-| Topic | Decision |
-|---|---|
-| Content | `content/about.json`, read with a typed JSON import like `content/layout.json`; no runtime validation |
-| Shared content | The tagline and the contact links come from `content/layout.json`, so each lives in one place |
-| Experience | One line per company: the latest title held there and the whole period, newest first |
-| Companies | Employers and direct clients first, newest first, then the projects named in the Lab Digital 2016–2017 role; HAN University of Applied Sciences is left out |
-| Column | From `md` (768px): starts at 45% of the main column's width and ends 10% before its right edge. Below `md`: full width |
-| Text sizes | Scale with the window at the reference's proportions, with minimums for small screens |
-| Fonts | Lausanne regular (400) throughout, as on the reference; periods in NB International Pro Mono, uppercase, `text-muted-foreground` |
-| Compact lists | Companies I Worked With and Get In Touch set their items at the base size in `text-muted-foreground`, like the posts list's descriptions |
-| Links | As in the footer's `LinkList`: `mailto:` in the same tab, other links in a new tab with `rel="noopener noreferrer"`; `hover:text-highlight` |
-| Rendering | Server components only; no client JavaScript |
-| Coming soon | Stays for Projects; the about page stops using it |
+| Topic          | Decision                                                                                                                                                    |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Content        | `content/about.json`, read with a typed JSON import like `content/layout.json`; no runtime validation                                                       |
+| Shared content | The tagline and the contact links come from `content/layout.json`, so each lives in one place                                                               |
+| Experience     | One line per company: the latest title held there and the whole period, newest first                                                                        |
+| Companies      | Employers and direct clients first, newest first, then the projects named in the Lab Digital 2016–2017 role; HAN University of Applied Sciences is left out |
+| Column         | From `md` (768px): starts at 45% of the main column's width and ends 10% before its right edge. Below `md`: full width                                      |
+| Text sizes     | Scale with the window at the reference's proportions, with minimums for small screens                                                                       |
+| Fonts          | Lausanne regular (400) throughout, as on the reference; periods in NB International Pro Mono, uppercase, `text-muted-foreground`                            |
+| Compact lists  | Companies I Worked With and Get In Touch set their items at the base size in `text-muted-foreground`, like the posts list's descriptions                    |
+| Links          | As in the footer's `LinkList`: `mailto:` in the same tab, other links in a new tab with `rel="noopener noreferrer"`; `hover:text-highlight`                 |
+| Rendering      | Server components only; no client JavaScript                                                                                                                |
+| Coming soon    | Stays for Projects; the about page stops using it                                                                                                           |
 
 ## Content
 
@@ -56,17 +56,17 @@ The second paragraph starts with `tagline` from `content/layout.json`, its lines
 
 From https://www.linkedin.com/in/kdesterik/, newest first:
 
-| Title | Company | Period |
-|---|---|---|
-| Data Scientist | Provincie Utrecht | 2026 – Present |
-| Data Science Intern | Provincie Utrecht | 2025 – 2026 |
-| Development Team Lead & Senior Frontend Developer | Lab Digital | 2022 – 2024 |
-| Product Owner | Flex IT Distribution | 2021 |
-| Senior Frontend Developer | LeasePlan | 2018 – 2021 |
-| Designer & Creative Developer | Jungle Minds | 2017 – 2018 |
-| Art Director, Designer & Creative Developer | Lab Digital | 2016 – 2017 |
-| Digital Director & Partner | Flip-Flop Interactive | 2013 – 2016 |
-| Creative Intern | Tribal DDB Shanghai | 2012 |
+| Title                                             | Company               | Period         |
+| ------------------------------------------------- | --------------------- | -------------- |
+| Data Scientist                                    | Provincie Utrecht     | 2026 – Present |
+| Data Science Intern                               | Provincie Utrecht     | 2025 – 2026    |
+| Development Team Lead & Senior Frontend Developer | Lab Digital           | 2022 – 2024    |
+| Product Owner                                     | Flex IT Distribution  | 2021           |
+| Senior Frontend Developer                         | LeasePlan             | 2018 – 2021    |
+| Designer & Creative Developer                     | Jungle Minds          | 2017 – 2018    |
+| Art Director, Designer & Creative Developer       | Lab Digital           | 2016 – 2017    |
+| Digital Director & Partner                        | Flip-Flop Interactive | 2013 – 2016    |
+| Creative Intern                                   | Tribal DDB Shanghai   | 2012           |
 
 Lab Digital (2022–2024) and LeasePlan held several roles each; the line shows the last one.
 
@@ -93,7 +93,11 @@ The page shows them with these names, not the footer's lowercase names and addre
   "intro": "I'm an applied data scientist with a master's degree to match, …",
   "afterTagline": "That loop took me from building interfaces to building with data, …",
   "experience": [
-    { "title": "Data Scientist", "company": "Provincie Utrecht", "period": "2026 – Present" }
+    {
+      "title": "Data Scientist",
+      "company": "Provincie Utrecht",
+      "period": "2026 – Present"
+    }
   ],
   "companies": ["Provincie Utrecht", "Lab Digital"]
 }
@@ -131,16 +135,16 @@ It sets `<title>` to "About" through `export const metadata`.
 
 Measured on the reference at a 1512px-wide window and kept as proportions:
 
-| Element | Size |
-|---|---|
-| Introduction and section headings | `clamp(1.75rem, 2.8vw, 3.5rem)`, about 42px at 1512px |
-| Experience items: titles and companies | `clamp(1.375rem, 2.3vw, 2.875rem)`, about 35px at 1512px |
-| Compact items: companies and contact links | `text-base` (16px), `text-muted-foreground`, `gap-1` |
-| Periods | `text-xs`, mono, uppercase, as elsewhere on the site |
-| Line height | 1.3 |
-| Between the introduction paragraphs | about one line (1.15em) |
-| Before each section | about 6.5em of the introduction size (about 280px at 1512px) |
-| Between a heading and its first item, and between experience items | about 1em of the heading size |
+| Element                                                            | Size                                                         |
+| ------------------------------------------------------------------ | ------------------------------------------------------------ |
+| Introduction and section headings                                  | `clamp(1.75rem, 2.8vw, 3.5rem)`, about 42px at 1512px        |
+| Experience items: titles and companies                             | `clamp(1.375rem, 2.3vw, 2.875rem)`, about 35px at 1512px     |
+| Compact items: companies and contact links                         | `text-base` (16px), `text-muted-foreground`, `gap-1`         |
+| Periods                                                            | `text-xs`, mono, uppercase, as elsewhere on the site         |
+| Line height                                                        | 1.3                                                          |
+| Between the introduction paragraphs                                | about one line (1.15em)                                      |
+| Before each section                                                | about 6.5em of the introduction size (about 280px at 1512px) |
+| Between a heading and its first item, and between experience items | about 1em of the heading size                                |
 
 Exact values may be adjusted in the browser to match the reference by eye.
 

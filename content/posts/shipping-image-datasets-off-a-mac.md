@@ -1,11 +1,13 @@
 ---
+
 title: Shipping image datasets off a Mac without the junk
 date: 2026-10-08
 description: A small tar toolkit for moving image datasets off a Mac without .DS_Store and ._ files tagging along.
 ---
+
 Every now and then I need to move a big image dataset around. Upload it to a GPU box, pull it back down, hand it to someone else, etc. Computer vision work is like that: a folder with tens of thousands of JPEGs and PNGs, and a dataloader on the other end that streams them into a model.
 
-Now, I *could* just tell the dataloader to only pick up image files. Filter on the extension, done. But I'll be honest: I have a slight OCD streak, and I want the folder itself to be clean. Images in, images out, nothing else. No `.DS_Store`, no `._something.jpg` ghosts that look like an image to a careless glob and then blow up when something tries to decode them.
+Now, I _could_ just tell the dataloader to only pick up image files. Filter on the extension, done. But I'll be honest: I have a slight OCD streak, and I want the folder itself to be clean. Images in, images out, nothing else. No `.DS_Store`, no `._something.jpg` ghosts that look like an image to a careless glob and then blow up when something tries to decode them.
 
 I work on a Mac, so `tar` is my tool of choice for these one-off migrations. Here's the little toolkit I ended up with.
 
@@ -14,7 +16,7 @@ I work on a Mac, so `tar` is my tool of choice for these one-off migrations. Her
 Two kinds of files tend to tag along when a folder has lived on a Mac:
 
 - **`.DS_Store`**: Finder's little notebook about how you like the folder to look. Icon positions, view settings. Useless to everyone else.
-- **`._filename`**: so-called AppleDouble files. Each one carries the extended attributes of the real file next to it. So `cat_0001.jpg` gets a buddy called `._cat_0001.jpg`, which is *not* a JPEG, but sure looks like one to a `*.jpg` glob. macOS creates these when it copies files to places that can't store Mac metadata natively, like a USB stick, an exFAT drive or a network share. And, as I found out the hard way, macOS's own `tar` writes them into every archive you make with it.
+- **`._filename`**: so-called AppleDouble files. Each one carries the extended attributes of the real file next to it. So `cat_0001.jpg` gets a buddy called `._cat_0001.jpg`, which is _not_ a JPEG, but sure looks like one to a `*.jpg` glob. macOS creates these when it copies files to places that can't store Mac metadata natively, like a USB stick, an exFAT drive or a network share. And, as I found out the hard way, macOS's own `tar` writes them into every archive you make with it.
 
 ## Step 1: see what you're dealing with
 
@@ -24,7 +26,7 @@ Before archiving anything, I like to know what's in there:
 find dataset/ -name '._*' -o -name '.DS_Store'
 ```
 
-And since my real goal is "only images", this one lists anything that is *not* an image. Note the `-name '.*'` part: it flags every file whose name starts with a dot, because `._cat_0001.jpg` ends in `.jpg` and would otherwise sail right through the extension check:
+And since my real goal is "only images", this one lists anything that is _not_ an image. Note the `-name '.*'` part: it flags every file whose name starts with a dot, because `._cat_0001.jpg` ends in `.jpg` and would otherwise sail right through the extension check:
 
 ```shell
 find dataset/ -type f \( -name '.*' -o ! \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \) \)
@@ -63,7 +65,7 @@ Put `export COPYFILE_DISABLE=1` in your `~/.zshrc` and every `tar` you run is co
 
 ## Step 3: trust, but verify
 
-This is the part my OCD actually cares about, and it has a catch of its own: on a Mac, `tar -tzf` *hides* the `._` entries when it lists an archive. My 52,211-twin archive listed perfectly clean. So on a Mac, I let Python read the raw archive instead. It ships with the Xcode command line tools, and it hides nothing:
+This is the part my OCD actually cares about, and it has a catch of its own: on a Mac, `tar -tzf` _hides_ the `._` entries when it lists an archive. My 52,211-twin archive listed perfectly clean. So on a Mac, I let Python read the raw archive instead. It ships with the Xcode command line tools, and it hides nothing:
 
 ```shell
 python3 -c "import tarfile,sys,os; bad=[m.name for m in tarfile.open(sys.argv[1]) if os.path.basename(m.name).startswith('._') or os.path.basename(m.name)=='.DS_Store']; print('\n'.join(bad) or 'squeaky clean')" dataset.tar.gz
@@ -87,7 +89,7 @@ tar -tzf dataset.tar.gz | grep -E '(^|/)(\._|\.DS_Store$)' || echo "squeaky clea
 
 ## Going the other way: downloading
 
-When a dataset comes *to* me, or lands on a Linux box, the excludes work on extraction too. Junk that someone else packed in simply never lands on disk:
+When a dataset comes _to_ me, or lands on a Linux box, the excludes work on extraction too. Junk that someone else packed in simply never lands on disk:
 
 ```shell
 tar --exclude='.DS_Store' --exclude='._*' -xzf dataset.tar.gz
