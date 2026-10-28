@@ -172,7 +172,7 @@ name: Deploy
 
 on:
   push:
-    tags: ['v*.*.*']
+    tags: ["v*.*.*"]
 
 permissions:
   contents: read

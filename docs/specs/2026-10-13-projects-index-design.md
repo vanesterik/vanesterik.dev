@@ -28,35 +28,35 @@ Out of scope, for a later story:
 
 The brief asks to follow the site's own stack, fonts, colors and layout wherever they exist. These are the places where the design departs from it, or fills a gap it left:
 
-| Topic | Brief | This design |
-|---|---|---|
-| Font | IBM Plex Mono 400/500/600 | NB International Pro Mono, the site's mono, which has one weight |
-| Column | Centred, at most 960px wide | Centred, at most 640px wide, like the posts |
-| Table look | Hairline borders, a header row, `+`/`−` markers, a `stack` column | No borders except the browser frame's and a hairline under an open panel, no header row, no markers; `stack` only in the details |
-| Row text | 15px mono, lowercase | `text-xs` mono, uppercase, like the header and footer |
-| Column order | type · name · stack · year · status | name · type · year · status dot |
-| Status | A dot plus its label | The dot only, with the label in a tooltip on hover (and for screen readers) |
-| Expanded panel | Preview and details side by side | The preview at full width; the description beneath it at full width as a bold lead (`text-2xl`); then two columns of `<dl>` pairs |
-| Status and terminal colors | Hex values from the mockup | New tokens with GitHub light and dark values, from the Shiki themes the code blocks already use |
-| Links | Accent blue | The site's link style: the text color, `highlight` on hover |
-| Terminal background | `#141414` in both themes | The `secondary` token of the dark theme in both themes, through a `dark` class on the frame |
-| "loop" indicator | In the terminal's top line | Left out until recordings arrive |
-| "open demo" link | For experiments | Left out: there is no experiment type |
-| Current page in the nav | Marked | Marked with the button's `default` style (`primary`: black in light, white in dark) on every page |
+| Topic                      | Brief                                                             | This design                                                                                                                       |
+| -------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Font                       | IBM Plex Mono 400/500/600                                         | NB International Pro Mono, the site's mono, which has one weight                                                                  |
+| Column                     | Centred, at most 960px wide                                       | Centred, at most 640px wide, like the posts                                                                                       |
+| Table look                 | Hairline borders, a header row, `+`/`−` markers, a `stack` column | No borders except the browser frame's and a hairline under an open panel, no header row, no markers; `stack` only in the details  |
+| Row text                   | 15px mono, lowercase                                              | `text-xs` mono, uppercase, like the header and footer                                                                             |
+| Column order               | type · name · stack · year · status                               | name · type · year · status dot                                                                                                   |
+| Status                     | A dot plus its label                                              | The dot only, with the label in a tooltip on hover (and for screen readers)                                                       |
+| Expanded panel             | Preview and details side by side                                  | The preview at full width; the description beneath it at full width as a bold lead (`text-2xl`); then two columns of `<dl>` pairs |
+| Status and terminal colors | Hex values from the mockup                                        | New tokens with GitHub light and dark values, from the Shiki themes the code blocks already use                                   |
+| Links                      | Accent blue                                                       | The site's link style: the text color, `highlight` on hover                                                                       |
+| Terminal background        | `#141414` in both themes                                          | The `secondary` token of the dark theme in both themes, through a `dark` class on the frame                                       |
+| "loop" indicator           | In the terminal's top line                                        | Left out until recordings arrive                                                                                                  |
+| "open demo" link           | For experiments                                                   | Left out: there is no experiment type                                                                                             |
+| Current page in the nav    | Marked                                                            | Marked with the button's `default` style (`primary`: black in light, white in dark) on every page                                 |
 
 ## Decisions
 
-| Topic | Decision |
-|---|---|
-| Content | `content/projects.json`, an array of projects, read by `src/lib/projects.ts`, which validates it at build time |
-| Order | Newest first by `year`, then in file order |
-| Expanding rows | shadcn/ui Accordion (Radix), `type="single"` and `collapsible`: one row open at a time, an open row closes when clicked |
-| Rendering | The index is a client component (the Accordion). The frames, status and details render on the server or the client alike |
-| Type | Rows in NB International Pro Mono, `text-xs`, uppercase; the description as a bold Lausanne lead; detail labels in `muted-foreground` |
-| Colors | Tokens only. New: `info` (blue), `warning` (orange), `success` (green) |
-| Images | Plain `<img>`, lazy-loaded, as the static export has no image optimizer |
-| Current page | `NavLink`, a client component using `usePathname`, ignoring the trailing slash |
-| Animation | None: rows open and close without a transition, and the terminal cursor doesn't blink |
+| Topic          | Decision                                                                                                                              |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Content        | `content/projects.json`, an array of projects, read by `src/lib/projects.ts`, which validates it at build time                        |
+| Order          | Newest first by `year`, then in file order                                                                                            |
+| Expanding rows | shadcn/ui Accordion (Radix), `type="single"` and `collapsible`: one row open at a time, an open row closes when clicked               |
+| Rendering      | The index is a client component (the Accordion). The frames, status and details render on the server or the client alike              |
+| Type           | Rows in NB International Pro Mono, `text-xs`, uppercase; the description as a bold Lausanne lead; detail labels in `muted-foreground` |
+| Colors         | Tokens only. New: `info` (blue), `warning` (orange), `success` (green)                                                                |
+| Images         | Plain `<img>`, lazy-loaded, as the static export has no image optimizer                                                               |
+| Current page   | `NavLink`, a client component using `usePathname`, ignoring the trailing slash                                                        |
+| Animation      | None: rows open and close without a transition, and the terminal cursor doesn't blink                                                 |
 
 ## Content
 
@@ -64,23 +64,23 @@ The brief asks to follow the site's own stack, fonts, colors and layout wherever
 
 Each project in `content/projects.json`:
 
-| Field | Type | Notes |
-|---|---|---|
-| `slug` | string | Unique |
-| `type` | `web` \| `cli` \| `lib` \| `zsh` \| `ml` | Picks the primary link's label and the type column |
-| `name` | string | |
-| `stack` | string[] | Shown joined with ` · ` |
-| `year` | number | |
-| `status` | `live` \| `wip` \| `archived` | |
-| `role` | string | For example `design + build`, `author`, `maintainer` |
-| `description` | string | One sentence on the problem and what was built |
-| `url` | string, optional | Shown in the browser frame's top bar |
-| `preview.image` | string, optional | Path of the screenshot under `public/`, for any type |
-| `preview.frame` | `browser` \| `terminal`, optional | The frame the screenshot shows in; `browser` by default, `terminal` for a terminal app |
-| `preview.terminal` | `{ text, tone }[]`, optional | `tone` is `command`, `info`, `warn` or `success` |
-| `preview.video` | string, optional | Later story; not rendered |
-| `preview.recording` | string, optional | Later story; not rendered |
-| `links` | `{ primary?, source?, writeup? }` | URLs; each link is shown only when present |
+| Field               | Type                                     | Notes                                                                                  |
+| ------------------- | ---------------------------------------- | -------------------------------------------------------------------------------------- |
+| `slug`              | string                                   | Unique                                                                                 |
+| `type`              | `web` \| `cli` \| `lib` \| `zsh` \| `ml` | Picks the primary link's label and the type column                                     |
+| `name`              | string                                   |                                                                                        |
+| `stack`             | string[]                                 | Shown joined with `·`                                                                  |
+| `year`              | number                                   |                                                                                        |
+| `status`            | `live` \| `wip` \| `archived`            |                                                                                        |
+| `role`              | string                                   | For example `design + build`, `author`, `maintainer`                                   |
+| `description`       | string                                   | One sentence on the problem and what was built                                         |
+| `url`               | string, optional                         | Shown in the browser frame's top bar                                                   |
+| `preview.image`     | string, optional                         | Path of the screenshot under `public/`, for any type                                   |
+| `preview.frame`     | `browser` \| `terminal`, optional        | The frame the screenshot shows in; `browser` by default, `terminal` for a terminal app |
+| `preview.terminal`  | `{ text, tone }[]`, optional             | `tone` is `command`, `info`, `warn` or `success`                                       |
+| `preview.video`     | string, optional                         | Later story; not rendered                                                              |
+| `preview.recording` | string, optional                         | Later story; not rendered                                                              |
+| `links`             | `{ primary?, source?, writeup? }`        | URLs; each link is shown only when present                                             |
 
 ### Validation
 
@@ -99,15 +99,15 @@ A JSON import types those fields as plain strings; the validation is what narrow
 
 Koen's seven projects, agreed one by one:
 
-| Name | Type | Year | Status | Preview |
-|---|---|---|---|---|
-| CrossVision | `ml` | 2026 | live | screenshot of its prediction page, browser frame |
-| Froopyland | `cli` | 2026 | live | screenshot of the app, terminal frame |
-| zsh-venv-auto-switch | `zsh` | 2026 | live | terminal session |
-| Fartt | `ml` | 2024 | wip | Claude Code session, condensed from a real one |
-| Sports Direct | `web` | 2024 | live | screenshot of the homepage |
-| zsh-git-alias | `zsh` | 2023 | live | terminal session |
-| LeasePlan | `web` | 2021 | live | screenshot of the Ayvens business showroom |
+| Name                 | Type  | Year | Status | Preview                                          |
+| -------------------- | ----- | ---- | ------ | ------------------------------------------------ |
+| CrossVision          | `ml`  | 2026 | live   | screenshot of its prediction page, browser frame |
+| Froopyland           | `cli` | 2026 | live   | screenshot of the app, terminal frame            |
+| zsh-venv-auto-switch | `zsh` | 2026 | live   | terminal session                                 |
+| Fartt                | `ml`  | 2024 | wip    | Claude Code session, condensed from a real one   |
+| Sports Direct        | `web` | 2024 | live   | screenshot of the homepage                       |
+| zsh-git-alias        | `zsh` | 2023 | live   | terminal session                                 |
+| LeasePlan            | `web` | 2021 | live   | screenshot of the Ayvens business showroom       |
 
 Screenshots are 16:10 in `public/projects/`, cropped from the live sites and, for Froopyland, from its repository's screenshot.
 
@@ -182,7 +182,7 @@ With `image`, the body is the screenshot (16:10, `object-cover`) instead of the 
 Beneath the preview:
 - the description at full width as a bold lead: Lausanne bold at `text-2xl`, the size of the post titles. It's the one large, heavy line in the panel, a brutalist break from the small rows and summaries, so descriptions should stay short (about 15 words);
 - beneath it, two columns of `<dl>` pairs in Lausanne regular at `text-sm`, which stack when narrow; labels in `muted-foreground`:
-  - **left:** `stack` (joined with ` · `), `role` and `year`;
+  - **left:** `stack` (joined with `·`), `role` and `year`;
   - **right:** the links, each as a label and its address without the protocol, opened as the footer opens links (`getLinkTargetProps`):
     - the primary link: "visit site" for `web`, "install" for `cli` and `zsh`, "npm" for `lib`, "results" for `ml`;
     - "source";
@@ -209,12 +209,12 @@ Client component wrapping the navigation's `Button` and `next/link`. It compares
 
 Three new tokens in `src/app/globals.css`, each with a light and a dark value from the GitHub themes Shiki already uses for code blocks:
 
-| Token | Light (`github-light`) | Dark (`github-dark`) | Used for |
-|---|---|---|---|
-| `info` | `#005cc5` (6.3:1 on white) | `#79b8ff` (10.1:1 on black) | focus outline |
-| `warning` | `#e36209` (3.5:1) | `#ffab70` (11.3:1) | terminal warnings |
-| `success` | `#22863a` (4.6:1) | `#85e89d` (14:1) | `live` dot, terminal success lines |
-| `danger` | `#d73a49` (4.6:1) | `#f97583` (7.9:1) | `wip` dot |
+| Token     | Light (`github-light`)     | Dark (`github-dark`)        | Used for                           |
+| --------- | -------------------------- | --------------------------- | ---------------------------------- |
+| `info`    | `#005cc5` (6.3:1 on white) | `#79b8ff` (10.1:1 on black) | focus outline                      |
+| `warning` | `#e36209` (3.5:1)          | `#ffab70` (11.3:1)          | terminal warnings                  |
+| `success` | `#22863a` (4.6:1)          | `#85e89d` (14:1)            | `live` dot, terminal success lines |
+| `danger`  | `#d73a49` (4.6:1)          | `#f97583` (7.9:1)           | `wip` dot                          |
 
 The light `warning` is used only for the dot, a graphic that needs 3:1. Terminal text always uses the dark values. `src/stories/tokens.ts` lists the new tokens, which the Colors page and its sync test require.
 

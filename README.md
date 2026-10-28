@@ -31,19 +31,19 @@ npm run dev
 
 ## Scripts
 
-| Script | Does |
-| --- | --- |
-| `npm run dev` | Start the development server |
-| `npm run build` | Export the static site to `out/` |
-| `npm run lint` | Check linting and formatting with Biome |
-| `npm run format` | Apply Biome's fixes and formatting |
-| `npm run typecheck` | Generate Next.js types and run `tsc` |
-| `npm test` | Run the tests once |
-| `npm run test:watch` | Run the tests in watch mode |
-| `npm run coverage` | Run the tests with coverage |
-| `npm run storybook` | Start Storybook on port 6006 |
+| Script                    | Does                                            |
+| ------------------------- | ----------------------------------------------- |
+| `npm run dev`             | Start the development server                    |
+| `npm run build`           | Export the static site to `out/`                |
+| `npm run lint`            | Check linting and formatting with Biome         |
+| `npm run format`          | Apply Biome's fixes and formatting              |
+| `npm run typecheck`       | Generate Next.js types and run `tsc`            |
+| `npm test`                | Run the tests once                              |
+| `npm run test:watch`      | Run the tests in watch mode                     |
+| `npm run coverage`        | Run the tests with coverage                     |
+| `npm run storybook`       | Start Storybook on port 6006                    |
 | `npm run build-storybook` | Build a static Storybook to `storybook-static/` |
-| `npm run release` | Bump the version, update the changelog and tag |
+| `npm run release`         | Bump the version, update the changelog and tag  |
 
 ## License
 

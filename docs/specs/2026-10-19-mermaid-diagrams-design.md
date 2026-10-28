@@ -4,9 +4,9 @@ Status: approved in conversation on 2026-10-19, for story #88.
 
 ## Purpose
 
-"Letting Claude do my bookkeeping" (`content/posts/letting-claude-do-my-bookkeeping.md`, not yet committed) was written with a Mermaid sequence diagram in mind for its "How a booking flows" section. Posts can't render Mermaid, so the diagram ships as a ```` ```text ```` block of box-drawing characters: wider than a phone screen, and meaningless to a screen reader.
+"Letting Claude do my bookkeeping" (`content/posts/letting-claude-do-my-bookkeeping.md`, not yet committed) was written with a Mermaid sequence diagram in mind for its "How a booking flows" section. Posts can't render Mermaid, so the diagram ships as a ` ```text ` block of box-drawing characters: wider than a phone screen, and meaningless to a screen reader.
 
-A fenced ```` ```mermaid ```` block in a post should become a real diagram.
+A fenced ` ```mermaid ` block in a post should become a real diagram.
 
 Success means:
 - the diagram is in the static HTML, there the instant the page loads, with no JavaScript;
@@ -24,16 +24,16 @@ Success means:
 
 ## Decisions
 
-| Topic | Decision |
-|---|---|
-| Renderer | [`beautiful-mermaid`](https://github.com/lukilabs/beautiful-mermaid) (MIT, 1.x), pinned to an exact version. Pure JavaScript, no DOM: renders an SVG string synchronously, in about a millisecond for the bookkeeping diagram |
-| Where | A rehype plugin in the posts pipeline (`src/lib/posts.ts`), running before Shiki, so ```` ```mermaid ```` fences never reach the highlighter |
-| Theming | Colors passed as the site's CSS variables (`bg: var(--background)`, `fg: var(--foreground)`, `muted: var(--muted-foreground)`, `transparent: true`). The SVG resolves them from the page, so the `dark` class recolors it without re-rendering, and only one SVG is emitted |
-| Font | The site's `sans` font (Lausanne), set from `globals.css`. The renderer sizes boxes with its own character-width estimate tuned for Inter, a proportional font; the mono font is wider and would spill out of the boxes. Every Google Fonts `@import` in the SVG is removed (class and ER diagrams add a second one), so there's no third-party request. *My call, after the builder check.* |
-| Size | The SVG is shown at its natural size, never scaled down. When it's wider than the column (on a phone), the `figure` scrolls sideways inside itself (`overflow-x: auto`), like a code block; the page never scrolls. Shrinking the bookkeeping diagram to a phone would put its text at 6–7px. Koen chose this. On a wide screen it's centred in the column; a diagram wider than 640px scrolls there too |
-| Accessibility | Required `accTitle:` in every diagram, optional `accDescr:` (Mermaid's own syntax). The plugin reads and removes them before rendering, since the renderer ignores them, and puts them on the SVG as `role="img"` with `<title>` and `<desc>` |
-| Ids | Every `id` inside an SVG (the `<title>`, `<desc>` and the renderer's arrow markers, such as `seq-arrow`) gets a prefix unique to the diagram in the post, and every `url(#…)` and `href="#…"` reference is rewritten to match, so two diagrams in one post are valid HTML and each uses its own markers. *My call.* |
-| Errors | A diagram the renderer rejects (unknown or unsupported diagram type) or one without `accTitle` fails the build with the post's file name, like other broken posts. A malformed line inside a valid diagram is dropped silently by the renderer: accepted, Koen is responsible for checking his own posts |
+| Topic         | Decision                                                                                                                                                                                                                                                                                                                                                                                                 |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Renderer      | [`beautiful-mermaid`](https://github.com/lukilabs/beautiful-mermaid) (MIT, 1.x), pinned to an exact version. Pure JavaScript, no DOM: renders an SVG string synchronously, in about a millisecond for the bookkeeping diagram                                                                                                                                                                            |
+| Where         | A rehype plugin in the posts pipeline (`src/lib/posts.ts`), running before Shiki, so ` ```mermaid ` fences never reach the highlighter                                                                                                                                                                                                                                                                   |
+| Theming       | Colors passed as the site's CSS variables (`bg: var(--background)`, `fg: var(--foreground)`, `muted: var(--muted-foreground)`, `transparent: true`). The SVG resolves them from the page, so the `dark` class recolors it without re-rendering, and only one SVG is emitted                                                                                                                              |
+| Font          | The site's `sans` font (Lausanne), set from `globals.css`. The renderer sizes boxes with its own character-width estimate tuned for Inter, a proportional font; the mono font is wider and would spill out of the boxes. Every Google Fonts `@import` in the SVG is removed (class and ER diagrams add a second one), so there's no third-party request. _My call, after the builder check._             |
+| Size          | The SVG is shown at its natural size, never scaled down. When it's wider than the column (on a phone), the `figure` scrolls sideways inside itself (`overflow-x: auto`), like a code block; the page never scrolls. Shrinking the bookkeeping diagram to a phone would put its text at 6–7px. Koen chose this. On a wide screen it's centred in the column; a diagram wider than 640px scrolls there too |
+| Accessibility | Required `accTitle:` in every diagram, optional `accDescr:` (Mermaid's own syntax). The plugin reads and removes them before rendering, since the renderer ignores them, and puts them on the SVG as `role="img"` with `<title>` and `<desc>`                                                                                                                                                            |
+| Ids           | Every `id` inside an SVG (the `<title>`, `<desc>` and the renderer's arrow markers, such as `seq-arrow`) gets a prefix unique to the diagram in the post, and every `url(#…)` and `href="#…"` reference is rewritten to match, so two diagrams in one post are valid HTML and each uses its own markers. _My call._                                                                                      |
+| Errors        | A diagram the renderer rejects (unknown or unsupported diagram type) or one without `accTitle` fails the build with the post's file name, like other broken posts. A malformed line inside a valid diagram is dropped silently by the renderer: accepted, Koen is responsible for checking his own posts                                                                                                 |
 
 ### Renderer
 
@@ -78,7 +78,7 @@ Inside `@utility prose`, or beside the `.shiki` rules:
 
 ### The post
 
-`content/posts/letting-claude-do-my-bookkeeping.md` replaces its ```` ```text ```` diagram (and only that block; the cheat sheet at the end is a list, not a diagram, and stays) with:
+`content/posts/letting-claude-do-my-bookkeeping.md` replaces its ` ```text ` diagram (and only that block; the cheat sheet at the end is a list, not a diagram, and stays) with:
 
 ````markdown
 ```mermaid
@@ -111,7 +111,7 @@ The messages you type are in curly quotes: the renderer drops straight double qu
 
 ### `CLAUDE.md`
 
-The "Posts" paragraph mentions diagrams: ```` ```mermaid ```` fences are drawn at build time by `beautiful-mermaid` with the site's tokens, need an `accTitle`, and which diagram types work.
+The "Posts" paragraph mentions diagrams: ` ```mermaid ` fences are drawn at build time by `beautiful-mermaid` with the site's tokens, need an `accTitle`, and which diagram types work.
 
 ## Testing
 

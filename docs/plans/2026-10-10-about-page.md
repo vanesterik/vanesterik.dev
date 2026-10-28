@@ -66,7 +66,10 @@ describe('AboutSection', () => {
       </AboutSection>,
     )
     expect(
-      screen.getByRole('heading', { level: 2, name: 'Companies I Worked With' }),
+      screen.getByRole('heading', {
+        level: 2,
+        name: 'Companies I Worked With',
+      }),
     ).toBeInTheDocument()
   })
 
@@ -339,7 +342,9 @@ describe('About page', () => {
       screen.getByText((_, element) =>
         Boolean(
           element?.tagName === 'P' &&
-            element.textContent?.startsWith(`${layout.tagline.join(' ')} That loop`),
+            element.textContent?.startsWith(
+              `${layout.tagline.join(' ')} That loop`,
+            ),
         ),
       ),
     ).toBeInTheDocument()

@@ -223,7 +223,8 @@ Expected: no output.
   font-style: normal;
   font-weight: 700;
   src: url('./fonts/twk_lausanne_700.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
     U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
     U+FEFF, U+FFFD;
 }
@@ -234,7 +235,8 @@ Expected: no output.
   font-style: normal;
   font-weight: 400;
   src: url('./fonts/twk_lausanne_400.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
     U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
     U+FEFF, U+FFFD;
 }
@@ -245,7 +247,8 @@ Expected: no output.
   font-style: normal;
   font-weight: 400;
   src: url('./fonts/nb_international_pro_mono.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
     U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
     U+FEFF, U+FFFD;
 }
@@ -413,7 +416,10 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: [
-      { find: /^@\//, replacement: fileURLToPath(new URL('./', import.meta.url)) },
+      {
+        find: /^@\//,
+        replacement: fileURLToPath(new URL('./', import.meta.url)),
+      },
     ],
   },
   test: {
@@ -530,7 +536,7 @@ In `.gitignore`, delete the `# turbo` block (`.turbo`, `.vercel`, `.turbo-cache`
 name: Setup Node & npm
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Setup Node
       uses: actions/setup-node@v4
@@ -581,49 +587,49 @@ Expected: the formatting, `import type` and import-order fixes are applied. Thre
 In `createStore`, delete the two `// eslint-disable-next-line fp/...` comment lines, and give the `forEach` callback a block body:
 
 ```ts
-    listeners.forEach((listener) => {
-      listener(state, previousState)
-    })
+listeners.forEach((listener) => {
+  listener(state, previousState)
+})
 ```
 
 In `updateParticlePositions`, give the `forEach` callback a block body:
 
 ```ts
-  particles.forEach(({ id, vx, vy, x, y }) => {
-    dispatch({
-      type: ActionTypes.UPDATE_PARTICLE_POSITION,
-      payload: {
-        id,
-        x: x + vx,
-        y: y + vy,
-      },
-    })
+particles.forEach(({ id, vx, vy, x, y }) => {
+  dispatch({
+    type: ActionTypes.UPDATE_PARTICLE_POSITION,
+    payload: {
+      id,
+      x: x + vx,
+      y: y + vy,
+    },
   })
+})
 ```
 
 In `createParticles`, replace the accumulating `reduce` with `Object.fromEntries`. The original used `id` and `index` interchangeably, because both come from the same `keys()` sequence:
 
 ```ts
-  const particles: Record<number, Particle> = Object.fromEntries(
-    Array.from(Array(gridX * gridY).keys()).map((id) => {
-      const cellX = Math.floor(id % gridX)
-      const cellY = Math.floor((id / gridX) % gridY)
-      const isLeftCells = cellX < gridX / 2
+const particles: Record<number, Particle> = Object.fromEntries(
+  Array.from(Array(gridX * gridY).keys()).map((id) => {
+    const cellX = Math.floor(id % gridX)
+    const cellY = Math.floor((id / gridX) % gridY)
+    const isLeftCells = cellX < gridX / 2
 
-      return [
+    return [
+      id,
+      {
         id,
-        {
-          id,
-          radius,
-          type: isLeftCells ? ParticleTypes.FILL : ParticleTypes.STROKE,
-          vx: isLeftCells ? random(1, 2) : random(-1, -2),
-          vy: random(-1, -5),
-          x: gridSize * cellX,
-          y: gridSize * cellY,
-        },
-      ]
-    }),
-  )
+        radius,
+        type: isLeftCells ? ParticleTypes.FILL : ParticleTypes.STROKE,
+        vx: isLeftCells ? random(1, 2) : random(-1, -2),
+        vy: random(-1, -5),
+        x: gridSize * cellX,
+        y: gridSize * cellY,
+      },
+    ]
+  }),
+)
 ```
 
 Run: `npm run lint`
@@ -1219,12 +1225,12 @@ The colour values are Tailwind 4.3.3's own stone and yellow scales. `--color-*: 
   --color-secondary-950: oklch(28.6% 0.066 53.813);
 
   --font-*: initial;
-  --font-sans: var(--font-lausanne), ui-sans-serif, system-ui, sans-serif,
-    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-    'Noto Color Emoji';
-  --font-mono: var(--font-nb-international-pro-mono), ui-monospace,
-    SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
-    monospace;
+  --font-sans:
+    var(--font-lausanne), ui-sans-serif, system-ui, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-mono:
+    var(--font-nb-international-pro-mono), ui-monospace, SFMono-Regular, Menlo,
+    Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
   --font-icon: 'Icons';
 }
 
@@ -1436,17 +1442,17 @@ npm run dev
 
 ## Scripts
 
-| Script | Does |
-| --- | --- |
-| `npm run dev` | Start the development server |
-| `npm run build` | Export the static site to `out/` |
-| `npm run lint` | Check linting and formatting with Biome |
-| `npm run format` | Apply Biome's fixes and formatting |
-| `npm run typecheck` | Generate Next.js types and run `tsc` |
-| `npm test` | Run the tests once |
-| `npm run test:watch` | Run the tests in watch mode |
-| `npm run coverage` | Run the tests with coverage |
-| `npm run release` | Bump the version, update the changelog and tag |
+| Script               | Does                                           |
+| -------------------- | ---------------------------------------------- |
+| `npm run dev`        | Start the development server                   |
+| `npm run build`      | Export the static site to `out/`               |
+| `npm run lint`       | Check linting and formatting with Biome        |
+| `npm run format`     | Apply Biome's fixes and formatting             |
+| `npm run typecheck`  | Generate Next.js types and run `tsc`           |
+| `npm test`           | Run the tests once                             |
+| `npm run test:watch` | Run the tests in watch mode                    |
+| `npm run coverage`   | Run the tests with coverage                    |
+| `npm run release`    | Bump the version, update the changelog and tag |
 ````
 
 - [ ] **Step 2: Rewrite `CLAUDE.md`**

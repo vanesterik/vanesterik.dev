@@ -189,21 +189,21 @@ describe('NavLink', () => {
 In `src/components/mobile-menu.test.tsx`, add the same `pathname` mock and `beforeEach` above `describe`, and add this test:
 
 ```tsx
-  it('marks the current page in the menu', async () => {
-    pathname.value = '/about/'
-    const user = userEvent.setup()
-    render(<MobileMenu items={items} />)
+it('marks the current page in the menu', async () => {
+  pathname.value = '/about/'
+  const user = userEvent.setup()
+  render(<MobileMenu items={items} />)
 
-    await user.click(screen.getByRole('button', { name: 'menu' }))
+  await user.click(screen.getByRole('button', { name: 'menu' }))
 
-    expect(screen.getByRole('menuitem', { name: 'about' })).toHaveAttribute(
-      'aria-current',
-      'page',
-    )
-    expect(
-      screen.getByRole('menuitem', { name: 'posts' }),
-    ).not.toHaveAttribute('aria-current')
-  })
+  expect(screen.getByRole('menuitem', { name: 'about' })).toHaveAttribute(
+    'aria-current',
+    'page',
+  )
+  expect(screen.getByRole('menuitem', { name: 'posts' })).not.toHaveAttribute(
+    'aria-current',
+  )
+})
 ```
 
 (with `import { beforeEach, describe, expect, it, vi } from 'vitest'`).
@@ -232,7 +232,8 @@ const withoutTrailingSlash = (path: string) => path.replace(/(.)\/$/, '$1')
  * Whether the passed URL is the page being shown
  */
 export const isCurrentPath = (pathname: string | null, url: string) =>
-  pathname !== null && withoutTrailingSlash(pathname) === withoutTrailingSlash(url)
+  pathname !== null &&
+  withoutTrailingSlash(pathname) === withoutTrailingSlash(url)
 
 type NavLinkProps = {
   name: string
@@ -262,15 +263,15 @@ export const NavLink = ({ name, url }: NavLinkProps) => {
 In `src/components/navigation.tsx`, replace
 
 ```tsx
-            <Button asChild variant={url === '/' ? 'ghost' : 'secondary'}>
-              <Link href={url}>{name}</Link>
-            </Button>
+;<Button asChild variant={url === '/' ? 'ghost' : 'secondary'}>
+  <Link href={url}>{name}</Link>
+</Button>
 ```
 
 with
 
 ```tsx
-            <NavLink name={name} url={url} />
+;<NavLink name={name} url={url} />
 ```
 
 and replace the `Link` and `Button` imports with `import { NavLink } from '@/components/nav-link'`.
@@ -414,9 +415,21 @@ describe('getProjects', () => {
   })
 
   it.each([
-    ['a missing field', { year: undefined }, 'lorem: "year" must be a whole number'],
-    ['an unknown type', { type: 'app' }, 'lorem: "type" must be one of web, cli, lib'],
-    ['an unknown status', { status: 'Live' }, 'lorem: "status" must be one of live, wip, archived'],
+    [
+      'a missing field',
+      { year: undefined },
+      'lorem: "year" must be a whole number',
+    ],
+    [
+      'an unknown type',
+      { type: 'app' },
+      'lorem: "type" must be one of web, cli, lib',
+    ],
+    [
+      'an unknown status',
+      { status: 'Live' },
+      'lorem: "status" must be one of live, wip, archived',
+    ],
     [
       'an unknown tone',
       { preview: { terminal: [{ text: 'ls', tone: 'warning' }] } },
@@ -844,14 +857,22 @@ describe('TerminalFrame', () => {
 
   it('prefixes commands and colors each line by its tone', () => {
     render(<TerminalFrame name="ipsum" lines={[...lines]} />)
-    expect(screen.getByText('$ ipsum pack ./lorem')).toHaveClass('text-foreground')
-    expect(screen.getByText('scanning 12,480 files …')).toHaveClass('text-muted-foreground')
-    expect(screen.getByText('skipped 316 dolor entries')).toHaveClass('text-warning')
+    expect(screen.getByText('$ ipsum pack ./lorem')).toHaveClass(
+      'text-foreground',
+    )
+    expect(screen.getByText('scanning 12,480 files …')).toHaveClass(
+      'text-muted-foreground',
+    )
+    expect(screen.getByText('skipped 316 dolor entries')).toHaveClass(
+      'text-warning',
+    )
     expect(screen.getByText('wrote lorem.tar.zst')).toHaveClass('text-success')
   })
 
   it('stays dark in either theme and ends on a prompt', () => {
-    const { container } = render(<TerminalFrame name="ipsum" lines={[...lines]} />)
+    const { container } = render(
+      <TerminalFrame name="ipsum" lines={[...lines]} />,
+    )
     expect(container.firstChild).toHaveClass('dark')
     expect(container.querySelector('pre')?.lastChild).toHaveTextContent(/^\$/)
   })
@@ -1480,7 +1501,11 @@ const ProjectPreview = ({ project }: { project: Project }) => {
 
   if (type === 'web' && preview.image) {
     return (
-      <BrowserFrame url={url} image={preview.image} alt={`Screenshot of ${name}`} />
+      <BrowserFrame
+        url={url}
+        image={preview.image}
+        alt={`Screenshot of ${name}`}
+      />
     )
   }
   if (type !== 'web' && preview.terminal) {
@@ -1609,11 +1634,15 @@ export const Single: Story = {
     <Accordion type="single" collapsible defaultValue="lorem">
       <AccordionItem value="lorem">
         <AccordionTrigger className="py-3">lorem</AccordionTrigger>
-        <AccordionContent className="pb-3">Lorem ipsum dolor sit amet.</AccordionContent>
+        <AccordionContent className="pb-3">
+          Lorem ipsum dolor sit amet.
+        </AccordionContent>
       </AccordionItem>
       <AccordionItem value="ipsum">
         <AccordionTrigger className="py-3">ipsum</AccordionTrigger>
-        <AccordionContent className="pb-3">Ut enim ad minim veniam.</AccordionContent>
+        <AccordionContent className="pb-3">
+          Ut enim ad minim veniam.
+        </AccordionContent>
       </AccordionItem>
     </Accordion>
   ),

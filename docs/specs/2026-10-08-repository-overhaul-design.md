@@ -21,24 +21,24 @@ Two visible changes are intended:
 
 ## Decisions
 
-| Topic | Decision |
-|---|---|
-| Package manager | npm, single `package.json`, `package-lock.json` committed, npm version pinned in `packageManager` |
-| Node | 24 LTS, pinned in `.nvmrc` and used by CI |
-| Framework | Next.js 16 with the App Router (replacing the Pages Router), React 19 |
-| Output | Static export: `output: 'export'`, `trailingSlash: true`, optional `NEXT_PUBLIC_BASE_PATH` |
-| Styling | Tailwind CSS 4, configured in CSS (`@theme`), no JavaScript config |
-| Components | shadcn/ui (`Button`, `DropdownMenu`) themed through CSS variables; layout as plain Tailwind classes |
-| Icons | `lucide-react`; the icomoon icon font is removed |
-| Theme | `next-themes` replaces the custom `ThemeProvider` |
-| Fonts | `next/font/local` for Lausanne 400/700 and NB International Pro Mono |
-| Lint and format | Biome replaces ESLint and Prettier |
-| Unit tests | Vitest with Testing Library in jsdom |
-| End-to-end tests | Dropped: Playwright, `packages/e2e` and `e2e-tests.yml` are removed |
-| Component catalogue | Storybook replaces Ladle |
-| Commit hooks | Husky 9, lint-staged, commitlint (conventional commits, existing subject-case rule) |
-| Releases | `commit-and-tag-version` replaces the deprecated `standard-version`; `v*.*.*` tags still deploy production |
-| Lighthouse audit | Kept, against the preview deployment |
+| Topic               | Decision                                                                                                   |
+| ------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Package manager     | npm, single `package.json`, `package-lock.json` committed, npm version pinned in `packageManager`          |
+| Node                | 24 LTS, pinned in `.nvmrc` and used by CI                                                                  |
+| Framework           | Next.js 16 with the App Router (replacing the Pages Router), React 19                                      |
+| Output              | Static export: `output: 'export'`, `trailingSlash: true`, optional `NEXT_PUBLIC_BASE_PATH`                 |
+| Styling             | Tailwind CSS 4, configured in CSS (`@theme`), no JavaScript config                                         |
+| Components          | shadcn/ui (`Button`, `DropdownMenu`) themed through CSS variables; layout as plain Tailwind classes        |
+| Icons               | `lucide-react`; the icomoon icon font is removed                                                           |
+| Theme               | `next-themes` replaces the custom `ThemeProvider`                                                          |
+| Fonts               | `next/font/local` for Lausanne 400/700 and NB International Pro Mono                                       |
+| Lint and format     | Biome replaces ESLint and Prettier                                                                         |
+| Unit tests          | Vitest with Testing Library in jsdom                                                                       |
+| End-to-end tests    | Dropped: Playwright, `packages/e2e` and `e2e-tests.yml` are removed                                        |
+| Component catalogue | Storybook replaces Ladle                                                                                   |
+| Commit hooks        | Husky 9, lint-staged, commitlint (conventional commits, existing subject-case rule)                        |
+| Releases            | `commit-and-tag-version` replaces the deprecated `standard-version`; `v*.*.*` tags still deploy production |
+| Lighthouse audit    | Kept, against the preview deployment                                                                       |
 
 Latest versions on npm on 2026-10-08: `next` 16.4.0, `react` 19.3.0, `tailwindcss` 4.3.3, `@biomejs/biome` 2.5.15, `vitest` 5.0.3, `@testing-library/react` 16.3.3, `storybook` and `@storybook/nextjs-vite` 10.6.1, `next-themes` 0.4.6, `lucide-react` 1.53.0, `commit-and-tag-version` 13.2.1, `husky` 9.1.7. TypeScript's latest is 7.0.2 (the native compiler). The project uses the newest TypeScript version Next.js 16 officially supports, which the story 1 plan verifies rather than assumes.
 
@@ -126,14 +126,14 @@ Only `Button` and `DropdownMenu` are needed. `card` is used only in a Ladle stor
 
 The theme tokens in `app/globals.css` map the existing palette onto shadcn's token names:
 
-| Token | Light | Dark | Replaces |
-|---|---|---|---|
-| `background` / `foreground` | white / black | black / white | `bg-white dark:bg-black` |
-| `primary` / `primary-foreground` | black / white | white / black | `primary` button intent |
-| `secondary` / `secondary-foreground` | stone-200 at 80% / black | stone-800 at 80% / white | `secondary` button intent, dropdown items |
-| `accent` | stone-200 | stone-800 | hover backgrounds |
-| `highlight` / `highlight-foreground` (custom) | yellow-500 / black | yellow-500 / black | active and pressed state, link hover colour |
-| `muted-foreground` | stone-300 | stone-700 | footnote text |
+| Token                                         | Light                    | Dark                     | Replaces                                    |
+| --------------------------------------------- | ------------------------ | ------------------------ | ------------------------------------------- |
+| `background` / `foreground`                   | white / black            | black / white            | `bg-white dark:bg-black`                    |
+| `primary` / `primary-foreground`              | black / white            | white / black            | `primary` button intent                     |
+| `secondary` / `secondary-foreground`          | stone-200 at 80% / black | stone-800 at 80% / white | `secondary` button intent, dropdown items   |
+| `accent`                                      | stone-200                | stone-800                | hover backgrounds                           |
+| `highlight` / `highlight-foreground` (custom) | yellow-500 / black       | yellow-500 / black       | active and pressed state, link hover colour |
+| `muted-foreground`                            | stone-300                | stone-700                | footnote text                               |
 
 The names `primary` and `secondary` take on shadcn's meaning; stone and yellow survive only as token values. All styling goes through the tokens.
 
