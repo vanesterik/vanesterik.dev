@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.8.0](https://github.com/vanesterik/vanesterik.dev/compare/v1.7.0...v1.8.0) (2026-10-28)
+
+### Features
+
+- browse the projects with cmd+up and cmd+down ([b37ee55](https://github.com/vanesterik/vanesterik.dev/commit/b37ee55b8776ea576c7aa670b92c343b0da076f1))
+- browse the projects with j and k ([98859e4](https://github.com/vanesterik/vanesterik.dev/commit/98859e416676c5823c60b829c38515231f4c89bf))
+- frame the open project row in a rounded hairline ([9f9a425](https://github.com/vanesterik/vanesterik.dev/commit/9f9a425beee27b842e43a9144c81a78b111c529c))
+- give each project a path on the projects page ([70c9124](https://github.com/vanesterik/vanesterik.dev/commit/70c91241ecf2dd69b444f65419c1dfcf70e91654))
+- let the open project row break out of the column ([b6f4100](https://github.com/vanesterik/vanesterik.dev/commit/b6f410045ff21df004001e3e3f0f48744f94b2cb))
+- mark a section current on the pages below it ([1af9c1c](https://github.com/vanesterik/vanesterik.dev/commit/1af9c1cf701100c4f8cb8cb21fe236c1d4dd6a28))
+- open the project row the address names ([b71b721](https://github.com/vanesterik/vanesterik.dev/commit/b71b721578e769199c8af4e21edd40152607b45a))
+- set post titles and project descriptions smaller on phones ([953c9cd](https://github.com/vanesterik/vanesterik.dev/commit/953c9cdf0abc5d722e6eb7d488ff5e5b31484c4b))
+- set the open project row apart with a margin ([be7ff08](https://github.com/vanesterik/vanesterik.dev/commit/be7ff089e6a8a7f4e2ab6a622e564be65fa98f24))
+- set the project description big and tight ([e19c8f0](https://github.com/vanesterik/vanesterik.dev/commit/e19c8f05582fa06382adf90e354e6f3121694914))
+- set the project description in the intro text ([c33b6e7](https://github.com/vanesterik/vanesterik.dev/commit/c33b6e7a8919fe76b55b78439a5534f18f0c1a38))
+- set the project description like a post title ([af481a9](https://github.com/vanesterik/vanesterik.dev/commit/af481a9f25e43d0c1f626d496f3d5f42747a4762))
+- show the open project row inverted ([86e5afc](https://github.com/vanesterik/vanesterik.dev/commit/86e5afcd763016a114e2a167121c5599926f8589))
+- snap an opening project row to the top of the page ([60e379b](https://github.com/vanesterik/vanesterik.dev/commit/60e379bbc6c276450d726c6d4ee8c964fe1802a1))
+- title a project's page Van Esterik · <project> ([d0b20fa](https://github.com/vanesterik/vanesterik.dev/commit/d0b20fa460562d4b437dcbf835ec98c09e27473b))
+- title a project's page van_esterik | <project> ([e396ece](https://github.com/vanesterik/vanesterik.dev/commit/e396ece6b8695b71eafae64a0096b1d454eae0b2))
+- widen the margin around the open project row ([75bb0a0](https://github.com/vanesterik/vanesterik.dev/commit/75bb0a0e9914212c701cc29c2e93edfae840aad6))
+
+### Bug Fixes
+
+- hide the row above a snapped project row ([392724c](https://github.com/vanesterik/vanesterik.dev/commit/392724c02cfd337005d1249870c1a6430747201c))
+- leave focus in place when browsing projects with j and k ([f67ac7d](https://github.com/vanesterik/vanesterik.dev/commit/f67ac7d7d9bbf0c7e9119b3026000a504baf98dc))
+- name the open project in the page title ([8010026](https://github.com/vanesterik/vanesterik.dev/commit/8010026380aa0f15bf6822a5d1f8973c2e7465b5))
+- show crossvision as work in progress ([bf32088](https://github.com/vanesterik/vanesterik.dev/commit/bf32088462e7364a6e81e967c474b3d20f7bef44))
+- stop the theme script warning in client renders ([1e11af2](https://github.com/vanesterik/vanesterik.dev/commit/1e11af2f7b7cc90982cdcede414e6e0775a1cbe0))
+- tone down the open row's project type ([2f2307c](https://github.com/vanesterik/vanesterik.dev/commit/2f2307cc6cfb6f88d03183f05495dc2ce9ac21c9))
+- update next.js to 16.4.3 ([7794e91](https://github.com/vanesterik/vanesterik.dev/commit/7794e914b42b466ed7f9e7b3f11b763f630bf860))
+- wrap long terminal lines on narrow phones ([3b2881d](https://github.com/vanesterik/vanesterik.dev/commit/3b2881d2d90c9ca877572d810559dbaa321d834f))
+
 ## [1.7.0](https://github.com/vanesterik/vanesterik.dev/compare/v1.6.1...v1.7.0) (2026-10-19)
 
 ### Features
