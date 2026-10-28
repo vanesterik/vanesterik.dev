@@ -144,17 +144,12 @@ export const ProjectIndex = ({ projects }: ProjectIndexProps) => {
             key={project.slug}
             value={project.slug}
             data-slug={project.slug}
-            // The open row, its preview and details framed together in a
-            // rounded hairline, with room inside and space around; on wide
+            // Space around the open row, its preview and details; on wide
             // screens it breaks out of the column. Snapped to the top, it
             // stops its margin's height below the window's edge, the scroll
             // padding (md:scroll-pt-24) less 2rem, so the row above it is out
             // of view rather than showing under the header
-            className={cn(
-              'rounded-lg md:-scroll-mt-8',
-              'data-[state=open]:my-16 data-[state=open]:border data-[state=open]:border-accent data-[state=open]:p-4 sm:data-[state=open]:p-6',
-              'lg:data-[state=open]:-mx-24',
-            )}
+            className="data-[state=open]:my-16 md:-scroll-mt-8 lg:data-[state=open]:-mx-20"
           >
             <AccordionTrigger
               className={cn(
