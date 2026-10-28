@@ -332,3 +332,86 @@ describe('ProjectIndex on a project path', () => {
     expect(scrollIntoView).not.toHaveBeenCalled()
   })
 })
+
+describe('ProjectIndex, browsed with Cmd+↑ and Cmd+↓', () => {
+  const openSlug = () =>
+    document
+      .querySelector('[data-slot="accordion-item"][data-state="open"]')
+      ?.getAttribute('data-slug')
+
+  it('opens the next and the previous project', async () => {
+    pathname.value = '/projects/ipsum/'
+    const replaceState = vi.spyOn(window.history, 'replaceState')
+    const user = userEvent.setup()
+    render(<ProjectIndex projects={projects} />)
+
+    await user.keyboard('{Meta>}{ArrowDown}{/Meta}')
+    expect(openSlug()).toBe('dolor')
+    expect(replaceState).toHaveBeenLastCalledWith(null, '', '/projects/dolor/')
+
+    await user.keyboard('{Meta>}{ArrowUp}{ArrowUp}{/Meta}')
+    expect(openSlug()).toBe('lorem')
+  })
+
+  it('moves focus to the project it opens', async () => {
+    pathname.value = '/projects/ipsum/'
+    const user = userEvent.setup()
+    render(<ProjectIndex projects={projects} />)
+
+    await user.keyboard('{Meta>}{ArrowDown}{/Meta}')
+    expect(row(/^dolor/)).toHaveFocus()
+  })
+
+  it('starts at the first project going down, and the last going up', async () => {
+    pathname.value = '/projects/'
+    const user = userEvent.setup()
+    const { unmount } = render(<ProjectIndex projects={projects} />)
+
+    await user.keyboard('{Meta>}{ArrowDown}{/Meta}')
+    expect(openSlug()).toBe('lorem')
+    unmount()
+
+    render(<ProjectIndex projects={projects} />)
+    await user.keyboard('{Meta>}{ArrowUp}{/Meta}')
+    expect(openSlug()).toBe('sit')
+  })
+
+  it('stays on the last project going down, and the first going up', async () => {
+    pathname.value = '/projects/sit/'
+    const user = userEvent.setup()
+    const { unmount } = render(<ProjectIndex projects={projects} />)
+
+    await user.keyboard('{Meta>}{ArrowDown}{/Meta}')
+    expect(openSlug()).toBe('sit')
+    unmount()
+
+    pathname.value = '/projects/lorem/'
+    render(<ProjectIndex projects={projects} />)
+    await user.keyboard('{Meta>}{ArrowUp}{/Meta}')
+    expect(openSlug()).toBe('lorem')
+  })
+
+  it('works with Ctrl, for keyboards without Cmd', async () => {
+    pathname.value = '/projects/ipsum/'
+    const user = userEvent.setup()
+    render(<ProjectIndex projects={projects} />)
+
+    await user.keyboard('{Control>}{ArrowDown}{/Control}')
+    expect(openSlug()).toBe('dolor')
+  })
+
+  it('leaves the keys to a text field', async () => {
+    pathname.value = '/projects/ipsum/'
+    const user = userEvent.setup()
+    render(
+      <>
+        <input aria-label="search" />
+        <ProjectIndex projects={projects} />
+      </>,
+    )
+
+    await user.click(screen.getByLabelText('search'))
+    await user.keyboard('{Meta>}{ArrowDown}{/Meta}')
+    expect(openSlug()).toBe('ipsum')
+  })
+})
