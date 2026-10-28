@@ -1,4 +1,4 @@
 module.exports = {
-  '*.{js,jsx,ts,tsx,json,jsonc,css}':
+  '*.{js,jsx,ts,tsx,json,jsonc,css,md,yml,yaml}':
     'biome check --write --no-errors-on-unmatched --files-ignore-unknown=true',
 }
