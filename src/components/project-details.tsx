@@ -21,7 +21,7 @@ type ProjectDetailsProps = {
 }
 
 /**
- * A project's description as a bold lead, with two columns of small
+ * A project's description as a large lead, with two columns of small
  * definition pairs beneath it: its facts, and its links by address. The
  * columns stack on narrow screens
  */
@@ -35,11 +35,9 @@ export const ProjectDetails = ({ project }: ProjectDetailsProps) => {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* The one large, heavy line in the panel, between the small rows and
-          summaries: set big and tight, for a brutalist contrast with them */}
-      <p className="font-bold font-sans text-4xl leading-none tracking-tight sm:text-5xl">
-        {description}
-      </p>
+      {/* The one large line in the panel, between the small rows and
+          summaries: the about page's introduction, scaled with the window */}
+      <p className="font-sans text-intro">{description}</p>
       {/* Lausanne like the description, in regular at a small size */}
       <div className="grid gap-6 font-sans text-sm sm:grid-cols-2">
         <dl className={LIST}>

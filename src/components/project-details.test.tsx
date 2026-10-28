@@ -30,16 +30,11 @@ const pairs = (list: HTMLElement) =>
   ])
 
 describe('ProjectDetails', () => {
-  it('leads with the description in very large, tightly set bold Lausanne', () => {
+  it('leads with the description in the about page introduction text', () => {
     render(<ProjectDetails project={project} />)
-    expect(screen.getByText('Lorem ipsum dolor sit amet.')).toHaveClass(
-      'font-sans',
-      'font-bold',
-      'text-4xl',
-      'sm:text-5xl',
-      'leading-none',
-      'tracking-tight',
-    )
+    const description = screen.getByText('Lorem ipsum dolor sit amet.')
+    expect(description).toHaveClass('font-sans', 'text-intro')
+    expect(description).not.toHaveClass('font-bold')
   })
 
   it('lists the stack, role and year', () => {
