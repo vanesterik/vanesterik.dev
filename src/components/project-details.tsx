@@ -35,9 +35,11 @@ export const ProjectDetails = ({ project }: ProjectDetailsProps) => {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* The one large line in the panel, between the small rows and
-          summaries: the about page's introduction, scaled with the window */}
-      <p className="font-sans text-intro">{description}</p>
+      {/* The one large, heavy line in the panel, between the small rows and
+          summaries; set like a post's title */}
+      <p className="font-bold font-sans text-5xl leading-tight">
+        {description}
+      </p>
       {/* Lausanne like the description, in regular at a small size */}
       <div className="grid gap-6 font-sans text-sm sm:grid-cols-2">
         <dl className={LIST}>
