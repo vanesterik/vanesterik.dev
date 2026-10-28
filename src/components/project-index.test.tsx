@@ -292,6 +292,13 @@ describe('ProjectIndex on a project path', () => {
     )
   })
 
+  it('snaps a row high enough to hide the row above it under the header', () => {
+    pathname.value = '/projects/ipsum/'
+    render(<ProjectIndex projects={projects} />)
+    // The scroll padding (md:scroll-pt-24) less the open row's margin (my-16)
+    expect(scrollIntoView.mock.contexts[0]).toHaveClass('md:-scroll-mt-8')
+  })
+
   it('snaps a row that opens to the top', async () => {
     pathname.value = '/projects/'
     const user = userEvent.setup()
