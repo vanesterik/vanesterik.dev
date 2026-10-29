@@ -8,4 +8,15 @@ describe('Header', () => {
     const { getByRole } = render(<Header />)
     expect(getByRole('banner')).toBeInTheDocument()
   })
+
+  it('stays at the top over the home page at every size, letting clicks through', () => {
+    const { getByRole } = render(<Header />)
+    expect(getByRole('banner')).toHaveClass(
+      'home:sticky',
+      'home:top-0',
+      'home:pointer-events-none',
+      'home:[&_a]:pointer-events-auto',
+      'home:[&_button]:pointer-events-auto',
+    )
+  })
 })

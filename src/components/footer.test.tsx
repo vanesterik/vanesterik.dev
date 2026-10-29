@@ -8,4 +8,15 @@ describe('Footer', () => {
     const { getByRole } = render(<Footer />)
     expect(getByRole('contentinfo')).toBeInTheDocument()
   })
+
+  it('stays at the bottom over the home page at every size, letting clicks through', () => {
+    const { getByRole } = render(<Footer />)
+    expect(getByRole('contentinfo')).toHaveClass(
+      'home:sticky',
+      'home:bottom-0',
+      'home:pointer-events-none',
+      'home:[&_a]:pointer-events-auto',
+      'home:[&_button]:pointer-events-auto',
+    )
+  })
 })

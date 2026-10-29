@@ -16,5 +16,6 @@ export const ParticleCanvas = () => {
     return game(containerRef.current)
   }, [])
 
-  return <div className="fixed inset-0" ref={containerRef} />
+  // data-particles marks the home page for the header and footer (home:)
+  return <div data-particles className="fixed inset-0" ref={containerRef} />
 }
