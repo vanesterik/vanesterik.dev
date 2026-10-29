@@ -43,7 +43,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             </Header>
             <main className="flex flex-auto flex-col">{children}</main>
             <Footer>
-              <div className="font-mono font-normal text-muted-foreground/60 text-xs uppercase">
+              <div className="font-mono font-normal text-accent text-xs uppercase">
                 &copy; {new Date().getFullYear().toString()} {layout.copyright}
               </div>
             </Footer>
