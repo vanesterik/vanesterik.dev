@@ -32,6 +32,8 @@ export type Project = {
     terminal?: TerminalLine[]
     video?: string
     recording?: string
+    // A line in muted grey under the preview
+    note?: string
   }
   links: {
     primary?: string
@@ -57,7 +59,14 @@ const PROJECT_FIELDS = [
   'preview',
   'links',
 ]
-const PREVIEW_FIELDS = ['image', 'frame', 'terminal', 'video', 'recording']
+const PREVIEW_FIELDS = [
+  'image',
+  'frame',
+  'terminal',
+  'video',
+  'recording',
+  'note',
+]
 const LINK_FIELDS = ['primary', 'source', 'writeup']
 
 const isRecord = (value: unknown): value is Raw =>
@@ -166,6 +175,13 @@ const readProject = (raw: unknown, index: number): Project => {
   if (type === 'web' && preview.terminal !== undefined) {
     fail(where, 'a web project shows an image, not a terminal session')
   }
+  // A video plays in the browser frame, over its first frame as a screenshot
+  if (preview.video !== undefined && preview.image === undefined) {
+    fail(where, 'a video needs a screenshot, its poster')
+  }
+  if (preview.video !== undefined && preview.frame === 'terminal') {
+    fail(where, 'a video plays in the browser frame')
+  }
 
   return {
     slug: readString(raw, 'slug', where),
@@ -186,6 +202,7 @@ const readProject = (raw: unknown, index: number): Project => {
       terminal: readTerminal(preview, where),
       video: readOptionalString(preview, 'video', where),
       recording: readOptionalString(preview, 'recording', where),
+      note: readOptionalString(preview, 'note', where),
     },
     links: {
       primary: readOptionalString(links, 'primary', where),

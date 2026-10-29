@@ -156,6 +156,40 @@ describe('getProjects', () => {
     )
   })
 
+  it('keeps a video with its screenshot, and a note', () => {
+    const [result] = getProjects([
+      project({
+        preview: {
+          image: '/a.jpg',
+          video: '/a.mp4',
+          note: 'Recorded in 2026.',
+        },
+      }),
+    ])
+    expect(result.preview).toMatchObject({
+      image: '/a.jpg',
+      video: '/a.mp4',
+      note: 'Recorded in 2026.',
+    })
+  })
+
+  it('fails on a video without a screenshot for its poster', () => {
+    expect(() =>
+      getProjects([project({ preview: { video: '/a.mp4' } })]),
+    ).toThrow('lorem: a video needs a screenshot, its poster')
+  })
+
+  it('fails on a video in the terminal frame', () => {
+    expect(() =>
+      getProjects([
+        project({
+          type: 'cli',
+          preview: { image: '/a.png', frame: 'terminal', video: '/a.mp4' },
+        }),
+      ]),
+    ).toThrow('lorem: a video plays in the browser frame')
+  })
+
   it('names a project by its position when its slug is missing', () => {
     expect(() =>
       getProjects([project(), project({ slug: undefined })]),
