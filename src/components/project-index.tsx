@@ -20,14 +20,25 @@ import { type Project, projectTitle } from '@/lib/projects'
 // Name, type, year and the status dot; narrow enough for a phone as well
 const COLUMNS = 'grid grid-cols-[1fr_3rem_3rem_1rem] gap-x-4'
 
-// A screenshot in the browser frame, or in the terminal frame for a terminal
-// app; otherwise a terminal session; or nothing
-const ProjectPreview = ({ project }: { project: Project }) => {
+// A screenshot in the browser frame, or a recording of the site over it, or
+// a screenshot in the terminal frame for a terminal app; otherwise a terminal
+// session; or nothing
+const ProjectFrame = ({ project }: { project: Project }) => {
   const { name, url, preview } = project
   const alt = `Screenshot of ${name}`
 
   if (preview.image && preview.frame === 'terminal') {
     return <TerminalFrame name={name} image={preview.image} alt={alt} />
+  }
+  if (preview.image && preview.video) {
+    return (
+      <BrowserFrame
+        url={url}
+        image={preview.image}
+        video={preview.video}
+        alt={`Recording of ${name}`}
+      />
+    )
   }
   if (preview.image) {
     return <BrowserFrame url={url} image={preview.image} alt={alt} />
@@ -36,6 +47,19 @@ const ProjectPreview = ({ project }: { project: Project }) => {
     return <TerminalFrame name={name} lines={preview.terminal} />
   }
   return null
+}
+
+// The frame, with the preview's note in muted grey under it
+const ProjectPreview = ({ project }: { project: Project }) => {
+  const { note } = project.preview
+  if (!note) return <ProjectFrame project={project} />
+
+  return (
+    <div className="flex flex-col gap-2">
+      <ProjectFrame project={project} />
+      <p className="font-sans text-muted-foreground text-xs">{note}</p>
+    </div>
+  )
 }
 
 /**

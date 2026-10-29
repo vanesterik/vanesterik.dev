@@ -44,4 +44,25 @@ describe('BrowserFrame', () => {
     )
     expect(screen.getByText('lorem.example.com')).toBeInTheDocument()
   })
+
+  it('plays a video in place of the screenshot', () => {
+    window.matchMedia = vi.fn().mockReturnValue({
+      matches: false,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    })
+    HTMLMediaElement.prototype.play = vi.fn().mockResolvedValue(undefined)
+    const { container } = render(
+      <BrowserFrame
+        image="/projects/placeholder.svg"
+        video="/projects/placeholder.mp4"
+        alt="Recording of lorem"
+      />,
+    )
+    expect(container.querySelector('video')).toHaveAttribute(
+      'src',
+      '/projects/placeholder.mp4',
+    )
+    expect(screen.queryByRole('img')).toBeNull()
+  })
 })
