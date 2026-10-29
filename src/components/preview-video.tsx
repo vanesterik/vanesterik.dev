@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useSyncExternalStore } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 
 import { withBasePath } from '@/lib/base-path'
 
@@ -26,10 +26,11 @@ type PreviewVideoProps = {
  * static HTML and the first client render show the poster alike, and the
  * video starts after that; with reduced motion it shows controls instead. A
  * browser that refuses to play (such as an iPhone in Low Power Mode) keeps
- * the poster
+ * the poster, with controls, so the visitor can start it
  */
 export const PreviewVideo = ({ video, poster, alt }: PreviewVideoProps) => {
   const ref = useRef<HTMLVideoElement>(null)
+  const [refused, setRefused] = useState(false)
   const motion = useSyncExternalStore<Motion>(
     subscribe,
     () => (window.matchMedia(REDUCED_MOTION).matches ? 'reduce' : 'motion'),
@@ -38,7 +39,7 @@ export const PreviewVideo = ({ video, poster, alt }: PreviewVideoProps) => {
 
   useEffect(() => {
     if (motion !== 'motion') return
-    ref.current?.play().catch(() => {})
+    ref.current?.play().catch(() => setRefused(true))
   }, [motion])
 
   return (
@@ -50,7 +51,7 @@ export const PreviewVideo = ({ video, poster, alt }: PreviewVideoProps) => {
       muted
       loop
       playsInline
-      controls={motion === 'reduce'}
+      controls={motion === 'reduce' || refused}
       className="aspect-[16/10] w-full object-cover"
     />
   )

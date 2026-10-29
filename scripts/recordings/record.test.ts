@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest'
 
-import { encodeArgs, posterArgs, run } from './record.ts'
+import { encodeArgs, openingError, posterArgs, run } from './record.ts'
 
 // The argument that follows a flag, or undefined without it
 const argumentOf = (args: string[], flag: string) =>
@@ -43,5 +43,41 @@ describe('run', () => {
     await expect(run('nope')).rejects.toThrow(
       /^Unknown project "nope": record one of .*leaseplan/,
     )
+  })
+})
+
+describe('openingError', () => {
+  const start = 'https://example.com/'
+
+  it('says a site refused the browser when it drops the connection', () => {
+    expect(
+      openingError(
+        start,
+        new Error(
+          'page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://example.com/',
+        ),
+      ),
+    ).toBe(
+      'https://example.com/ refused the browser (ERR_HTTP2_PROTOCOL_ERROR)',
+    )
+  })
+
+  it('says a page never settled when it times out', () => {
+    const timeout = new Error('page.goto: Timeout 30000ms exceeded.')
+    timeout.name = 'TimeoutError'
+    expect(openingError(start, timeout)).toBe(
+      "https://example.com/ didn't finish loading within 30 seconds",
+    )
+  })
+
+  it('names any other network error as it is', () => {
+    expect(
+      openingError(
+        start,
+        new Error(
+          'page.goto: net::ERR_INTERNET_DISCONNECTED at https://example.com/',
+        ),
+      ),
+    ).toBe("Couldn't open https://example.com/ (ERR_INTERNET_DISCONNECTED)")
   })
 })

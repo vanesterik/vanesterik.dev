@@ -130,6 +130,22 @@ export const posterArgs = (video: string, out: string) => [
   out,
 ]
 
+/**
+ * Why the flow's first page didn't open, in one line: a site that refuses the
+ * headless browser drops the connection, a page that keeps loading times out,
+ * and anything else is named by Chromium's error
+ */
+export const openingError = (start: string, error: Error) => {
+  const code = /net::(ERR_[A-Z0-9_]+)/.exec(error.message)?.[1]
+  if (code && /HTTP2_PROTOCOL|CONNECTION_(RESET|CLOSED|REFUSED)/.test(code)) {
+    return `${start} refused the browser (${code})`
+  }
+  if (error.name === 'TimeoutError') {
+    return `${start} didn't finish loading within 30 seconds`
+  }
+  return `Couldn't open ${start} (${code ?? error.message.split('\n')[0]})`
+}
+
 // The projects with a flow: the scripts beside this one
 const flows = () =>
   fs
@@ -172,10 +188,11 @@ export const run = async (slug: string) => {
   try {
     const page = await context.newPage()
     const opened = Date.now()
-    // A site that refuses the headless browser drops the connection
-    await page.goto(flow.start, { waitUntil: 'networkidle' }).catch((error) => {
-      throw new Error(`${flow.start} refused the browser: ${error.message}`)
-    })
+    await page
+      .goto(flow.start, { waitUntil: 'networkidle' })
+      .catch((error: Error) => {
+        throw new Error(openingError(flow.start, error))
+      })
     await flow.prepare?.(page)
     const started = Date.now()
     await flow.play(page)
