@@ -175,6 +175,13 @@ const readProject = (raw: unknown, index: number): Project => {
   if (type === 'web' && preview.terminal !== undefined) {
     fail(where, 'a web project shows an image, not a terminal session')
   }
+  // A recording replaces a terminal session, and websites don't have either
+  if (preview.recording !== undefined && preview.terminal !== undefined) {
+    fail(where, 'a preview is a recording or a terminal session, not both')
+  }
+  if (type === 'web' && preview.recording !== undefined) {
+    fail(where, 'a web project shows an image, not a recording')
+  }
   // A video plays in the browser frame, over its first frame as a screenshot
   if (preview.video !== undefined && preview.image === undefined) {
     fail(where, 'a video needs a screenshot, its poster')

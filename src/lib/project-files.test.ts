@@ -43,6 +43,15 @@ describe('checkProjectFiles', () => {
     )
   })
 
+  it('fails on a recording that is missing', () => {
+    const projects = getProjects([
+      { ...project({ recording: '/projects/a.cast' }), type: 'cli' },
+    ])
+    expect(() => checkProjectFiles(projects, publicDir)).toThrow(
+      'content/projects.json: lorem: "/projects/a.cast" isn\'t in public/',
+    )
+  })
+
   it('finds every file the real projects name', () => {
     expect(() =>
       checkProjectFiles(getProjects(), path.join(process.cwd(), 'public')),
