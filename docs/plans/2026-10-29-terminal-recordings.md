@@ -14,7 +14,7 @@
 
 - Terminal size: 80 columns by 16 rows, shared by the recorder and the player (`TERMINAL_SIZE`).
 - Prompt `PROMPT='$ '`, `RPROMPT=''`; the throwaway setup sets `ZDOTDIR` and `XDG_DATA_HOME` only; `HOME`, `PATH` and git config stay Koen's.
-- Idle time limit 1.5 seconds.
+- Idle time limit 3 seconds (raised from 1.5 during Task 4, so the pause on `less` survives).
 - `src/lib/projects.ts` stays safe in the browser.
 - `CLAUDE.md` stays generic: no project names, paths or per-flow details (those go in each flow's script).
 - Commit subjects lower case; each commit ends with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`. Push one commit at a time to the draft PR #118.
@@ -78,11 +78,11 @@
 
 **Interfaces:**
 - Consumes: `TERMINAL_SIZE` (Task 3).
-- Produces, in `record.ts`: `type TerminalStep = { type: string; then?: { waitFor: string; pause: number; press: string } }`; `type TerminalFlow = { kind: 'terminal'; plugin: string; steps: TerminalStep[] }`; a flow file's default export is a `Flow` or a `TerminalFlow`; `expectScript(steps: TerminalStep[], command: string): string`; `asciinemaArgs(cast: string, command: string): string[]`.
+- Produces, in `record.ts`: `type TerminalStep = { type: string; waitFor?: string; pause?: number; press?: string }` (flat: Biome rejects a `then` property); `type TerminalFlow = { kind: 'terminal'; plugin: string; steps: TerminalStep[] }`; a flow file's default export is a `Flow` or a `TerminalFlow`; `expectScript(steps: TerminalStep[], command: string): string`; `asciinemaArgs(cast: string, command: string): string[]`.
 
 - [ ] **Step 1: Failing tests** in `record.test.ts`:
-  - `asciinemaArgs('out.cast', 'expect run.exp')` includes `rec`, `--window-size` `80x16`, `--idle-time-limit` `1.5`, `--overwrite`, the command, and ends with `out.cast`.
-  - `expectScript([{ type: 'gst' }, { type: 'glol', then: { waitFor: '(END)', pause: 2500, press: 'q' } }], 'zsh -i')` spawns the command, waits for the `$ ` prompt before each step, sends each step's characters one at a time with a delay, sends Enter, and for `glol` expects `(END)` or `:`, sleeps, sends `q`; it ends by waiting for the prompt and sending `exit`.
+  - `asciinemaArgs('out.cast', 'expect run.exp')` includes `rec`, `--window-size` `80x16`, `--idle-time-limit` `3`, `--overwrite`, the command, and ends with `out.cast`.
+  - `expectScript([{ type: 'gst' }, { type: 'glol', waitFor: '\\(END\\)', pause: 2500, press: 'q' }], 'zsh -i')` spawns the command, waits for the `$ ` prompt before each step, sends each step's characters one at a time with a delay, sends Enter, and for `glol` expects `(END)` or `:`, sleeps, sends `q`; it ends by waiting for the prompt and sending `exit`.
   - A terminal flow run without asciinema rejects with `asciinema isn't installed: run mise use -g asciinema`.
 - [ ] **Step 2:** Run them; expect FAIL.
 - [ ] **Step 3: Implement.** `run` dispatches on `kind`. For a terminal flow: check `asciinema` and `expect` run; make a temporary folder with `zdotdir/.zshrc` (`source "$XDG_DATA_HOME/zap/zap.zsh"`, `PROMPT='$ '`, `RPROMPT=''`, nothing else) and clone zap into `xdg/zap` (`git clone --depth 1 https://github.com/zap-zsh/zap`) off camera; write the expect script; run `asciinema rec` with `ZDOTDIR` and `XDG_DATA_HOME` set, writing `public/projects/<slug>.cast`; print its duration and size; delete the folder.

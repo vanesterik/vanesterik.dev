@@ -46,3 +46,13 @@ export const Screenshot: Story = {
     />
   ),
 }
+
+// A recording of a real run, looping; it loads when the story opens
+export const Recording: Story = {
+  render: () => (
+    <TerminalFrame
+      name="zsh-git-alias"
+      recording="/projects/zsh-git-alias.cast"
+    />
+  ),
+}

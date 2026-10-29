@@ -105,23 +105,7 @@
     "status": "live",
     "role": "author",
     "description": "Oh My Zsh's 182 git aliases and 17 functions, carried over into a lightweight plugin of their own.",
-    "preview": {
-      "terminal": [
-        { "text": "gcb feat/projects-page", "tone": "command" },
-        {
-          "text": "Switched to a new branch 'feat/projects-page'",
-          "tone": "info"
-        },
-        {
-          "text": "gaa && gcmsg \"feat: add the projects page\"",
-          "tone": "command"
-        },
-        {
-          "text": "[feat/projects-page 5612e57] feat: add the projects page",
-          "tone": "success"
-        }
-      ]
-    },
+    "preview": { "recording": "/projects/zsh-git-alias.cast" },
     "links": {
       "primary": "https://github.com/vanesterik/zsh-git-alias#readme",
       "source": "https://github.com/vanesterik/zsh-git-alias"

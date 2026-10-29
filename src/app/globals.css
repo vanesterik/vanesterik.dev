@@ -163,8 +163,10 @@ figure.mermaid {
 }
 
 /* asciinema's player in the terminal frame, which has the dark class: the
-   frame's background and text, and the ANSI colors on the tokens */
-.asciinema-player-theme-site {
+   frame's background and text, and the ANSI colors on the tokens. Two
+   classes, to win over the player's own defaults on .ap-player, which load
+   after this */
+.ap-player.asciinema-player-theme-site {
   --term-color-foreground: var(--foreground);
   --term-color-background: var(--secondary);
   --term-color-0: var(--secondary);
@@ -183,4 +185,9 @@ figure.mermaid {
   --term-color-13: var(--highlight);
   --term-color-14: var(--info);
   --term-color-15: var(--foreground);
+}
+
+/* The frame has its own padding, so the text lines up with its title */
+.ap-player.asciinema-player-theme-site .ap-term {
+  border-width: 0;
 }

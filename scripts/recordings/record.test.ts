@@ -1,7 +1,14 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest'
 
-import { encodeArgs, openingError, posterArgs, run } from './record.ts'
+import {
+  asciinemaArgs,
+  encodeArgs,
+  expectScript,
+  openingError,
+  posterArgs,
+  run,
+} from './record.ts'
 
 // The argument that follows a flag, or undefined without it
 const argumentOf = (args: string[], flag: string) =>
@@ -39,6 +46,18 @@ describe('posterArgs', () => {
 })
 
 describe('run', () => {
+  it('says how to install asciinema when it is missing', async () => {
+    const path = process.env.PATH
+    process.env.PATH = '/nonexistent'
+    try {
+      await expect(run('zsh-git-alias')).rejects.toThrow(
+        "asciinema isn't installed: run brew install asciinema",
+      )
+    } finally {
+      process.env.PATH = path
+    }
+  })
+
   it('names the projects it can record when given another', async () => {
     await expect(run('nope')).rejects.toThrow(
       /^Unknown project "nope": record one of .*leaseplan/,
@@ -79,5 +98,53 @@ describe('openingError', () => {
         ),
       ),
     ).toBe("Couldn't open https://example.com/ (ERR_INTERNET_DISCONNECTED)")
+  })
+})
+
+describe('asciinemaArgs', () => {
+  it('records an 80 by 16 shell, with long waits cut short', () => {
+    const args = asciinemaArgs('out.cast', 'zsh -i')
+    expect(args[0]).toBe('rec')
+    expect(argumentOf(args, '--window-size')).toBe('80x16')
+    expect(argumentOf(args, '--idle-time-limit')).toBe('3')
+    expect(argumentOf(args, '--command')).toBe('zsh -i')
+    expect(args).toContain('--overwrite')
+    expect(args.at(-1)).toBe('out.cast')
+  })
+})
+
+describe('expectScript', () => {
+  const script = expectScript(
+    [
+      { type: 'gst' },
+      { type: 'glol', waitFor: '\\(END\\)', pause: 2500, press: 'q' },
+    ],
+    ['asciinema', 'rec', 'out.cast'],
+  )
+
+  it('starts the recording in an 80 by 16 terminal', () => {
+    expect(script).toContain('set stty_init "rows 16 columns 80"')
+    expect(script).toContain('spawn {asciinema} {rec} {out.cast}')
+  })
+
+  it('waits for the prompt, then types each character of a step', () => {
+    const gst = script.indexOf('send -- [format %c 103]')
+    expect(
+      script.lastIndexOf('expect -re {\\$ (\\x1b\\[[0-9;?]*[A-Za-z])*$}', gst),
+    ).toBeGreaterThan(-1)
+    expect(script).toContain('send -- [format %c 115]')
+    expect(script).toContain('send -- [format %c 116]')
+    expect(script).toContain('send -- "\\r"')
+  })
+
+  it('waits for a pager, pauses, and presses its key', () => {
+    expect(script).toContain('expect -re {\\(END\\)}')
+    expect(script).toContain('after 2500')
+    expect(script).toContain('send -- [format %c 113]')
+  })
+
+  it('ends the shell once the last prompt is back', () => {
+    expect(script.trimEnd().endsWith('expect eof')).toBe(true)
+    expect(script).toContain('send -- "exit\\r"')
   })
 })
