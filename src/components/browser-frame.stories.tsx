@@ -23,3 +23,13 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {}
+
+// A recorded flow, playing over its first frame
+export const WithVideo: Story = {
+  args: {
+    url: 'https://www.ayvens.com/nl-nl/zakelijk-leasen-showroom/',
+    image: '/projects/leaseplan.jpg',
+    video: '/projects/leaseplan.mp4',
+    alt: 'Recording of LeasePlan',
+  },
+}

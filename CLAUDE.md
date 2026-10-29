@@ -37,6 +37,16 @@ npx vitest run -t "applies the dark theme"
 
 There is no `start` script: `next start` doesn't serve a static export. Use `npx serve out` to look at a build.
 
+## Recordings
+
+A web project's preview video is a recorded flow, made by a Playwright script in `scripts/recordings/<slug>.ts`:
+
+```bash
+npm run record -- leaseplan   # writes public/projects/leaseplan.mp4 and its first frame, leaseplan.jpg
+```
+
+`scripts/recordings/record.ts` runs the flow in Playwright's headless Chromium at 1440 × 900, records it, and has ffmpeg trim it to the flow and write an H.264 MP4 and its first frame (the screenshot and poster). A flow is a `Flow`: the page it starts on, an optional `check` before the browser opens, a `prepare` that runs before the video starts (refusing the cookie banner, so the first frame is clean), and the steps. It needs ffmpeg (`mise use -g ffmpeg`) and Chromium (`npx playwright install chromium`). Recordings are made on a Mac and committed after looking at them, never in CI: live sites change, and some (Sports Direct) refuse a headless browser.
+
 ## Git hooks and commit messages
 
 Husky runs on every commit:

@@ -131,7 +131,11 @@
     "role": "senior frontend developer",
     "description": "Lease showrooms and products rolled out across LeasePlan's countries on Sitecore JSS, still live as Ayvens.",
     "url": "https://www.ayvens.com/nl-nl/zakelijk-leasen-showroom/",
-    "preview": { "image": "/projects/leaseplan.jpg" },
+    "preview": {
+      "image": "/projects/leaseplan.jpg",
+      "video": "/projects/leaseplan.mp4",
+      "note": "Recorded in 2026; the site has changed since I worked on it."
+    },
     "links": {
       "primary": "https://www.ayvens.com/nl-nl/zakelijk-leasen-showroom/"
     }
