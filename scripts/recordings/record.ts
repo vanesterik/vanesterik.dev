@@ -332,6 +332,9 @@ const recordTerminal = async (slug: string, flow: TerminalFlow) => {
         "RPROMPT=''",
         // No inverted % before a prompt that follows output without a newline
         'unsetopt PROMPT_SP',
+        // An empty line between a command's output and the next prompt,
+        // except before the first, so the steps read apart
+        'precmd() { (( ${+_stepped} )) && print; _stepped=1 }',
         '',
       ].join('\n'),
     )
