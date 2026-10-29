@@ -2,6 +2,38 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.9.0](https://github.com/vanesterik/vanesterik.dev/compare/v1.8.0...v1.9.0) (2026-10-29)
+
+### Features
+
+- add sports direct's flow ([bd0d2e2](https://github.com/vanesterik/vanesterik.dev/commit/bd0d2e22c482c30af44f450cb7d969626876e6d1))
+- check preview recordings ([0ac95e0](https://github.com/vanesterik/vanesterik.dev/commit/0ac95e0eab11e7db49f38f8964d82e38ca8fd5d2))
+- check preview videos, notes and files ([e3473c3](https://github.com/vanesterik/vanesterik.dev/commit/e3473c39dcb106be8c0415d36403afb070c525df))
+- drop the frame around the open project row ([3bafe87](https://github.com/vanesterik/vanesterik.dev/commit/3bafe875716623e1187c49afc5e3da24a2938aba))
+- list the zsh plugins as cli projects ([bd3210b](https://github.com/vanesterik/vanesterik.dev/commit/bd3210ba80eda6c41078a660b3cbf6be266a923b))
+- play a preview video in the browser frame ([27bff1d](https://github.com/vanesterik/vanesterik.dev/commit/27bff1d4dba2961b0dd434ea93f927c21e32c3e8))
+- play a terminal recording in the terminal frame ([e55f6b9](https://github.com/vanesterik/vanesterik.dev/commit/e55f6b9826ae4a83d9eaa312c05205a18ae56941))
+- record a flow in a visible window with HEADED ([ea838bc](https://github.com/vanesterik/vanesterik.dev/commit/ea838bcaaf3d0c3d49e17aef7023226fdecda487))
+- record crossvision's flow ([3abb212](https://github.com/vanesterik/vanesterik.dev/commit/3abb212b37fc132de32e0d9e7d184ee54f3bed32))
+- record leaseplan's flow ([9b00d7b](https://github.com/vanesterik/vanesterik.dev/commit/9b00d7b2ccb56f920e5b691a13521ab2faece7a7))
+- record sports direct's flow ([aae5217](https://github.com/vanesterik/vanesterik.dev/commit/aae521716702967af05d33d190a3ac910a9d9f66))
+- record zsh-git-alias in use ([11ad47a](https://github.com/vanesterik/vanesterik.dev/commit/11ad47a4015da0590674b3875b0f14754ab212d6))
+- record zsh-venv-auto-switch in use ([5611d28](https://github.com/vanesterik/vanesterik.dev/commit/5611d28b43a5eb0f2bbc8959be3b8ec17a6278fe))
+- replace the ml project type with mcp ([b9011e3](https://github.com/vanesterik/vanesterik.dev/commit/b9011e3ecc95d37321cb012af0e4b8c12172641f))
+
+### Bug Fixes
+
+- hide sports direct's promo popup and slow its flow to 30 seconds ([c699f68](https://github.com/vanesterik/vanesterik.dev/commit/c699f68bce5b8905c95d0a9ae8fc9986acd29f78))
+- keep the player's controls, colors and failures visible ([d3e9a3b](https://github.com/vanesterik/vanesterik.dev/commit/d3e9a3b0bc1889c2510cca4396a0b111ac76a3f7))
+- leave an empty line after each command in the recordings ([9abfadd](https://github.com/vanesterik/vanesterik.dev/commit/9abfadda07da3e817253d93e34a9604c883aabf0))
+- name why a recording failed, and let a refused video start ([4b12555](https://github.com/vanesterik/vanesterik.dev/commit/4b1255534b2be4a804c054bbba3f1a0c85ef2dbb))
+- open sports direct once it has loaded, not once it's quiet ([e699ba5](https://github.com/vanesterik/vanesterik.dev/commit/e699ba508e80e4394505e072fa00e2f576992af9))
+- record sports direct again, with its third color and six photos ([a795933](https://github.com/vanesterik/vanesterik.dev/commit/a7959333baedfe99a7dc7f873119ad8d71dec230))
+- record zsh-git-alias in its own repository, with grv ([7fa889f](https://github.com/vanesterik/vanesterik.dev/commit/7fa889fc8b158571ee6d185e28a48279b2532085))
+- record zsh-venv-auto-switch with a new uv project ([9a71117](https://github.com/vanesterik/vanesterik.dev/commit/9a71117b8fd2f2e78ff0a41d62b491801f3686de))
+- show a third color, more photos and the bag's dropdown longer ([1da4fc0](https://github.com/vanesterik/vanesterik.dev/commit/1da4fc07443a4451361d375d50eab822f7e9d9c3))
+- show which python as it prints, full path and all ([66b7e71](https://github.com/vanesterik/vanesterik.dev/commit/66b7e71cb1218ad4b56ea787aef2812ed0e3d904))
+
 ## [1.8.0](https://github.com/vanesterik/vanesterik.dev/compare/v1.7.0...v1.8.0) (2026-10-28)
 
 ### Features
