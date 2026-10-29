@@ -1,8 +1,13 @@
 // @vitest-environment node
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+
 import { describe, expect, it } from 'vitest'
 
 import {
   asciinemaArgs,
+  claimFolders,
   encodeArgs,
   expectScript,
   openingError,
@@ -155,5 +160,16 @@ describe('expectScript', () => {
   it('ends the shell once the last prompt is back', () => {
     expect(script.trimEnd().endsWith('expect eof')).toBe(true)
     expect(script).toContain('send -- "\\x04"')
+  })
+})
+
+describe('claimFolders', () => {
+  it('refuses a folder a flow would create when it already exists', () => {
+    const home = fs.mkdtempSync(path.join(os.tmpdir(), 'home-'))
+    fs.mkdirSync(path.join(home, 'taken'))
+    expect(() => claimFolders(['~/taken'], home)).toThrow(
+      '~/taken already exists: move it, as the recording creates and removes it',
+    )
+    expect(claimFolders(['~/free'], home)).toEqual([path.join(home, 'free')])
   })
 })
