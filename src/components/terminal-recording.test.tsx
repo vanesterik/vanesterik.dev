@@ -40,7 +40,11 @@ afterEach(() => {
   vi.doMock('asciinema-player', () => ({ create: player.create }))
 })
 
-const box = (container: HTMLElement) => container.firstChild as HTMLElement
+// The box that holds the terminal's space, and the one the player goes in
+const box = (container: HTMLElement) =>
+  container.querySelector('[style]') as HTMLElement
+const stage = (container: HTMLElement) =>
+  container.querySelector('.absolute') as HTMLElement
 
 describe('TerminalRecording', () => {
   it('holds a placeholder the size of an 80 by 16 terminal', () => {
@@ -58,7 +62,7 @@ describe('TerminalRecording', () => {
     await waitFor(() => expect(player.create).toHaveBeenCalledOnce())
     const [src, element, options] = player.create.mock.calls[0]
     expect(src).toBe('/projects/a.cast')
-    expect(element).toBe(box(container))
+    expect(element).toBe(stage(container))
     expect(options).toMatchObject({
       cols: 80,
       rows: 16,
@@ -72,7 +76,11 @@ describe('TerminalRecording', () => {
 
   it('with reduced motion, shows the last frame and waits', async () => {
     stubReducedMotion(true)
-    render(<TerminalRecording recording="/projects/a.cast" />)
+    const { container } = render(
+      <TerminalRecording recording="/projects/a.cast" />,
+    )
+    // Room under the terminal for the player's controls
+    expect(container.querySelector('.h-8')).not.toBeNull()
     await waitFor(() => expect(player.create).toHaveBeenCalledOnce())
     expect(player.create.mock.calls[0][2]).toMatchObject({
       autoPlay: false,

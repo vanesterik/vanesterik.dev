@@ -143,6 +143,12 @@ describe('expectScript', () => {
     expect(script).toContain('send -- [format %c 113]')
   })
 
+  it('stops with a message when the shell never gets where it should', () => {
+    expect(script).toContain('expect_after {')
+    expect(script).toMatch(/timeout \{[^}]*exit 1/)
+    expect(script).toMatch(/eof \{[^}]*exit 1/)
+  })
+
   it('ends the shell once the last prompt is back', () => {
     expect(script.trimEnd().endsWith('expect eof')).toBe(true)
     expect(script).toContain('send -- "\\x04"')

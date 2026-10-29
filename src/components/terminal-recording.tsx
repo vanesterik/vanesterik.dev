@@ -74,13 +74,14 @@ export const TerminalRecording = ({ recording }: TerminalRecordingProps) => {
     }
   }, [motion, recording])
 
+  // The box holds the terminal's shape, and under reduced motion room for
+  // the player's controls too; the player sits over it, clipped to it, so
+  // its wrapper (a little taller than its text) can't stretch it
   return (
-    // Clipped to its shape: the player's wrapper is a little taller than its
-    // text, and would otherwise stretch the box once it loads
-    <div
-      ref={ref}
-      style={{ aspectRatio: ASPECT_RATIO }}
-      className="w-full overflow-hidden"
-    />
+    <div className="relative w-full">
+      <div style={{ aspectRatio: ASPECT_RATIO }} />
+      {motion === 'reduce' && <div className="h-8" />}
+      <div ref={ref} className="absolute inset-0 overflow-hidden" />
+    </div>
   )
 }
