@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.10.0](https://github.com/vanesterik/vanesterik.dev/compare/v1.9.0...v1.10.0) (2026-10-29)
+
+### Features
+
+- shrink the footer to one line ([b145eac](https://github.com/vanesterik/vanesterik.dev/commit/b145eac5fc8398eb16a740e9d1c325b676f1a374))
+
+### Bug Fixes
+
+- set the footer in the accent color ([8650fd4](https://github.com/vanesterik/vanesterik.dev/commit/8650fd402d2dc729b530259ad76346df86fcb7da))
+
 ## [1.9.0](https://github.com/vanesterik/vanesterik.dev/compare/v1.8.0...v1.9.0) (2026-10-29)
 
 ### Features
