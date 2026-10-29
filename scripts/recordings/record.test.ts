@@ -144,7 +144,10 @@ describe('expectScript', () => {
   })
 
   it('stops with a message when the shell never gets where it should', () => {
-    expect(script).toContain('expect_after {')
+    // After spawn: before it, it would watch expect's own input
+    expect(script.indexOf('expect_after {')).toBeGreaterThan(
+      script.indexOf('spawn '),
+    )
     expect(script).toMatch(/timeout \{[^}]*exit 1/)
     expect(script).toMatch(/eof \{[^}]*exit 1/)
   })
