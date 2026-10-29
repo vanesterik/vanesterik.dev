@@ -435,4 +435,31 @@ describe('ProjectIndex, browsed with J and K', () => {
     await user.keyboard('j')
     expect(openSlug()).toBe('ipsum')
   })
+
+  it('closes the open project with Escape, as a click does', async () => {
+    pathname.value = '/projects/ipsum/'
+    const replaceState = vi.spyOn(window.history, 'replaceState')
+    const user = userEvent.setup()
+    render(<ProjectIndex projects={projects} />)
+
+    await user.keyboard('{Escape}')
+    expect(openSlug()).toBeUndefined()
+    expect(row(/^ipsum/)).toHaveAttribute('aria-expanded', 'false')
+    expect(replaceState).toHaveBeenLastCalledWith(null, '', '/projects/')
+  })
+
+  it('leaves Escape to a text field', async () => {
+    pathname.value = '/projects/ipsum/'
+    const user = userEvent.setup()
+    render(
+      <>
+        <input aria-label="search" />
+        <ProjectIndex projects={projects} />
+      </>,
+    )
+
+    await user.click(screen.getByLabelText('search'))
+    await user.keyboard('{Escape}')
+    expect(openSlug()).toBe('ipsum')
+  })
 })
