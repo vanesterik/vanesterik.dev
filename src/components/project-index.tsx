@@ -171,12 +171,14 @@ export const ProjectIndex = ({ projects }: ProjectIndexProps) => {
             key={project.slug}
             value={project.slug}
             data-slug={project.slug}
-            // Space around the open row, its preview and details; on wide
-            // screens it breaks out of the column. Snapped to the top, it
-            // stops its margin's height below the window's edge, the scroll
-            // padding (md:scroll-pt-24) less 2rem, so the row above it is out
-            // of view rather than showing under the header
-            className="data-[state=open]:my-16 md:-scroll-mt-8 lg:data-[state=open]:-mx-20"
+            // Space around the open row, its preview and details: as much as
+            // above the closed list, the header's 92px and the column's 2px
+            // gap (94px, 23.5 units); on wide screens it breaks out of the
+            // column. Snapped, it stops where the closed list starts, 94px
+            // down, so the row above it ends at the window's edge: on a phone
+            // by its scroll margin, from md up by the scroll padding
+            // (md:scroll-pt-24, 96px) less 2px
+            className="scroll-mt-23.5 data-[state=open]:my-23.5 md:-scroll-mt-0.5 lg:data-[state=open]:-mx-20"
           >
             <AccordionTrigger
               className={cn(
