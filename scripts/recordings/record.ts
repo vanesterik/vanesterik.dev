@@ -34,42 +34,55 @@ const root = path.join(here, '..', '..')
 export const pause = (page: Page, ms: number) => page.waitForTimeout(ms)
 
 /**
- * Scroll the window to the top, the bottom, a position, or an element (with
- * room above it), eased over the given time, as a visitor's scroll would
+ * Scroll to the top, the bottom, a position, or an element (its top with room
+ * above it, or with `end`, its bottom at the window's), eased over the given time, as a visitor's scroll would. It scrolls
+ * whatever scrolls the page: the window, or an app's own scrolling element
+ * (such as a main with overflow: auto) when the window doesn't
  */
 export const smoothScroll = async (
   page: Page,
   to: 'top' | 'bottom' | number | Locator,
   ms: number,
+  block: 'start' | 'end' = 'start',
 ) => {
-  const target =
-    typeof to === 'object'
-      ? await to.evaluate(
-          (element) =>
-            element.getBoundingClientRect().top + window.scrollY - 80,
-        )
-      : to
+  const element = typeof to === 'object' ? await to.elementHandle() : null
   await page.evaluate(
-    ([target, ms]) =>
+    ([to, element, ms, block]) =>
       new Promise<void>((resolve) => {
-        const from = window.scrollY
-        const end =
-          target === 'top'
+        const root = document.scrollingElement ?? document.documentElement
+        const scroller =
+          root.scrollHeight > root.clientHeight
+            ? root
+            : ([...document.querySelectorAll<HTMLElement>('*')]
+                .filter(
+                  (item) =>
+                    item.scrollHeight > item.clientHeight &&
+                    /auto|scroll/.test(getComputedStyle(item).overflowY),
+                )
+                .sort((a, b) => b.clientHeight - a.clientHeight)[0] ?? root)
+        const top = scroller === root ? 0 : scroller.getBoundingClientRect().top
+        const from = scroller.scrollTop
+        const box = element?.getBoundingClientRect()
+        const end = box
+          ? block === 'end'
+            ? box.bottom - top + from - scroller.clientHeight + 40
+            : box.top - top + from - 80
+          : to === 'top'
             ? 0
-            : target === 'bottom'
-              ? document.documentElement.scrollHeight - window.innerHeight
-              : Number(target)
+            : to === 'bottom'
+              ? scroller.scrollHeight - scroller.clientHeight
+              : Number(to)
         const started = performance.now()
         const step = (now: number) => {
-          const t = Math.min((now - started) / Number(ms), 1)
+          const t = Math.min((now - started) / ms, 1)
           const eased = t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2
-          window.scrollTo(0, from + (end - from) * eased)
+          scroller.scrollTop = from + (end - from) * eased
           if (t < 1) requestAnimationFrame(step)
           else resolve()
         }
         requestAnimationFrame(step)
       }),
-    [target, ms] as const,
+    [typeof to === 'object' ? null : to, element, ms, block] as const,
   )
 }
 
