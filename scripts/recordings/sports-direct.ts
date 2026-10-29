@@ -76,7 +76,8 @@ export default {
     await pause(page, 900)
     await shoe.click()
 
-    // The shoe: another color, a few photos, a size, into the bag
+    // The shoe: two other colors, keeping the second, a few photos, a size,
+    // into the bag
     const colors = page.locator(
       'xpath=//*[starts-with(normalize-space(text()), "Colour:")]/following::button[.//img]',
     )
@@ -84,8 +85,11 @@ export default {
     await pause(page, 1200)
     await colors.nth(1).click()
     await pause(page, 1600)
+    // The Predator opens in its third swatch, so the fourth is a third color
+    await colors.nth((await colors.count()) > 3 ? 3 : 0).click()
+    await pause(page, 1600)
     const thumbs = page.locator('button[class*="_thumb"]')
-    for (const index of [1, 2, 3]) {
+    for (const index of [1, 2, 3, 4, 5, 6]) {
       await thumbs.nth(index).click()
       await pause(page, 1000)
     }
@@ -95,7 +99,8 @@ export default {
       .click()
     await pause(page, 900)
     await page.getByRole('button', { name: /add to bag/i }).click()
-    await pause(page, 1800)
+    // Long enough to read the bag's dropdown
+    await pause(page, 3500)
 
     // The bag
     await page.getByRole('link', { name: 'cart button' }).click()
