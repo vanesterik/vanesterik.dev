@@ -159,7 +159,10 @@ export const run = async (slug: string) => {
   try {
     const page = await context.newPage()
     const opened = Date.now()
-    await page.goto(flow.start, { waitUntil: 'networkidle' })
+    // A site that refuses the headless browser drops the connection
+    await page.goto(flow.start, { waitUntil: 'networkidle' }).catch((error) => {
+      throw new Error(`${flow.start} refused the browser: ${error.message}`)
+    })
     await flow.prepare?.(page)
     const started = Date.now()
     await flow.play(page)
