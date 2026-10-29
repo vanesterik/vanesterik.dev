@@ -158,6 +158,41 @@ describe('ProjectIndex', () => {
     expect(screen.queryByText(/^zsh —/)).toBeNull()
     expect(screen.getByText('Sit amet.')).toBeInTheDocument()
   })
+
+  it('plays a recorded flow, with its note under it', async () => {
+    window.matchMedia = vi.fn().mockReturnValue({
+      matches: false,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    })
+    HTMLMediaElement.prototype.play = vi.fn().mockResolvedValue(undefined)
+    const user = userEvent.setup()
+    const { container } = render(
+      <ProjectIndex
+        projects={[
+          project({
+            slug: 'amet',
+            name: 'amet',
+            preview: {
+              image: '/projects/amet.jpg',
+              video: '/projects/amet.mp4',
+              note: 'Recorded in 2026.',
+            },
+          }),
+        ]}
+      />,
+    )
+
+    await user.click(row(/^amet/))
+
+    expect(container.querySelector('video')).toHaveAttribute(
+      'aria-label',
+      'Recording of amet',
+    )
+    expect(screen.getByText('Recorded in 2026.')).toHaveClass(
+      'text-muted-foreground',
+    )
+  })
 })
 
 describe('openSlugFromPath', () => {
