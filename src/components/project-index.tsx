@@ -125,17 +125,22 @@ export const ProjectIndex = ({ projects }: ProjectIndexProps) => {
 
   // J and K open the next and the previous project, as in a mail or feed
   // reader, to browse a long list from the keyboard; with none open they
-  // start at the first and the last. A shortcut with Cmd, Ctrl or Alt stays
-  // the browser's, and a text field keeps its letters
+  // start at the first and the last. Escape closes the open one. A shortcut
+  // with Cmd, Ctrl or Alt stays the browser's, and a text field keeps its
+  // keys
   const step = useEffectEvent((event: KeyboardEvent) => {
     if (event.metaKey || event.ctrlKey || event.altKey) return
     const key = event.key.toLowerCase()
-    if (key !== 'j' && key !== 'k') return
+    if (key !== 'j' && key !== 'k' && key !== 'escape') return
     const { target } = event
     if (
       target instanceof HTMLElement &&
       (target.isContentEditable || target.closest('input, textarea, select'))
     ) {
+      return
+    }
+    if (key === 'escape') {
+      if (open) change('')
       return
     }
     event.preventDefault()
