@@ -12,7 +12,8 @@ const HIDDEN =
 /**
  * Sports Direct's storefront: from the homepage, through a search for Adidas,
  * to a shoe, its colors, photos and sizes, into the bag, and the bag itself.
- * Never checked out
+ * Never checked out. The site refuses a headless browser, so it's recorded in
+ * a visible window: HEADED=1 npm run record -- sports-direct
  */
 export default {
   start: 'https://www.sportsdirect.com/',

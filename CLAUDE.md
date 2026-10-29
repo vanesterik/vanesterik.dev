@@ -42,15 +42,11 @@ There is no `start` script: `next start` doesn't serve a static export. Use `npx
 A web project's preview video is a recorded flow, made by a Playwright script in `scripts/recordings/<slug>.ts`:
 
 ```bash
-npm run record -- leaseplan   # writes public/projects/leaseplan.mp4 and its first frame, leaseplan.jpg
+npm run record -- <slug>            # writes public/projects/<slug>.mp4 and its first frame, <slug>.jpg
+HEADED=1 npm run record -- <slug>   # in a visible window, for a site that refuses a headless browser
 ```
 
-`scripts/recordings/record.ts` runs the flow in Playwright's headless Chromium at 1440 × 900, records it, and has ffmpeg trim it to the flow and write an H.264 MP4 and its first frame (the screenshot and poster). A flow is a `Flow`: the page it starts on, an optional `check` before the browser opens, a `prepare` that runs before the video starts (refusing the cookie banner, so the first frame is clean), and the steps. It needs ffmpeg (`mise use -g ffmpeg`) and Chromium (`npx playwright install chromium`). Recordings are made on a Mac and committed after looking at them, never in CI: live sites change, and some refuse a headless browser. A first page that doesn't open fails in one line: refused (a dropped connection), not finished loading, or Chromium's own error.
-
-What each flow expects:
-- `leaseplan`: Ayvens' live showroom; it refuses the cookie banner itself.
-- `crossvision`: CrossVision running locally (`task dev` in `/Users/vanesterik/Projects/provincie-utrecht/self-supervised-models`, front end on port 5173), with its runs, datasets and predictions in that repository's `artifacts/`; without it, the command says so and stops.
-- `sports-direct`: the live UK site, `www.sportsdirect.com`, which refuses a headless browser (`ERR_HTTP2_PROTOCOL_ERROR`). Koen records it with a visible window, `HEADED=1 npm run record -- sports-direct`, without touching the window while it runs. Its script is written from the site's markup and hadn't run end to end when it was added, so its selectors may need adjusting.
+`scripts/recordings/record.ts` runs the flow in Playwright's Chromium at 1440 × 900, records it, and has ffmpeg trim it to the flow and write an H.264 MP4 and its first frame (the screenshot and poster). A flow is a `Flow`: the page it starts on, how long to wait for it (`waitUntil`: the network going quiet by default, or `load` for a site that never goes quiet), an optional `check` before the browser opens (such as a local app that must be running), a `prepare` that runs before the video starts (refusing a cookie banner, hiding overlays, so the first frame is clean), and the steps. What a flow needs before it runs is written in its own script. It needs ffmpeg (`mise use -g ffmpeg`) and Chromium (`npx playwright install chromium`). Recordings are made on a Mac and committed after looking at them, never in CI: live sites change, and some refuse a headless browser. In a visible window, don't touch it while the flow runs. A first page that doesn't open fails in one line: refused (a dropped connection), not finished loading, or Chromium's own error.
 
 ## Git hooks and commit messages
 
