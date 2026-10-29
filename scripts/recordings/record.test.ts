@@ -145,6 +145,6 @@ describe('expectScript', () => {
 
   it('ends the shell once the last prompt is back', () => {
     expect(script.trimEnd().endsWith('expect eof')).toBe(true)
-    expect(script).toContain('send -- "exit\\r"')
+    expect(script).toContain('send -- "\\x04"')
   })
 })

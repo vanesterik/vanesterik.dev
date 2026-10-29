@@ -38,16 +38,7 @@
     "status": "live",
     "role": "author",
     "description": "Activates a project's Python virtual environment when you cd into it, and deactivates it on leaving.",
-    "preview": {
-      "terminal": [
-        { "text": "cd ~/Projects/fartt", "tone": "command" },
-        { "text": "which python", "tone": "command" },
-        { "text": "~/Projects/fartt/.venv/bin/python", "tone": "success" },
-        { "text": "cd ~", "tone": "command" },
-        { "text": "which python", "tone": "command" },
-        { "text": "/usr/bin/python3", "tone": "info" }
-      ]
-    },
+    "preview": { "recording": "/projects/zsh-venv-auto-switch.cast" },
     "links": {
       "primary": "https://github.com/vanesterik/zsh-venv-auto-switch#installation",
       "source": "https://github.com/vanesterik/zsh-venv-auto-switch"
