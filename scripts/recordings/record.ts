@@ -206,6 +206,12 @@ export const expectScript = (steps: TerminalStep[], command: string[]) => {
   const prompt = 'expect -re {\\$ (\\x1b\\[[0-9;?]*[A-Za-z])*$}'
   const lines = [
     'set timeout 30',
+    // A wait that never ends, or a shell that quits early, stops the
+    // recording with a message, instead of typing on into the wrong state
+    'expect_after {',
+    '  timeout { puts stderr "The shell didn\'t reach the next step within 30 seconds"; exit 1 }',
+    '  eof { puts stderr "The shell ended before the last step"; exit 1 }',
+    '}',
     `set stty_init "rows ${TERMINAL_SIZE.rows} columns ${TERMINAL_SIZE.cols}"`,
     `spawn ${command.map((part) => `{${part}}`).join(' ')}`,
   ]
@@ -317,15 +323,21 @@ const recordTerminal = async (slug: string, flow: TerminalFlow) => {
         ...asciinemaArgs(recorded, 'zsh -i'),
       ]),
     )
-    execFileSync('expect', [script], {
-      env: {
-        ...process.env,
-        ZDOTDIR: zdotdir,
-        XDG_DATA_HOME: xdg,
-        TERM: 'xterm-256color',
-      },
-      stdio: 'ignore',
-    })
+    // A failed recording keeps the cast already in public/, and says why
+    try {
+      execFileSync('expect', [script], {
+        env: {
+          ...process.env,
+          ZDOTDIR: zdotdir,
+          XDG_DATA_HOME: xdg,
+          TERM: 'xterm-256color',
+        },
+        stdio: ['ignore', 'ignore', 'pipe'],
+      })
+    } catch (error) {
+      const stderr = String((error as { stderr?: Buffer }).stderr ?? '').trim()
+      throw new Error(stderr.split('\n').at(-1) || 'The recording failed')
+    }
     fs.copyFileSync(recorded, cast)
 
     const kilobytes = (fs.statSync(cast).size / 1e3).toFixed(0)

@@ -162,29 +162,31 @@ figure.mermaid {
   color: var(--shiki-dark);
 }
 
-/* asciinema's player in the terminal frame, which has the dark class: the
-   frame's background and text, and the ANSI colors on the tokens. Two
-   classes, to win over the player's own defaults on .ap-player, which load
-   after this */
+/* asciinema's player in the terminal frame: the dark theme's background,
+   text and ANSI colors. As hex, the only form the player reads (it turns an
+   oklch token into black), so these repeat the .dark tokens' values: stone-800
+   (--secondary), stone-400 (--muted-foreground), yellow-500 (--highlight), and
+   --info, --warning, --success, --danger. Two classes, to win over the
+   player's own defaults on .ap-player, which load after this */
 .ap-player.asciinema-player-theme-site {
-  --term-color-foreground: var(--foreground);
-  --term-color-background: var(--secondary);
-  --term-color-0: var(--secondary);
-  --term-color-1: var(--danger);
-  --term-color-2: var(--success);
-  --term-color-3: var(--warning);
-  --term-color-4: var(--info);
-  --term-color-5: var(--highlight);
-  --term-color-6: var(--info);
-  --term-color-7: var(--foreground);
-  --term-color-8: var(--muted-foreground);
-  --term-color-9: var(--danger);
-  --term-color-10: var(--success);
-  --term-color-11: var(--warning);
-  --term-color-12: var(--info);
-  --term-color-13: var(--highlight);
-  --term-color-14: var(--info);
-  --term-color-15: var(--foreground);
+  --term-color-foreground: #fff;
+  --term-color-background: #292524;
+  --term-color-0: #292524;
+  --term-color-1: #f97583;
+  --term-color-2: #85e89d;
+  --term-color-3: #ffab70;
+  --term-color-4: #79b8ff;
+  --term-color-5: #eab308;
+  --term-color-6: #79b8ff;
+  --term-color-7: #fff;
+  --term-color-8: #a8a29e;
+  --term-color-9: #f97583;
+  --term-color-10: #85e89d;
+  --term-color-11: #ffab70;
+  --term-color-12: #79b8ff;
+  --term-color-13: #eab308;
+  --term-color-14: #79b8ff;
+  --term-color-15: #fff;
 }
 
 /* The frame has its own padding, so the text lines up with its title */
