@@ -11,7 +11,7 @@ const SHOE =
  * Never checked out
  */
 export default {
-  start: 'https://ie.sportsdirect.com/',
+  start: 'https://www.sportsdirect.com/',
 
   prepare: async (page) => {
     const reject = page.locator('#onetrust-reject-all-handler')

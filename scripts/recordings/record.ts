@@ -10,7 +10,8 @@ import { chromium, type Locator, type Page } from '@playwright/test'
  * Records a web project's flow for its preview on /projects/: runs
  * scripts/recordings/<slug>.ts in Chromium, records it, and has ffmpeg write
  * public/projects/<slug>.mp4 and its first frame, public/projects/<slug>.jpg.
- * Run on a Mac, never in CI: npm run record -- <slug>
+ * Run on a Mac, never in CI: npm run record -- <slug>, or with a visible
+ * window: HEADED=1 npm run record -- <slug>
  */
 
 // A flow: the page it starts on, an optional check before the browser opens
@@ -180,7 +181,8 @@ export const run = async (slug: string) => {
   ffmpeg(['-version'])
 
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), `record-${slug}-`))
-  const browser = await chromium.launch()
+  // HEADED=1 opens a visible window, for a site that refuses a headless one
+  const browser = await chromium.launch({ headless: !process.env.HEADED })
   const context = await browser.newContext({
     viewport: SIZE,
     recordVideo: { dir, size: SIZE },

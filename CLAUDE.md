@@ -50,7 +50,7 @@ npm run record -- leaseplan   # writes public/projects/leaseplan.mp4 and its fir
 What each flow expects:
 - `leaseplan`: Ayvens' live showroom; it refuses the cookie banner itself.
 - `crossvision`: CrossVision running locally (`task dev` in `/Users/vanesterik/Projects/provincie-utrecht/self-supervised-models`, front end on port 5173), with its runs, datasets and predictions in that repository's `artifacts/`; without it, the command says so and stops.
-- `sports-direct`: the live site, which refuses the headless browser this command launches (`ERR_HTTP2_PROTOCOL_ERROR`), so it doesn't record from here as it stands. How to record it is Koen's call; its script is written from the site's markup but hasn't run end to end, so its selectors may need adjusting.
+- `sports-direct`: the live UK site, `www.sportsdirect.com`, which refuses a headless browser (`ERR_HTTP2_PROTOCOL_ERROR`). Koen records it with a visible window, `HEADED=1 npm run record -- sports-direct`, without touching the window while it runs. Its script is written from the site's markup and hadn't run end to end when it was added, so its selectors may need adjusting.
 
 ## Git hooks and commit messages
 

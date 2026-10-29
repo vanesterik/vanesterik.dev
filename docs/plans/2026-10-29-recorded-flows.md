@@ -17,7 +17,7 @@
 - `src/lib/projects.ts` stays safe in the browser: no `fs` or `path` in it.
 - ffmpeg is called from `PATH`; when it's missing, the command says to install it with `mise use -g ffmpeg`.
 - The LeasePlan note, verbatim: "Recorded in 2026; the site has changed since I worked on it."
-- Sports Direct's `url` becomes `https://ie.sportsdirect.com/`.
+- Sports Direct's `url` becomes `https://www.sportsdirect.com/`.
 - Recordings are never made in CI. A Sports Direct shoe is added to the bag, never checked out. Cookie banners get the least consent they offer.
 - Commit subjects are lower case (commitlint), and each commit ends with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`. Push one commit at a time to the draft PR #117.
 
@@ -241,7 +241,7 @@ Expected: PASS.
 
 - [ ] **Step 6: Write `scripts/recordings/sports-direct.ts`**
 
-`start: 'https://ie.sportsdirect.com/'`. `play`: dismiss the cookie banner with its least-consent button, then the design's ten steps, about 30 seconds in all: scroll down and up the homepage; focus the search bar; type "Adidas" with a typing delay (`pressSequentially` with `delay`) and submit; scroll down the results; click a shoe card; click another color; click carousel thumbnails; click a size; click add to bag; click the basket icon, and pause on the bag. A challenge or block page fails the script with `Sports Direct challenged the automated browser`.
+`start: 'https://www.sportsdirect.com/'`. `play`: dismiss the cookie banner with its least-consent button, then the design's ten steps, about 30 seconds in all: scroll down and up the homepage; focus the search bar; type "Adidas" with a typing delay (`pressSequentially` with `delay`) and submit; scroll down the results; click a shoe card; click another color; click carousel thumbnails; click a size; click add to bag; click the basket icon, and pause on the bag. A challenge or block page fails the script with `Sports Direct challenged the automated browser`.
 
 - [ ] **Step 7: Record**
 
@@ -254,12 +254,12 @@ Show Koen the video (open it, and the projects page in `npm run dev` once Step 9
 
 - [ ] **Step 9: Point the content at it**
 
-`content/projects.json`, Sports Direct: `"url": "https://ie.sportsdirect.com/"`, `"preview": { "image": "/projects/sports-direct.jpg", "video": "/projects/sports-direct.mp4" }`. Delete `public/projects/sportsdirect.jpg`. `browser-frame.stories.tsx`: the default story's `image` becomes `/projects/sports-direct.jpg`, and add a `WithVideo` story with `video: '/projects/sports-direct.mp4'`.
+`content/projects.json`, Sports Direct: `"url": "https://www.sportsdirect.com/"`, `"preview": { "image": "/projects/sports-direct.jpg", "video": "/projects/sports-direct.mp4" }`. Delete `public/projects/sportsdirect.jpg`. `browser-frame.stories.tsx`: the default story's `image` becomes `/projects/sports-direct.jpg`, and add a `WithVideo` story with `video: '/projects/sports-direct.mp4'`.
 
 - [ ] **Step 10: Check**
 
 Run: `npm test && npm run typecheck && npm run lint && npm run build`
-Expected: PASS. Then in `npm run dev`, `/projects/sports-direct/` plays the video in the frame, under the address `ie.sportsdirect.com`, without a jump from the poster.
+Expected: PASS. Then in `npm run dev`, `/projects/sports-direct/` plays the video in the frame, under the address `sportsdirect.com`, without a jump from the poster.
 
 - [ ] **Step 11: Document**
 
