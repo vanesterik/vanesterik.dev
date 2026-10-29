@@ -1,5 +1,6 @@
 import { cn } from 'cn'
 
+import { TerminalRecording } from '@/components/terminal-recording'
 import { withBasePath } from '@/lib/base-path'
 import type { TerminalLine, Tone } from '@/lib/projects'
 
@@ -10,15 +11,18 @@ const TONE_COLORS: Record<Tone, string> = {
   success: 'text-success',
 }
 
-// A scripted session as lines, or a screenshot of a terminal app
+// A scripted session as lines, a recording of one, or a screenshot of a
+// terminal app
 type TerminalFrameProps = { name: string } & (
   | { lines: TerminalLine[] }
+  | { recording: string }
   | { image: string; alt: string }
 )
 
 /**
- * A terminal window showing what a tool does: a scripted session under a
- * "zsh — <name>" title, or a screenshot of a terminal app on its own, in the
+ * A terminal window showing what a tool does: a scripted session or a looping
+ * recording under a "zsh — <name>" title, or a screenshot of a terminal app
+ * on its own, in the
  * browser frame's border. A session has the dark class, which gives
  * everything inside the dark theme's tokens, so it stays dark and its colors
  * stay readable in the light theme too
@@ -36,11 +40,14 @@ export const TerminalFrame = (props: TerminalFrameProps) => (
     )}
   >
     {!('image' in props) && (
-      <figcaption className="text-muted-foreground">
-        zsh — {props.name}
+      <figcaption className="flex justify-between text-muted-foreground">
+        <span>zsh — {props.name}</span>
+        {'recording' in props && <span>loop</span>}
       </figcaption>
     )}
-    {'image' in props ? (
+    {'recording' in props ? (
+      <TerminalRecording recording={props.recording} />
+    ) : 'image' in props ? (
       // biome-ignore lint/performance/noImgElement: the static export has no image optimizer, so next/image adds nothing
       <img
         src={withBasePath(props.image)}

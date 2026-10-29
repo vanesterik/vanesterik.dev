@@ -22,7 +22,7 @@ const COLUMNS = 'grid grid-cols-[1fr_3rem_3rem_1rem] gap-x-4'
 
 // A screenshot in the browser frame, or a recording of the site over it, or
 // a screenshot in the terminal frame for a terminal app; otherwise a terminal
-// session; or nothing
+// recording, or a scripted session; or nothing
 const ProjectFrame = ({ project }: { project: Project }) => {
   const { name, url, preview } = project
   const alt = `Screenshot of ${name}`
@@ -42,6 +42,9 @@ const ProjectFrame = ({ project }: { project: Project }) => {
   }
   if (preview.image) {
     return <BrowserFrame url={url} image={preview.image} alt={alt} />
+  }
+  if (preview.recording) {
+    return <TerminalFrame name={name} recording={preview.recording} />
   }
   if (preview.terminal) {
     return <TerminalFrame name={name} lines={preview.terminal} />
