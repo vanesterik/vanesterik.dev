@@ -221,7 +221,8 @@ export const expectScript = (steps: TerminalStep[], command: string[]) => {
       )
     }
   }
-  lines.push(prompt, `after ${AFTER}`, 'send -- "exit\\r"', 'expect eof')
+  // Ctrl-D ends the shell without typing exit into the last frame
+  lines.push(prompt, `after ${AFTER}`, 'send -- "\\x04"', 'expect eof')
   return `${lines.join('\n')}\n`
 }
 
