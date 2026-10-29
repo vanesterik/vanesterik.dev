@@ -190,6 +190,33 @@ describe('getProjects', () => {
     ).toThrow('lorem: a video plays in the browser frame')
   })
 
+  it('keeps a recording', () => {
+    const [result] = getProjects([
+      project({ type: 'cli', preview: { recording: '/a.cast' } }),
+    ])
+    expect(result.preview.recording).toBe('/a.cast')
+  })
+
+  it('fails on a recording and a terminal session', () => {
+    expect(() =>
+      getProjects([
+        project({
+          type: 'cli',
+          preview: {
+            recording: '/a.cast',
+            terminal: [{ text: 'ls', tone: 'command' }],
+          },
+        }),
+      ]),
+    ).toThrow('lorem: a preview is a recording or a terminal session, not both')
+  })
+
+  it('fails on a recording for a web project', () => {
+    expect(() =>
+      getProjects([project({ preview: { recording: '/a.cast' } })]),
+    ).toThrow('lorem: a web project shows an image, not a recording')
+  })
+
   it('names a project by its position when its slug is missing', () => {
     expect(() =>
       getProjects([project(), project({ slug: undefined })]),
