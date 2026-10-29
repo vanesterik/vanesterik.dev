@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.11.0](https://github.com/vanesterik/vanesterik.dev/compare/v1.10.0...v1.11.0) (2026-10-29)
+
+### Features
+
+- close the open project with escape ([61064d0](https://github.com/vanesterik/vanesterik.dev/commit/61064d05facc40a23d1756e84c9d32f8700222ce))
+- keep the footer in view only over the home page's particles ([d75f81c](https://github.com/vanesterik/vanesterik.dev/commit/d75f81c8476017e1803cd70027c93745a004c216))
+
+### Bug Fixes
+
+- open a project row where the closed list starts ([ff28a59](https://github.com/vanesterik/vanesterik.dev/commit/ff28a59a5e38a220a10523c751e20951b29dd1c1))
+
 ## [1.10.0](https://github.com/vanesterik/vanesterik.dev/compare/v1.9.0...v1.10.0) (2026-10-29)
 
 ### Features
