@@ -17,9 +17,12 @@ import { chromium, type Locator, type Page } from '@playwright/test'
 // A flow: the page it starts on, an optional check before the browser opens
 // (that a local app is running), what to do before the video starts (such as
 // a cookie banner, so the first frame, the new screenshot, is clean), and the
-// steps it clicks through
+// steps it clicks through. The first page counts as open once the network is
+// quiet, or for a site that never goes quiet (trackers, recommendations),
+// once it has loaded: `waitUntil: 'load'`, and the flow waits for what it needs
 export type Flow = {
   start: string
+  waitUntil?: 'load' | 'networkidle'
   check?: () => Promise<void>
   prepare?: (page: Page) => Promise<void>
   play: (page: Page) => Promise<void>
@@ -191,7 +194,7 @@ export const run = async (slug: string) => {
     const page = await context.newPage()
     const opened = Date.now()
     await page
-      .goto(flow.start, { waitUntil: 'networkidle' })
+      .goto(flow.start, { waitUntil: flow.waitUntil ?? 'networkidle' })
       .catch((error: Error) => {
         throw new Error(openingError(flow.start, error))
       })

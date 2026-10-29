@@ -12,10 +12,19 @@ const SHOE =
  */
 export default {
   start: 'https://www.sportsdirect.com/',
+  // The store never stops loading trackers and recommendations
+  waitUntil: 'load',
 
   prepare: async (page) => {
+    await page
+      .getByRole('textbox', { name: 'Search product or brand' })
+      .waitFor()
+    // The cookie banner comes in after the page, if it comes
     const reject = page.locator('#onetrust-reject-all-handler')
-    if (await reject.isVisible().catch(() => false)) await reject.click()
+    await reject
+      .waitFor({ timeout: 8000 })
+      .then(() => reject.click())
+      .catch(() => {})
     // OneTrust's cookie settings button floats over every page
     await page.addStyleTag({
       content: '#ot-sdk-btn-floating { display: none !important }',
@@ -41,7 +50,6 @@ export default {
     await pause(page, 500)
     await search.press('Enter')
     await page.waitForURL(/adidas/i)
-    await page.waitForLoadState('networkidle')
     await pause(page, 800)
 
     // Down the Adidas page to a shoe
@@ -81,7 +89,8 @@ export default {
 
     // The bag
     await page.getByRole('link', { name: 'cart button' }).click()
-    await page.waitForLoadState('networkidle')
+    await page.waitForURL(/cart/)
+    await page.waitForLoadState('load')
     await pause(page, 2000)
   },
 } satisfies Flow
