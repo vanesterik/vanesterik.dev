@@ -40,10 +40,15 @@ export type TerminalStep = {
   press?: string
 }
 
+// Where the shell starts (~ for the home folder; the repository by
+// default), and the folders the steps create, which must not exist before
+// and are removed after
 export type TerminalFlow = {
   kind: 'terminal'
   plugin: string
   steps: TerminalStep[]
+  cwd?: string
+  creates?: string[]
 }
 
 // The window and the video: 16:10, the browser frame's shape, and wide enough
@@ -253,6 +258,24 @@ const ffmpeg = (args: string[]) => {
   }
 }
 
+const expandHome = (folder: string, home: string) =>
+  folder.replace(/^~(?=\/|$)/, home)
+
+/**
+ * The folders a flow creates, as paths, once none of them exists yet: a
+ * recording never runs over something that's already there
+ */
+export const claimFolders = (folders: string[], home = os.homedir()) =>
+  folders.map((folder) => {
+    const full = expandHome(folder, home)
+    if (fs.existsSync(full)) {
+      throw new Error(
+        `${folder} already exists: move it, as the recording creates and removes it`,
+      )
+    }
+    return full
+  })
+
 // A tool on the Mac, or a one-line message saying how to install it
 const tool = (name: string, args: string[], install: string) => {
   try {
@@ -284,6 +307,7 @@ const recordTerminal = async (slug: string, flow: TerminalFlow) => {
   tool('asciinema', ['--version'], 'brew install asciinema')
   tool('expect', ['-v'], 'brew install expect')
 
+  const created = claimFolders(flow.creates ?? [])
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), `record-${slug}-`))
   try {
     const zdotdir = path.join(dir, 'zdotdir')
@@ -327,6 +351,7 @@ const recordTerminal = async (slug: string, flow: TerminalFlow) => {
     // A failed recording keeps the cast already in public/, and says why
     try {
       execFileSync('expect', [script], {
+        cwd: flow.cwd ? expandHome(flow.cwd, os.homedir()) : root,
         env: {
           ...process.env,
           ZDOTDIR: zdotdir,
@@ -347,6 +372,8 @@ const recordTerminal = async (slug: string, flow: TerminalFlow) => {
     )
   } finally {
     fs.rmSync(dir, { recursive: true, force: true })
+    for (const folder of created)
+      fs.rmSync(folder, { recursive: true, force: true })
   }
 }
 
