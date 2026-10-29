@@ -1,6 +1,8 @@
 @import 'tailwindcss';
 
 @custom-variant dark (&:where(.dark, .dark *));
+/* The home page: its particles fill the window, under the header and footer */
+@custom-variant home (:root:has([data-particles]) &);
 
 @theme {
   --color-*: initial;
