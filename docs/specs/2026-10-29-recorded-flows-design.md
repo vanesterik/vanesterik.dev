@@ -26,7 +26,7 @@ Each flow is one continuous take, about 30 seconds, at a calm, human pace: scrol
 
 ### Sports Direct (`sports-direct`)
 
-On the live site, starting at its homepage, `https://ie.sportsdirect.com/`. The project's `url` changes from the trainers page to that homepage, so the browser frame's address matches the first frame, which becomes the new screenshot. _My call_ (the `url`):
+On the live UK site, starting at its homepage, `https://www.sportsdirect.com/` (Koen's choice, after the Irish site refused the headless browser; recorded with a visible window, `HEADED=1`). The project's `url` changes from the trainers page to that homepage, so the browser frame's address matches the first frame, which becomes the new screenshot. _My call_ (the `url`):
 
 1. Scroll down and up on the homepage.
 2. Put the focus in the search bar.
