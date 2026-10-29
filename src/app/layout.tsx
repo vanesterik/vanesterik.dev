@@ -5,10 +5,8 @@ import type { ReactNode } from 'react'
 
 import { Footer } from '@/components/footer'
 import { Header } from '@/components/header'
-import { LinkList } from '@/components/link-list'
 import { MobileMenu } from '@/components/mobile-menu'
 import { Navigation } from '@/components/navigation'
-import { Prompt } from '@/components/prompt'
 import { ThemeProvider } from '@/components/theme-provider'
 import { ThemeSelector } from '@/components/theme-selector'
 import layout from '@/content/layout.json'
@@ -29,7 +27,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html
       suppressHydrationWarning
       lang="en"
-      className={`${lausanne.variable} ${nbInternationalProMono.variable} md:scroll-pt-24 md:scroll-pb-52`}
+      className={`${lausanne.variable} ${nbInternationalProMono.variable} md:scroll-pt-24 md:scroll-pb-24`}
     >
       <body>
         <ThemeProvider>
@@ -45,15 +43,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
             </Header>
             <main className="flex flex-auto flex-col">{children}</main>
             <Footer>
-              <Prompt />
-              <LinkList items={layout.contact} />
-              <Prompt />
-              <LinkList items={layout.social} />
-              <div className="font-mono font-normal text-muted-foreground text-xs uppercase">
-                &copy; {new Date().getFullYear().toString()}
-              </div>
-              <div className="font-mono font-normal text-muted-foreground text-xs uppercase">
-                {layout.copyright}
+              <div className="font-mono font-normal text-muted-foreground/60 text-xs uppercase">
+                &copy; {new Date().getFullYear().toString()} {layout.copyright}
               </div>
             </Footer>
           </div>
