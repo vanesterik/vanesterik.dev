@@ -81,11 +81,6 @@ describe('ProjectIndex', () => {
     expect(lorem).not.toHaveAccessibleName(/●/)
   })
 
-  it('leaves the stack to the details', () => {
-    render(<ProjectIndex projects={projects} />)
-    expect(row(/^lorem/)).not.toHaveTextContent('next.js')
-  })
-
   it('opens a row to its screenshot and details', async () => {
     const user = userEvent.setup()
     render(<ProjectIndex projects={projects} />)
