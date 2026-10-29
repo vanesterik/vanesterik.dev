@@ -5,13 +5,13 @@ import 'asciinema-player/dist/bundle/asciinema-player.css'
 import { useEffect, useRef, useSyncExternalStore } from 'react'
 
 import { withBasePath } from '@/lib/base-path'
+import { TERMINAL_SIZE } from '@/lib/terminal-size'
 
-// Every recording's terminal, in columns and rows; the recorder uses it too
-export const TERMINAL_SIZE = { cols: 80, rows: 16 }
-
-// A monospace cell is about 0.6em wide, and the player's lines 4/3em tall
+// The mono font's cell is 0.676em wide (measured in the player), and the
+// player's lines are 4/3em tall: the box is the terminal's own shape
+const CELL_WIDTH = 0.676
 const LINE_HEIGHT = 4 / 3
-const ASPECT_RATIO = `${TERMINAL_SIZE.cols * 0.6} / ${(TERMINAL_SIZE.rows * LINE_HEIGHT).toFixed(3)}`
+const ASPECT_RATIO = `${(TERMINAL_SIZE.cols * CELL_WIDTH).toFixed(2)} / ${(TERMINAL_SIZE.rows * LINE_HEIGHT).toFixed(3)}`
 
 const REDUCED_MOTION = '(prefers-reduced-motion: reduce)'
 
@@ -58,7 +58,7 @@ export const TerminalRecording = ({ recording }: TerminalRecordingProps) => {
           loop: true,
           autoPlay: motion === 'motion',
           controls: motion === 'reduce',
-          fit: 'both',
+          fit: 'width',
           theme: 'site',
           terminalFontFamily: 'var(--font-mono)',
           terminalLineHeight: LINE_HEIGHT,
@@ -75,6 +75,12 @@ export const TerminalRecording = ({ recording }: TerminalRecordingProps) => {
   }, [motion, recording])
 
   return (
-    <div ref={ref} style={{ aspectRatio: ASPECT_RATIO }} className="w-full" />
+    // Clipped to its shape: the player's wrapper is a little taller than its
+    // text, and would otherwise stretch the box once it loads
+    <div
+      ref={ref}
+      style={{ aspectRatio: ASPECT_RATIO }}
+      className="w-full overflow-hidden"
+    />
   )
 }

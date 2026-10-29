@@ -6,6 +6,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 
 import { chromium, type Locator, type Page } from '@playwright/test'
 
+import { TERMINAL_SIZE } from '../../src/lib/terminal-size.ts'
+
 /**
  * Records a web project's flow for its preview on /projects/: runs
  * scripts/recordings/<slug>.ts in Chromium, records it, and has ffmpeg write
@@ -26,6 +28,22 @@ export type Flow = {
   check?: () => Promise<void>
   prepare?: (page: Page) => Promise<void>
   play: (page: Page) => Promise<void>
+}
+
+// A terminal flow: a zsh plugin, installed with zap in a throwaway zsh, and
+// the commands typed after it. A step can wait for something else than the
+// prompt (a regular expression), such as a pager, pause on it, and press a key
+export type TerminalStep = {
+  type: string
+  waitFor?: string
+  pause?: number
+  press?: string
+}
+
+export type TerminalFlow = {
+  kind: 'terminal'
+  plugin: string
+  steps: TerminalStep[]
 }
 
 // The window and the video: 16:10, the browser frame's shape, and wide enough
@@ -150,6 +168,63 @@ export const openingError = (start: string, error: Error) => {
   return `Couldn't open ${start} (${code ?? error.message.split('\n')[0]})`
 }
 
+/**
+ * asciinema's arguments: the shell recorded in a terminal of the recordings'
+ * size, with waits longer than three seconds (a slow clone) cut short
+ */
+export const asciinemaArgs = (cast: string, command: string) => [
+  'rec',
+  '--window-size',
+  `${TERMINAL_SIZE.cols}x${TERMINAL_SIZE.rows}`,
+  '--idle-time-limit',
+  '3',
+  '--overwrite',
+  '--quiet',
+  '--command',
+  command,
+  cast,
+]
+
+// Typing pace and pauses, in milliseconds
+const KEY = 90
+const BEFORE = 1200
+const AFTER = 2500
+
+// One character as expect sends it, by its code, so quotes, braces and
+// dollars need no escaping
+const key = (character: string) =>
+  `send -- [format %c ${character.codePointAt(0)}]\nafter ${KEY}`
+
+/**
+ * An expect script that starts the recording in a terminal of the
+ * recordings' size and types the steps into the shell: each once the prompt
+ * is back, a character at a time, then Enter; and ends the shell after the
+ * last
+ */
+export const expectScript = (steps: TerminalStep[], command: string[]) => {
+  // The prompt, and the control codes zsh writes after it
+  const prompt = 'expect -re {\\$ (\\x1b\\[[0-9;?]*[A-Za-z])*$}'
+  const lines = [
+    'set timeout 30',
+    `set stty_init "rows ${TERMINAL_SIZE.rows} columns ${TERMINAL_SIZE.cols}"`,
+    `spawn ${command.map((part) => `{${part}}`).join(' ')}`,
+  ]
+  for (const step of steps) {
+    lines.push(prompt, `after ${BEFORE}`)
+    lines.push(...[...step.type].map(key))
+    lines.push('send -- "\\r"')
+    if (step.waitFor) {
+      lines.push(
+        `expect -re {${step.waitFor}}`,
+        `after ${step.pause ?? 0}`,
+        ...[...(step.press ?? '')].map(key),
+      )
+    }
+  }
+  lines.push(prompt, `after ${AFTER}`, 'send -- "exit\\r"', 'expect eof')
+  return `${lines.join('\n')}\n`
+}
+
 // The projects with a flow: the scripts beside this one
 const flows = () =>
   fs
@@ -170,6 +245,97 @@ const ffmpeg = (args: string[]) => {
   }
 }
 
+// A tool on the Mac, or a one-line message saying how to install it
+const tool = (name: string, args: string[], install: string) => {
+  try {
+    execFileSync(name, args, { stdio: 'ignore' })
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+      throw new Error(`${name} isn't installed: run ${install}`)
+    }
+    throw error
+  }
+}
+
+// How long a cast plays: asciicast v3 events are intervals after its header
+const castSeconds = (cast: string) =>
+  fs
+    .readFileSync(cast, 'utf8')
+    .trim()
+    .split('\n')
+    .slice(1)
+    .filter((line) => line.startsWith('['))
+    .reduce((total, line) => total + Number(JSON.parse(line)[0]), 0)
+
+/**
+ * Record a terminal flow: a throwaway zsh (its own .zshrc and zap folder,
+ * with Koen's HOME, PATH and git config), zap installed into it off camera,
+ * and the steps typed into it by expect inside asciinema
+ */
+const recordTerminal = async (slug: string, flow: TerminalFlow) => {
+  tool('asciinema', ['--version'], 'brew install asciinema')
+  tool('expect', ['-v'], 'brew install expect')
+
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), `record-${slug}-`))
+  try {
+    const zdotdir = path.join(dir, 'zdotdir')
+    const xdg = path.join(dir, 'xdg')
+    fs.mkdirSync(zdotdir)
+    fs.mkdirSync(xdg)
+    execFileSync('git', [
+      'clone',
+      '--quiet',
+      '--depth',
+      '1',
+      'https://github.com/zap-zsh/zap',
+      path.join(xdg, 'zap'),
+    ])
+    fs.writeFileSync(
+      path.join(zdotdir, '.zshrc'),
+      [
+        // Completion, as any zsh has, which plugins register with
+        'autoload -Uz compinit && compinit -u -d "$ZDOTDIR/.zcompdump"',
+        'source "$XDG_DATA_HOME/zap/zap.zsh"',
+        "PROMPT='$ '",
+        "RPROMPT=''",
+        // No inverted % before a prompt that follows output without a newline
+        'unsetopt PROMPT_SP',
+        '',
+      ].join('\n'),
+    )
+
+    // Written outside the repository, then copied in, so a step that shows
+    // the repository's state (git status) doesn't show the recording itself
+    const recorded = path.join(dir, `${slug}.cast`)
+    const cast = path.join(root, 'public', 'projects', `${slug}.cast`)
+    const script = path.join(dir, 'record.exp')
+    fs.writeFileSync(
+      script,
+      expectScript(flow.steps, [
+        'asciinema',
+        ...asciinemaArgs(recorded, 'zsh -i'),
+      ]),
+    )
+    execFileSync('expect', [script], {
+      env: {
+        ...process.env,
+        ZDOTDIR: zdotdir,
+        XDG_DATA_HOME: xdg,
+        TERM: 'xterm-256color',
+      },
+      stdio: 'ignore',
+    })
+    fs.copyFileSync(recorded, cast)
+
+    const kilobytes = (fs.statSync(cast).size / 1e3).toFixed(0)
+    console.log(
+      `${path.relative(root, cast)} (${castSeconds(cast).toFixed(1)} s, ${kilobytes} kB)`,
+    )
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true })
+  }
+}
+
 export const run = async (slug: string) => {
   const slugs = flows()
   if (!slugs.includes(slug)) {
@@ -177,9 +343,10 @@ export const run = async (slug: string) => {
       `Unknown project "${slug}": record one of ${slugs.join(', ')}`,
     )
   }
-  const flow: Flow = (
+  const flow: Flow | TerminalFlow = (
     await import(pathToFileURL(path.join(here, `${slug}.ts`)).href)
   ).default
+  if ('kind' in flow) return recordTerminal(slug, flow)
   await flow.check?.()
   ffmpeg(['-version'])
 

@@ -1,7 +1,9 @@
 import { render, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { TERMINAL_SIZE, TerminalRecording } from './terminal-recording'
+import { TERMINAL_SIZE } from '@/lib/terminal-size'
+
+import { TerminalRecording } from './terminal-recording'
 
 const player = vi.hoisted(() => ({
   create: vi.fn(),
@@ -46,7 +48,7 @@ describe('TerminalRecording', () => {
     const { container } = render(
       <TerminalRecording recording="/projects/a.cast" />,
     )
-    expect(box(container).style.aspectRatio).toBe('48 / 21.333')
+    expect(box(container).style.aspectRatio).toBe('54.08 / 21.333')
   })
 
   it('loads the player looping and playing, at the recording size', async () => {
@@ -62,7 +64,7 @@ describe('TerminalRecording', () => {
       rows: 16,
       loop: true,
       autoPlay: true,
-      fit: 'both',
+      fit: 'width',
       controls: false,
       theme: 'site',
     })
