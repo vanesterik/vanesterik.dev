@@ -110,15 +110,16 @@ describe('ProjectIndex', () => {
     expect(screen.queryByText('zsh — ipsum')).toBeNull()
   })
 
-  it('sets the open row apart from the others', async () => {
+  it('sets the open row apart by the space above the closed list', async () => {
     const user = userEvent.setup()
     render(<ProjectIndex projects={projects} />)
 
     await user.click(row(/^lorem/))
 
+    // The header's 92px and the column's 2px gap: 94px, or 23.5 spacing units
     const item = row(/^lorem/).closest('[data-slot="accordion-item"]')
     expect(item).toHaveAttribute('data-state', 'open')
-    expect(item).toHaveClass('data-[state=open]:my-16')
+    expect(item).toHaveClass('data-[state=open]:my-23.5')
   })
 
   it('lets the open row break out of the column on wide screens', async () => {
@@ -306,11 +307,15 @@ describe('ProjectIndex on a project path', () => {
     )
   })
 
-  it('snaps a row high enough to hide the row above it under the header', () => {
+  it('snaps a row to where the closed list starts, the row above out of view', () => {
     pathname.value = '/projects/ipsum/'
     render(<ProjectIndex projects={projects} />)
-    // The scroll padding (md:scroll-pt-24) less the open row's margin (my-16)
-    expect(scrollIntoView.mock.contexts[0]).toHaveClass('md:-scroll-mt-8')
+    // 94px down: on a phone by its own scroll margin, from md up by the
+    // scroll padding (md:scroll-pt-24, 96px) less 2px
+    expect(scrollIntoView.mock.contexts[0]).toHaveClass(
+      'scroll-mt-23.5',
+      'md:-scroll-mt-0.5',
+    )
   })
 
   it('snaps a row that opens to the top', async () => {
