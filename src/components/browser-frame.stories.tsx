@@ -13,7 +13,7 @@ const meta = {
   ],
   args: {
     url: 'https://www.sportsdirect.com/',
-    image: '/projects/sportsdirect.jpg',
+    image: '/projects/sports-direct.jpg',
     alt: 'Screenshot of Sports Direct',
   },
 } satisfies Meta<typeof BrowserFrame>
