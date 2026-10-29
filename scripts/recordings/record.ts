@@ -206,14 +206,15 @@ export const expectScript = (steps: TerminalStep[], command: string[]) => {
   const prompt = 'expect -re {\\$ (\\x1b\\[[0-9;?]*[A-Za-z])*$}'
   const lines = [
     'set timeout 30',
+    `set stty_init "rows ${TERMINAL_SIZE.rows} columns ${TERMINAL_SIZE.cols}"`,
+    `spawn ${command.map((part) => `{${part}}`).join(' ')}`,
     // A wait that never ends, or a shell that quits early, stops the
-    // recording with a message, instead of typing on into the wrong state
+    // recording with a message, instead of typing on into the wrong state.
+    // After spawn, so it watches the shell, not expect's own input
     'expect_after {',
     '  timeout { puts stderr "The shell didn\'t reach the next step within 30 seconds"; exit 1 }',
     '  eof { puts stderr "The shell ended before the last step"; exit 1 }',
     '}',
-    `set stty_init "rows ${TERMINAL_SIZE.rows} columns ${TERMINAL_SIZE.cols}"`,
-    `spawn ${command.map((part) => `{${part}}`).join(' ')}`,
   ]
   for (const step of steps) {
     lines.push(prompt, `after ${BEFORE}`)
