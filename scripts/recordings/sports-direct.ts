@@ -5,6 +5,10 @@ import { type Flow, pause, smoothScroll } from './record.ts'
 const SHOE =
   /trainer|court|samba|gazelle|campus|superstar|stan smith|runfalcon|boot|shoe|ultraboost|forum|handball/i
 
+// What the recording hides; the promo's class starts with a build hash
+const HIDDEN =
+  '#ot-sdk-btn-floating, [class*="_cmsPopup"] { display: none !important }'
+
 /**
  * Sports Direct's storefront: from the homepage, through a search for Adidas,
  * to a shoe, its colors, photos and sizes, into the bag, and the bag itself.
@@ -25,20 +29,26 @@ export default {
       .waitFor({ timeout: 8000 })
       .then(() => reject.click())
       .catch(() => {})
-    // OneTrust's cookie settings button floats over every page
-    await page.addStyleTag({
-      content: '#ot-sdk-btn-floating { display: none !important }',
-    })
+    // Not the store: OneTrust's floating cookie button, and the site's promo
+    // popup ("20% off Full Price"), hidden on this page and every page after
+    await page.addStyleTag({ content: HIDDEN })
+    await page.addInitScript((css) => {
+      document.addEventListener('DOMContentLoaded', () => {
+        const style = document.createElement('style')
+        style.textContent = css
+        document.head.append(style)
+      })
+    }, HIDDEN)
     await pause(page, 1000)
   },
 
   play: async (page) => {
     // The homepage, down and back up
     await pause(page, 800)
-    await smoothScroll(page, 1600, 2200)
-    await pause(page, 400)
-    await smoothScroll(page, 'top', 1800)
-    await pause(page, 500)
+    await smoothScroll(page, 1600, 3000)
+    await pause(page, 600)
+    await smoothScroll(page, 'top', 2400)
+    await pause(page, 700)
 
     // A search for Adidas
     const search = page.getByRole('textbox', {
@@ -46,7 +56,7 @@ export default {
     })
     await search.click()
     await pause(page, 400)
-    await search.pressSequentially('Adidas', { delay: 120 })
+    await search.pressSequentially('Adidas', { delay: 160 })
     await pause(page, 500)
     await search.press('Enter')
     await page.waitForURL(/adidas/i)
@@ -62,8 +72,8 @@ export default {
         names.findIndex((name) => SHOE.test(name)),
       ),
     )
-    await smoothScroll(page, shoe, 2000)
-    await pause(page, 700)
+    await smoothScroll(page, shoe, 2800)
+    await pause(page, 900)
     await shoe.click()
 
     // The shoe: another color, a few photos, a size, into the bag
@@ -73,11 +83,11 @@ export default {
     await colors.first().waitFor()
     await pause(page, 1200)
     await colors.nth(1).click()
-    await pause(page, 1200)
+    await pause(page, 1600)
     const thumbs = page.locator('button[class*="_thumb"]')
     for (const index of [1, 2, 3]) {
       await thumbs.nth(index).click()
-      await pause(page, 800)
+      await pause(page, 1000)
     }
     await page
       .locator('button[class*="fullWidth"]:not([class*="disabled"])')
@@ -91,6 +101,6 @@ export default {
     await page.getByRole('link', { name: 'cart button' }).click()
     await page.waitForURL(/cart/)
     await page.waitForLoadState('load')
-    await pause(page, 2000)
+    await pause(page, 3000)
   },
 } satisfies Flow
