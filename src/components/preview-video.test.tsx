@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react'
+import { render, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { PreviewVideo } from './preview-video'
@@ -55,14 +55,13 @@ describe('PreviewVideo', () => {
     expect(video).toHaveAttribute('controls')
   })
 
-  it('keeps the poster when the browser refuses to play', async () => {
+  it('keeps the poster, with controls, when the browser refuses to play', async () => {
+    // An iPhone in Low Power Mode refuses; the visitor can still start it
     play.mockRejectedValue(new DOMException('', 'NotAllowedError'))
     const video = renderVideo()
-    // A rejection left unhandled would fail the run
-    await Promise.resolve()
+    await waitFor(() => expect(video).toHaveAttribute('controls'))
     expect(play).toHaveBeenCalledOnce()
     expect(video).toHaveAttribute('poster', '/projects/a.jpg')
-    expect(video).not.toHaveAttribute('controls')
   })
 
   it('prefixes the video and poster with the base path', () => {

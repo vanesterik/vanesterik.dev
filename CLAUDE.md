@@ -45,7 +45,12 @@ A web project's preview video is a recorded flow, made by a Playwright script in
 npm run record -- leaseplan   # writes public/projects/leaseplan.mp4 and its first frame, leaseplan.jpg
 ```
 
-`scripts/recordings/record.ts` runs the flow in Playwright's headless Chromium at 1440 × 900, records it, and has ffmpeg trim it to the flow and write an H.264 MP4 and its first frame (the screenshot and poster). A flow is a `Flow`: the page it starts on, an optional `check` before the browser opens, a `prepare` that runs before the video starts (refusing the cookie banner, so the first frame is clean), and the steps. It needs ffmpeg (`mise use -g ffmpeg`) and Chromium (`npx playwright install chromium`). Recordings are made on a Mac and committed after looking at them, never in CI: live sites change, and some (Sports Direct) refuse a headless browser.
+`scripts/recordings/record.ts` runs the flow in Playwright's headless Chromium at 1440 × 900, records it, and has ffmpeg trim it to the flow and write an H.264 MP4 and its first frame (the screenshot and poster). A flow is a `Flow`: the page it starts on, an optional `check` before the browser opens, a `prepare` that runs before the video starts (refusing the cookie banner, so the first frame is clean), and the steps. It needs ffmpeg (`mise use -g ffmpeg`) and Chromium (`npx playwright install chromium`). Recordings are made on a Mac and committed after looking at them, never in CI: live sites change, and some refuse a headless browser. A first page that doesn't open fails in one line: refused (a dropped connection), not finished loading, or Chromium's own error.
+
+What each flow expects:
+- `leaseplan`: Ayvens' live showroom; it refuses the cookie banner itself.
+- `crossvision`: CrossVision running locally (`task dev` in `/Users/vanesterik/Projects/provincie-utrecht/self-supervised-models`, front end on port 5173), with its runs, datasets and predictions in that repository's `artifacts/`; without it, the command says so and stops.
+- `sports-direct`: the live site, which refuses the headless browser this command launches (`ERR_HTTP2_PROTOCOL_ERROR`), so it doesn't record from here as it stands. How to record it is Koen's call; its script is written from the site's markup but hasn't run end to end, so its selectors may need adjusting.
 
 ## Git hooks and commit messages
 
