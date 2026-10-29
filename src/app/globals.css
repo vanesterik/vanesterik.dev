@@ -161,3 +161,26 @@ figure.mermaid {
 .dark .shiki span {
   color: var(--shiki-dark);
 }
+
+/* asciinema's player in the terminal frame, which has the dark class: the
+   frame's background and text, and the ANSI colors on the tokens */
+.asciinema-player-theme-site {
+  --term-color-foreground: var(--foreground);
+  --term-color-background: var(--secondary);
+  --term-color-0: var(--secondary);
+  --term-color-1: var(--danger);
+  --term-color-2: var(--success);
+  --term-color-3: var(--warning);
+  --term-color-4: var(--info);
+  --term-color-5: var(--highlight);
+  --term-color-6: var(--info);
+  --term-color-7: var(--foreground);
+  --term-color-8: var(--muted-foreground);
+  --term-color-9: var(--danger);
+  --term-color-10: var(--success);
+  --term-color-11: var(--warning);
+  --term-color-12: var(--info);
+  --term-color-13: var(--highlight);
+  --term-color-14: var(--info);
+  --term-color-15: var(--foreground);
+}

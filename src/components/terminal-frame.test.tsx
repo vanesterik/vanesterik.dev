@@ -1,7 +1,11 @@
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { TerminalFrame } from './terminal-frame'
+
+vi.mock('asciinema-player', () => ({
+  create: () => ({ dispose: () => {}, seek: async () => {} }),
+}))
 
 const lines = [
   { text: 'ipsum pack ./lorem', tone: 'command' },
@@ -44,6 +48,24 @@ describe('TerminalFrame', () => {
     )
     expect(container.firstChild).toHaveClass('dark')
     expect(container.querySelector('pre')?.lastChild).toHaveTextContent(/^\$/)
+  })
+
+  it('plays a recording under its title, with a loop label', () => {
+    window.matchMedia = vi.fn().mockReturnValue({
+      matches: false,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    })
+    const { container } = render(
+      <TerminalFrame name="ipsum" recording="/projects/ipsum.cast" />,
+    )
+    expect(screen.getByText('zsh — ipsum')).toBeInTheDocument()
+    // In the title's muted color
+    expect(screen.getByText('loop').closest('figcaption')).toHaveClass(
+      'text-muted-foreground',
+    )
+    expect(container.firstChild).toHaveClass('dark')
+    expect(container.querySelector('pre')).toBeNull()
   })
 
   it('shows a screenshot of a terminal app instead of lines', () => {
