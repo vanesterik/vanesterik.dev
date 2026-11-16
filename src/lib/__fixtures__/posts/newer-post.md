@@ -12,3 +12,5 @@ sequenceDiagram
   accTitle: A greeting
   A->>B: hello
 ```
+
+![A box](newer-post/box.svg)
