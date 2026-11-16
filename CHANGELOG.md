@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.12.0](https://github.com/vanesterik/vanesterik.dev/compare/v1.11.0...v1.12.0) (2026-11-16)
+
+### Features
+
+- add a post about Unity ([1ae18f7](https://github.com/vanesterik/vanesterik.dev/commit/1ae18f7ce8911bd6617db99c64f102061ae2daf1))
+- draw a post's SVG images inline ([4fb5e18](https://github.com/vanesterik/vanesterik.dev/commit/4fb5e18c0aef73450ac539aef7dcfa09e3f7c749))
+
 ## [1.11.0](https://github.com/vanesterik/vanesterik.dev/compare/v1.10.0...v1.11.0) (2026-10-29)
 
 ### Features
