@@ -10,6 +10,7 @@ import remarkRehype from 'remark-rehype'
 import { unified } from 'unified'
 
 import { rehypeMermaid } from './rehype-mermaid'
+import { rehypeSvg } from './rehype-svg'
 
 export type PostMeta = {
   slug: string
@@ -68,6 +69,7 @@ export const getPost = async (slug: string, dir = POSTS_DIR): Promise<Post> => {
     .use(remarkGfm)
     .use(remarkRehype)
     .use(rehypeMermaid)
+    .use(rehypeSvg, { dir })
     .use(rehypeShiki, {
       themes: { light: 'github-light', dark: 'github-dark' },
       defaultColor: false,

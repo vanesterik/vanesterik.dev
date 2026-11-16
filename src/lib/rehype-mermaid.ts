@@ -1,6 +1,8 @@
 import { renderMermaidSVG } from 'beautiful-mermaid'
-import type { Element, ElementContent, Root, RootContent, Text } from 'hast'
+import type { Element, Root } from 'hast'
 import { fromHtml } from 'hast-util-from-html'
+
+import { isElement, labeledFigure, prefixIds } from './svg-figure'
 
 // The site's tokens, resolved by the page, so a theme switch recolors the
 // diagram without drawing it again. The renderer reads --line, --accent,
@@ -19,9 +21,6 @@ const COLORS = {
   border: mix(20),
   transparent: true,
 }
-
-const isElement = (node: RootContent | ElementContent): node is Element =>
-  node.type === 'element'
 
 const textOf = (node: Element): string =>
   node.children
@@ -65,37 +64,6 @@ const withoutFonts = (svg: string) =>
     .replace(/@import\s+url\([^)]*\)[^;]*;/g, '')
     .replace(/(^|\n)\s*text\s*\{\s*font-family:[^}]*\}/g, '')
 
-// Ids must be unique on the page: a participant "You" becomes id="You"
-const prefixIds = (svg: Element, prefix: string) => {
-  const ids = new Set<string>()
-  const collect = (node: Element) => {
-    if (typeof node.properties.id === 'string') {
-      ids.add(node.properties.id)
-      node.properties.id = prefix + node.properties.id
-    }
-    node.children.filter(isElement).forEach(collect)
-  }
-  const rewrite = (node: Element) => {
-    for (const [key, value] of Object.entries(node.properties)) {
-      if (typeof value !== 'string') continue
-      node.properties[key] = value
-        .replace(/url\(#([^)]+)\)/g, (match, id) =>
-          ids.has(id) ? `url(#${prefix}${id})` : match,
-        )
-        .replace(/^#(.+)$/, (match, id) =>
-          (key === 'href' || key === 'xLinkHref') && ids.has(id)
-            ? `#${prefix}${id}`
-            : match,
-        )
-    }
-    node.children.filter(isElement).forEach(rewrite)
-  }
-  collect(svg)
-  rewrite(svg)
-}
-
-const text = (value: string): Text => ({ type: 'text', value })
-
 const drawDiagram = (source: string, number: number): Element => {
   const { title, description, diagram } = splitAccessibility(source)
   const svg = fromHtml(withoutFonts(renderMermaidSVG(diagram, COLORS)), {
@@ -107,33 +75,12 @@ const drawDiagram = (source: string, number: number): Element => {
 
   const prefix = `mermaid-${number}-`
   prefixIds(svg, prefix)
-  const labels: Element[] = [
-    {
-      type: 'element',
-      tagName: 'title',
-      properties: { id: `${prefix}title` },
-      children: [text(title)],
-    },
-  ]
-  if (description) {
-    labels.push({
-      type: 'element',
-      tagName: 'desc',
-      properties: { id: `${prefix}desc` },
-      children: [text(description)],
-    })
-  }
-  svg.properties.role = 'img'
-  svg.properties.ariaLabelledBy = [`${prefix}title`]
-  if (description) svg.properties.ariaDescribedBy = [`${prefix}desc`]
-  svg.children.unshift(...labels)
-
-  return {
-    type: 'element',
-    tagName: 'figure',
-    properties: { className: ['mermaid'] },
-    children: [svg],
-  }
+  return labeledFigure(svg, {
+    prefix,
+    title,
+    description,
+    className: 'mermaid',
+  })
 }
 
 // Draws each ```mermaid fence as an inline SVG at build time, in place of the
