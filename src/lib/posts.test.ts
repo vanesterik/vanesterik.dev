@@ -64,6 +64,12 @@ describe('getPost', () => {
     expect(html).toContain('<title id="mermaid-1-title">A greeting</title>')
   })
 
+  it('draws SVG images inline', async () => {
+    const html = toHtml((await getPost('newer-post', fixtures('posts'))).tree)
+    expect(html).toContain('<figure class="drawing"><svg')
+    expect(html).toContain('<title id="svg-1-title">A box</title>')
+  })
+
   it('names the file when a diagram is broken', async () => {
     await expect(
       getPost('broken-diagram', fixtures('broken-diagram')),

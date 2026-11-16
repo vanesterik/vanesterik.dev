@@ -139,11 +139,13 @@
    and scroll sideways inside their figure instead. Kept out of the prose
    utility: Tailwind orders the two .prose rules (the plugin's and the site's)
    by their contents, and more rules here put the plugin's grey colors last */
-figure.mermaid {
+figure.mermaid,
+figure.drawing {
   overflow-x: auto;
 }
 
-.mermaid svg {
+.mermaid svg,
+.drawing svg {
   display: block;
   max-width: none;
   margin-inline: auto;
@@ -151,6 +153,72 @@ figure.mermaid {
 
 .mermaid text {
   font-family: var(--font-sans);
+}
+
+/* A post's hand-drawn SVGs (content/posts/<slug>/*.svg, inlined by
+   src/lib/rehype-svg.ts) draw with these classes, so they follow the theme.
+   Warm (--warning) is the author, cool (--info) is Claude */
+.drawing text {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  fill: var(--foreground);
+}
+
+.drawing .small {
+  font-size: 11px;
+  fill: var(--muted-foreground);
+}
+
+.drawing .box {
+  fill: var(--background);
+  stroke: var(--foreground);
+  stroke-width: 1.5;
+}
+
+.drawing .tag {
+  fill: var(--background);
+  stroke: var(--muted-foreground);
+  stroke-width: 1;
+}
+
+.drawing .band {
+  fill: var(--secondary);
+}
+
+.drawing .line {
+  fill: none;
+  stroke: var(--muted-foreground);
+  stroke-width: 1.5;
+}
+
+.drawing .arrowhead {
+  fill: var(--muted-foreground);
+}
+
+.drawing .dashed {
+  stroke-dasharray: 4 3;
+}
+
+.drawing .gate {
+  stroke-width: 3;
+}
+
+.drawing .me {
+  stroke: var(--warning);
+}
+
+.drawing .claude {
+  stroke: var(--info);
+}
+
+.drawing :is(text, tspan).me {
+  stroke: none;
+  fill: var(--warning);
+}
+
+.drawing :is(text, tspan).claude {
+  stroke: none;
+  fill: var(--info);
 }
 
 /* Shiki emits both themes as CSS variables; show the one matching the site's theme */
