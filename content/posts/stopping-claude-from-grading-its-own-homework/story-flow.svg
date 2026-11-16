@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 646 300" width="632" height="294">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" class="arrowhead" />
+    </marker>
+  </defs>
+  <text x="0" y="54" class="small">me</text>
+  <text x="0" y="139" class="small">GitHub</text>
+  <text x="0" y="216" class="small">Claude</text>
+  <rect x="56" y="110" width="584" height="50" rx="8" class="band" />
+  <line x1="64" y1="135" x2="632" y2="135" class="line dashed" marker-end="url(#arrow)" />
+  <rect x="67.0" y="28" width="86" height="44" rx="6" class="box me" />
+  <text x="110" y="54.5" text-anchor="middle">write story</text>
+  <line x1="110" y1="72" x2="110" y2="121" class="line" marker-end="url(#arrow)" />
+  <rect x="162.0" y="190" width="86" height="44" rx="6" class="box claude" />
+  <text x="205" y="209.0" text-anchor="middle">design</text>
+  <text x="205" y="224.0" text-anchor="middle" class="small">with me</text>
+  <line x1="205" y1="190" x2="205" y2="149" class="line" marker-start="url(#arrow)" marker-end="url(#arrow)" />
+  <rect x="257.0" y="28" width="86" height="44" rx="6" class="box me gate" />
+  <text x="300" y="47.0" text-anchor="middle">approve</text>
+  <text x="300" y="62.0" text-anchor="middle" class="small">the one gate</text>
+  <line x1="300" y1="72" x2="300" y2="121" class="line" marker-end="url(#arrow)" />
+  <rect x="352.0" y="190" width="86" height="44" rx="6" class="box claude" />
+  <text x="395" y="209.0" text-anchor="middle">build</text>
+  <text x="395" y="224.0" text-anchor="middle" class="small">fresh context</text>
+  <line x1="395" y1="190" x2="395" y2="149" class="line" marker-start="url(#arrow)" marker-end="url(#arrow)" />
+  <rect x="447.0" y="190" width="86" height="44" rx="6" class="box claude" />
+  <text x="490" y="209.0" text-anchor="middle">review</text>
+  <text x="490" y="224.0" text-anchor="middle" class="small">fresh context</text>
+  <line x1="490" y1="190" x2="490" y2="149" class="line" marker-start="url(#arrow)" marker-end="url(#arrow)" />
+  <rect x="547.0" y="28" width="86" height="44" rx="6" class="box me" />
+  <text x="590" y="47.0" text-anchor="middle">merge</text>
+  <text x="590" y="62.0" text-anchor="middle" class="small">with a rebase</text>
+  <line x1="590" y1="72" x2="590" y2="121" class="line" marker-end="url(#arrow)" />
+  <rect x="74.0" y="123" width="72" height="24" rx="12" class="tag" />
+  <text x="110" y="139" text-anchor="middle" class="small">issue</text>
+  <rect x="169.0" y="123" width="72" height="24" rx="12" class="tag" />
+  <text x="205" y="139" text-anchor="middle" class="small">design v1</text>
+  <rect x="258.0" y="123" width="84" height="24" rx="12" class="tag" />
+  <text x="300" y="139" text-anchor="middle" class="small">card to Build</text>
+  <rect x="353.0" y="123" width="84" height="24" rx="12" class="tag" />
+  <text x="395" y="139" text-anchor="middle" class="small">pull request</text>
+  <rect x="454.0" y="123" width="72" height="24" rx="12" class="tag" />
+  <text x="490" y="139" text-anchor="middle" class="small">verdict</text>
+  <rect x="554.0" y="123" width="72" height="24" rx="12" class="tag" />
+  <text x="590" y="139" text-anchor="middle" class="small">Done</text>
+  <text x="490" y="256" text-anchor="middle" class="small">blocking: ↻ back to build</text>
+  <text x="0" y="292" class="small"><tspan class="me">■</tspan> me<tspan dx="14" class="claude">■</tspan> Claude<tspan dx="14">gray band</tspan><tspan>: GitHub, the only thing passed between roles</tspan></text>
+</svg>
