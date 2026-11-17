@@ -58,6 +58,31 @@ describe('rehypeImage', () => {
     ).rejects.toThrow("an image isn't in public/: /posts/sample/missing.jpg")
   })
 
+  it('finds a file with a space in its name', async () => {
+    const html = await render('![A grey box](</posts/sample/my photo.png>)\n')
+    expect(html).toContain(
+      '<img src="/posts/sample/my%20photo.png" alt="A grey box" width="40" height="20"',
+    )
+  })
+
+  it('keeps a query or hash, and measures the file without it', async () => {
+    const html = await render(
+      '![One](/posts/sample/photo.png?v=2)\n\n![Two](/posts/sample/photo.png#top)\n',
+    )
+    expect(html).toContain(
+      '<img src="/posts/sample/photo.png?v=2" alt="One" width="40" height="20"',
+    )
+    expect(html).toContain(
+      '<img src="/posts/sample/photo.png#top" alt="Two" width="40" height="20"',
+    )
+  })
+
+  it('names an image it cannot read', async () => {
+    await expect(render('![Bad](/posts/sample/broken.jpg)\n')).rejects.toThrow(
+      "an image can't be read: /posts/sample/broken.jpg",
+    )
+  })
+
   it('requires a path from the root of public/', async () => {
     await expect(render('![Near](sample/photo.png)\n')).rejects.toThrow(
       'an image must be a path in public/, starting with /: sample/photo.png',

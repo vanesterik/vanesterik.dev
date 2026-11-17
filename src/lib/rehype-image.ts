@@ -13,19 +13,33 @@ const RASTER = /\.(avif|gif|jpe?g|png|webp)$/i
 const isRemote = (src: string) =>
   /^[a-z][a-z\d+.-]*:/i.test(src) || src.startsWith('//')
 
+// The path of a src without its query or hash (?v=2, #top), which the file
+// on disk doesn't have
+const pathOf = (src: string) => src.replace(/[?#].*$/, '')
+
 // The src of an <img> that is a raster image on this site, or undefined
 const rasterSource = (node: Element) => {
   const src = node.properties.src
   return node.tagName === 'img' &&
     typeof src === 'string' &&
-    RASTER.test(src) &&
+    RASTER.test(pathOf(src)) &&
     !isRemote(src)
     ? src
     : undefined
 }
 
-// The width and height of a file in public/, failing on a path outside it or
-// a missing file
+// The file a src names in public/, decoded (Markdown percent-encodes a space
+// in a file name), or undefined for a malformed escape such as %zz
+const decode = (src: string) => {
+  try {
+    return decodeURIComponent(pathOf(src))
+  } catch {
+    return undefined
+  }
+}
+
+// The width and height of a file in public/, failing on a path outside it, a
+// missing file or one that isn't an image
 const measure = (publicDir: string, src: string) => {
   if (!src.startsWith('/')) {
     throw new Error(
@@ -33,13 +47,21 @@ const measure = (publicDir: string, src: string) => {
     )
   }
   const root = path.resolve(publicDir)
-  const file = path.resolve(root, `.${src}`)
-  if (!file.startsWith(root + path.sep)) {
+  const name = decode(src)
+  const file = name && path.resolve(root, `.${name}`)
+  if (file && !file.startsWith(root + path.sep)) {
     throw new Error(`an image must be inside public/: ${src}`)
   }
-  if (!fs.existsSync(file)) throw new Error(`an image isn't in public/: ${src}`)
-  const { width, height } = imageSize(fs.readFileSync(file))
-  return { width, height }
+  if (!file || !fs.existsSync(file)) {
+    throw new Error(`an image isn't in public/: ${src}`)
+  }
+  try {
+    const { width, height } = imageSize(fs.readFileSync(file))
+    return { width, height }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    throw new Error(`an image can't be read: ${src} (${message})`)
+  }
 }
 
 // Shows a Markdown image of a raster file in public/ (a path from its root,
