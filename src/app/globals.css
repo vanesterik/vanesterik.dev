@@ -151,6 +151,22 @@ figure.drawing {
   margin-inline: auto;
 }
 
+/* A post's raster images (src/lib/rehype-image.ts) break out of the column on
+   wide screens, as an open project row does (lg:-mx-20 on the 640px column in
+   src/components/project-index.tsx): 800px wide, 80px left of the column,
+   which the prose column (65ch, a little under 640px) starts at too */
+figure.picture img {
+  width: 100%;
+}
+
+@variant lg {
+  figure.picture {
+    width: 50rem;
+    max-width: none;
+    margin-left: -5rem;
+  }
+}
+
 .mermaid text {
   font-family: var(--font-sans);
 }
