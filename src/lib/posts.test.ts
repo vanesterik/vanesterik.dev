@@ -35,6 +35,20 @@ describe('getPosts', () => {
   })
 })
 
+describe('getPosts order within a date', () => {
+  const slugs = () => getPosts(fixtures('same-date')).map((post) => post.slug)
+
+  it('lists the newest date first, then titles in reverse alphabetical order, whatever the file names', () => {
+    expect(slugs()).toEqual([
+      'c-eclair',
+      'a-bananas',
+      'b-apples',
+      'd-apples-lower',
+      'e-older',
+    ])
+  })
+})
+
 describe('getPost', () => {
   // The first render loads Shiki's grammars, themes and engine, which can take
   // longer than one test's timeout on a cold CI runner
