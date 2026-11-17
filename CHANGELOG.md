@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.15.0](https://github.com/vanesterik/vanesterik.dev/compare/v1.14.0...v1.15.0) (2026-11-17)
+
+### Features
+
+- add a pager under every post ([bbe23f0](https://github.com/vanesterik/vanesterik.dev/commit/bbe23f00a171aa1db97e9ae4d7d106a4cb94d2ad))
+- find the posts on either side of a post ([df5c648](https://github.com/vanesterik/vanesterik.dev/commit/df5c648b849c6c4d6fba049135adafc4db7296fd))
+- order posts on the same date by title ([556493f](https://github.com/vanesterik/vanesterik.dev/commit/556493fff5c011da5257714fb5bbf23afea0e022))
+
+### Bug Fixes
+
+- give the post pager more room below the article ([90a9251](https://github.com/vanesterik/vanesterik.dev/commit/90a9251b063b6a44501ccbd69de635b5a08d196a))
+
 ## [1.14.0](https://github.com/vanesterik/vanesterik.dev/compare/v1.13.0...v1.14.0) (2026-11-17)
 
 ### Features
