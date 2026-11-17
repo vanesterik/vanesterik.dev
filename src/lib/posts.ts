@@ -57,12 +57,21 @@ const readPost = (dir: string, file: string) => {
   return { meta, content }
 }
 
+// Newest first; within a date, by title and then slug, both descending, so
+// reading from the oldest post onwards is alphabetical. The file name plays no
+// part. The collator names its locale, so every machine builds the same order.
+const collator = new Intl.Collator('en')
+const byNewest = (a: PostMeta, b: PostMeta) =>
+  b.date.localeCompare(a.date) ||
+  collator.compare(b.title, a.title) ||
+  b.slug.localeCompare(a.slug)
+
 export const getPosts = (dir = POSTS_DIR): PostMeta[] =>
   fs
     .readdirSync(dir)
     .filter((f) => f.endsWith('.md'))
     .map((f) => readPost(dir, f).meta)
-    .sort((a, b) => b.date.localeCompare(a.date))
+    .sort(byNewest)
 
 export const getPost = async (
   slug: string,
