@@ -73,6 +73,18 @@ export const getPosts = (dir = POSTS_DIR): PostMeta[] =>
     .map((f) => readPost(dir, f).meta)
     .sort(byNewest)
 
+// The neighbours of a post in the order of getPosts(): previous is the older
+// post (next in the list), next the newer one (before it in the list)
+export const getAdjacentPosts = (
+  slug: string,
+  dir = POSTS_DIR,
+): { previous?: PostMeta; next?: PostMeta } => {
+  const posts = getPosts(dir)
+  const index = posts.findIndex((post) => post.slug === slug)
+  if (index === -1) return {}
+  return { previous: posts[index + 1], next: posts[index - 1] }
+}
+
 export const getPost = async (
   slug: string,
   dir = POSTS_DIR,

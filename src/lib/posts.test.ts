@@ -3,7 +3,7 @@ import path from 'node:path'
 import { toHtml } from 'hast-util-to-html'
 import { beforeAll, describe, expect, it } from 'vitest'
 
-import { getPost, getPosts } from './posts'
+import { getAdjacentPosts, getPost, getPosts } from './posts'
 
 const fixtures = (name: string) => path.join(__dirname, '__fixtures__', name)
 
@@ -46,6 +46,29 @@ describe('getPosts order within a date', () => {
       'd-apples-lower',
       'e-older',
     ])
+  })
+})
+
+describe('getAdjacentPosts', () => {
+  const adjacent = (slug: string) => {
+    const { previous, next } = getAdjacentPosts(slug, fixtures('same-date'))
+    return [previous?.slug, next?.slug]
+  }
+
+  it('gives the older post as previous and the newer post as next', () => {
+    expect(adjacent('b-apples')).toEqual(['d-apples-lower', 'a-bananas'])
+  })
+
+  it('has no next for the newest post', () => {
+    expect(adjacent('c-eclair')).toEqual(['a-bananas', undefined])
+  })
+
+  it('has no previous for the oldest post', () => {
+    expect(adjacent('e-older')).toEqual([undefined, 'd-apples-lower'])
+  })
+
+  it('has neither for a slug that is not a post', () => {
+    expect(adjacent('nope')).toEqual([undefined, undefined])
   })
 })
 
