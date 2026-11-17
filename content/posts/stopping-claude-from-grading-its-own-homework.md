@@ -9,6 +9,8 @@ Every feature I build with Claude Code goes the same way. I describe what I want
 
 It's not lying. It wrote that code an hour ago, in the same conversation, with all its reasons still in view. Of course it agrees with itself. I'd agree with me too, if I'd just spent an hour explaining myself to me. And the longer a session runs, the more of its own reasoning it carries around, and the less of that reasoning gets questioned.
 
+![Kermit the Frog facing a hooded, darker Kermit: the Evil Kermit meme](/posts/stopping-claude-from-grading-its-own-homework/evil-kermit.jpg "Claude: I’ll review this pull request carefully. Also Claude: you wrote it an hour ago. It’s perfect.")
+
 Now, I _could_ just open a fresh session and ask for a review there. That works. But then I'm the one carrying the design from one window to the next, pasting issue text, remembering which branch was which. Being the clipboard between two AIs is not the job I had in mind. So I built [Unity](https://github.com/vanesterik/unity), a Claude Code plugin that splits a story over roles that don't share a context and don't take each other's word for it. The only thing they share is GitHub: the issue, its pull request and a Project board. (The name comes from Unity, the hive mind in Rick and Morty that assimilates a whole planet. It fits: anything is possible, as long as you align to the workflow.)
 
 ## The roles in one paragraph
