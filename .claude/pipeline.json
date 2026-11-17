@@ -1,0 +1,34 @@
+{
+  "project": {
+    "owner": "vanesterik",
+    "number": 4,
+    "id": "PVT_kwHOACtBLs4BmNPB",
+    "statusFieldId": "PVTSSF_lAHOACtBLs4BmNPBzhk3Jtg",
+    "options": {
+      "Backlog": "f75ad846",
+      "Design": "47fc9ee4",
+      "Build": "df73e18b",
+      "Review": "8ebc1747",
+      "Done": "98236657"
+    }
+  },
+  "test": {
+    "basePort": 4000,
+    "start": "mkdir -p artifacts && npm run build && (npx serve out -l $PORT > artifacts/serve-$ISSUE.log 2>&1 &)",
+    "stop": "lsof -ti tcp:$PORT | xargs kill",
+    "healthUrl": "http://localhost:$PORT/",
+    "baseUrl": "http://localhost:$PORT",
+    "writablePaths": ["e2e/", "artifacts/"]
+  },
+  "unit": {
+    "quietCommand": "npx vitest run --reporter=dot"
+  },
+  "e2e": {
+    "dir": "e2e",
+    "runCommand": "npx playwright test",
+    "runSingle": "npx playwright test -g \"$TITLE\" --repeat-each=5 --reporter=line"
+  },
+  "autopilot": {
+    "maxReworks": 2
+  }
+}
