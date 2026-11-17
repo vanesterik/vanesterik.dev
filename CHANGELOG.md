@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.13.0](https://github.com/vanesterik/vanesterik.dev/compare/v1.12.0...v1.13.0) (2026-11-17)
+
+### Features
+
+- add autopilot to the post about Unity ([97838f0](https://github.com/vanesterik/vanesterik.dev/commit/97838f09633bef1212189c2020b18a3333c88d05))
+
+### Bug Fixes
+
+- upgrade Next.js to 16.4.6 ([14ef089](https://github.com/vanesterik/vanesterik.dev/commit/14ef08977d139e7b93e43c17e89f02bb7571eb43))
+
 ## [1.12.0](https://github.com/vanesterik/vanesterik.dev/compare/v1.11.0...v1.12.0) (2026-11-16)
 
 ### Features
