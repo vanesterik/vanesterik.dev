@@ -22,7 +22,7 @@ export const PostPager = ({ previous, next }: PostPagerProps) => {
   return (
     <nav
       aria-label="More posts"
-      className="mt-16 grid items-start gap-8 sm:grid-cols-2"
+      className="mt-24 grid items-start gap-8 sm:grid-cols-2"
     >
       {previous && (
         <Link
