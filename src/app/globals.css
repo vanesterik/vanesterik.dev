@@ -154,9 +154,11 @@ figure.drawing {
 /* A post's raster images (src/lib/rehype-image.ts) break out of the column on
    wide screens, as an open project row does (lg:-mx-20 on the 640px column in
    src/components/project-index.tsx): 800px wide, 80px left of the column,
-   which the prose column (65ch, a little under 640px) starts at too */
+   which the prose column (65ch, a little under 640px) starts at too. Its
+   corners are rounded as the project preview's frame is (rounded-md) */
 figure.picture img {
   width: 100%;
+  border-radius: 0.375rem;
 }
 
 @variant lg {
