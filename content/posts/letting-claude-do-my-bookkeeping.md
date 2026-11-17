@@ -11,6 +11,8 @@ My accountancy software has a web app for this, and it's fine. But it makes me c
 
 So I developed an MCP server together with Claude Code, one that lets it do the dull part, while I do the part that actually needs me: saying yes. The code is on GitHub as [hamurai](https://github.com/vanesterik/hamurai). In there, my accountancy software is called Hamurai, a stand-in name for the real thing.
 
+![Homer Simpson’s drinking bird pecking the Y key of his computer](/posts/letting-claude-do-my-bookkeeping/drinking-bird.jpg "Me, booking the quarter.")
+
 ## MCP in one paragraph
 
 MCP, the Model Context Protocol, is a way to give an LLM tools. You write a small server that offers a handful of functions, each with a name, typed arguments and a description in plain words, and an MCP client like Claude Code can call them in the middle of a conversation. That's it. No plugin store, no SaaS integration, no permission from anyone. If you can reach something from code, you can hand it to Claude.
