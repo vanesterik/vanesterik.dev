@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.14.0](https://github.com/vanesterik/vanesterik.dev/compare/v1.13.0...v1.14.0) (2026-11-17)
+
+### Features
+
+- add the evil kermit meme to the post about Unity ([99b3ebc](https://github.com/vanesterik/vanesterik.dev/commit/99b3ebc59f22b0d44a0406fbe58e44314484de90))
+- let a post's images break out of the column ([df2b7b3](https://github.com/vanesterik/vanesterik.dev/commit/df2b7b35f6b35d9b4520d8b935564abcd569227c))
+- round a post image's corners and fit the meme to 800px ([926fa8b](https://github.com/vanesterik/vanesterik.dev/commit/926fa8b7487b6c90b7ad2a8a94f36b7797745666))
+- show raster images in posts ([1f2193c](https://github.com/vanesterik/vanesterik.dev/commit/1f2193c2aec17f021e08a94298da0af133376795))
+
+### Bug Fixes
+
+- read a post image with a space, query or hash, and name a bad one ([6b8f7de](https://github.com/vanesterik/vanesterik.dev/commit/6b8f7de6212cd6dee90c4ded90b10c6ebcc9a2d0))
+
 ## [1.13.0](https://github.com/vanesterik/vanesterik.dev/compare/v1.12.0...v1.13.0) (2026-11-17)
 
 ### Features
