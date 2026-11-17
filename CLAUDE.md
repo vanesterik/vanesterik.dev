@@ -121,3 +121,59 @@ Two workflows. Actions are pinned by commit SHA with a version comment, which De
 - **`deploy.yml`** (tag `v*.*.*`): runs `ci.yml`, then in parallel syncs `out/` to the production S3 bucket (access-key secrets `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION`, `AWS_S3_BUCKET_NAME`) and publishes Storybook to GitHub Pages at https://vanesterik.github.io/vanesterik.dev/. Storybook is built with `NEXT_PUBLIC_BASE_PATH=/vanesterik.dev`, because a plain `<img>` of a file in `public/` (such as `BrowserFrame`'s screenshot) needs that prefix there; Next's own links and assets add the base path by themselves. Deploys are never cancelled midway.
 
 Pushing a release tag (see "Releasing" above) is the only way to deploy. GitHub Pages must use the source "GitHub Actions", and its `github-pages` environment must allow `v*.*.*` tags.
+
+<!-- unity:workflow:start -->
+## Team workflow (unity)
+
+This project is built by one developer and Claude in three roles per story: design -> build -> review. Design is a conversation with the developer (`/unity:design`). Build and review each run as their own agent with a **fresh context** (`unity:builder`, `unity:reviewer`), started one after the other by `/unity:ship`, or one at a time by `/unity:build` and `/unity:review`. `/unity:autopilot` does the same for every story in Build, top first, and also merges each one, but only through `pipeline.js merge`, which requires an approval on the pull request's head and green CI. The first story that can't get there ends the run. Each role is named after the board column it works in. GitHub is the only handoff between roles.
+
+Testing the running system is not part of a story. The developer runs `/unity:test` when they choose (for example at the end of an epic): the `unity:tester` agent tests the whole project against the designs of the stories shipped since its last run (`/unity:test --all`: of every shipped story), revisits the integration or E2E suite in its own pull request, and files every defect as a new story in Backlog.
+
+### Board
+
+GitHub Project columns are the workflow state. IDs live in `.claude/pipeline.json` (written by `/unity:init`). Picking an issue with `/unity:design` sets the flow in motion; from then on each role moves the issue to the next column, and `/unity:ship` starts the next agent only when the issue moved on. `/unity:status` shows every issue per column with the next command to run.
+
+| Column  | Meaning                                                               | Moved there by                                                                                           |
+| ------- | --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Backlog | Not picked up yet                                                     | the developer                                                                                            |
+| Design  | Design in progress with the developer, posted on the issue for review | `/unity:design` at start                                                                                 |
+| Build   | Design approved; implementation and unit tests (TDD), also rework     | `/unity:design` once the developer approves the posted design in conversation; the reviewer on rejection |
+| Review  | PR ready, final code review                                           | the builder when every task is done                                                                      |
+| Done    | Merged                                                                | the board's "Item closed" workflow, when the merge closes the issue                                      |
+
+The developer's approval of the design is the one human gate. `/unity:design` posts the design on the issue while it stays in Design, the developer reads it there and approves the latest version in conversation, and only then does `/unity:design` move the issue to Build. The builder works only on issues in Build.
+
+### Conventions
+
+- **Branch:** `feature/<issue>-<slug>` (e.g. `feature/42-guest-checkout`).
+- **PR body** contains `Closes #<issue>`.
+- **The design lives in the issue, the plan on the PR, neither in the repository.** The latest `role:design` comment is the design. The builder writes the implementation plan when it starts, against the current main, and posts it on the PR as a `role:plan` comment; nobody approves it. This overrides any convention that commits specs or plans as files (such as `docs/specs/` and `docs/plans/`), and the file-saving steps of planning skills: post the content as the comment instead.
+- **Role comments** start with a hidden marker so the next role can find them: `<!-- role:design v1 -->`, `<!-- role:plan -->`, `<!-- role:build -->`, `<!-- role:review -->`. A revised design is a new comment with a higher version; the latest one counts. The design is posted on the issue; build and review post on the PR, and each also leaves a one-line pointer on the issue (no marker), so the issue shows the whole flow.
+- **Acceptance criteria** are part of the design comment, numbered and testable from the outside:
+
+  ```markdown
+  <!-- role:design v1 -->
+  ## Design
+  ...
+  ## Acceptance criteria
+  - AC1: A guest can complete checkout without creating an account
+  - AC2: An invalid email address shows an inline error and blocks submission
+  ```
+
+  Every role refers to criteria by ID: tests are tagged `@AC2`, review checks that each one is met, and `/unity:test` tests them against the running system.
+
+### Testing responsibilities
+
+- **Build** owns unit tests, written test-first. The builder and the reviewer run them with `unit.quietCommand` of `.claude/pipeline.json` (`pipeline.js unit-command` prints it), which shows only the failures and the totals.
+- **`/unity:test`** owns the integration tests, the E2E tests, or both, as chosen at `/unity:init` (`pipeline.js test-kinds` prints the choice), and never changes application code or unit tests. The builder and the reviewer leave them alone.
+- **A story never waits for integration or E2E tests.** Keep them out of the checks a story's PR must pass; a story that breaks one is dealt with by the next `/unity:test`.
+
+### E2E testing
+
+- E2E directory: `e2e/`, Playwright (`@playwright/test`); there's no `playwright.config.ts` yet, so the first `/unity:test` run adds one, with `baseURL` from `$PORT`
+- Translations: none, the site is English only
+- UI components: `src/components/` (site components; shadcn/ui in `src/components/ui/`)
+- API layer: none. The site is a static export: pages are built from `content/*.json` and `content/posts/*.md` at build time
+- Start the app for testing: see `test.start` in `.claude/pipeline.json` (builds the static export and serves `out/` on `$PORT`)
+- Test users and data: no users; the data is the real content in `content/`
+<!-- unity:workflow:end -->

@@ -34,3 +34,6 @@ next-env.d.ts
 
 # storybook
 storybook-static
+
+# unity test evidence (local only)
+artifacts/
