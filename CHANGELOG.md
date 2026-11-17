@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.16.0](https://github.com/vanesterik/vanesterik.dev/compare/v1.15.0...v1.16.0) (2026-11-17)
+
+### Features
+
+- go to the next or previous post with J and K ([80a6ba3](https://github.com/vanesterik/vanesterik.dev/commit/80a6ba3e03f9b8e130bc84acf8bb3a39f48518ef))
+
 ## [1.15.0](https://github.com/vanesterik/vanesterik.dev/compare/v1.14.0...v1.15.0) (2026-11-17)
 
 ### Features
