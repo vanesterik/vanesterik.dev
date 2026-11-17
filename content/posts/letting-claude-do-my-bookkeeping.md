@@ -11,7 +11,7 @@ My accountancy software has a web app for this, and it's fine. But it makes me c
 
 So I developed an MCP server together with Claude Code, one that lets it do the dull part, while I do the part that actually needs me: saying yes. The code is on GitHub as [hamurai](https://github.com/vanesterik/hamurai). In there, my accountancy software is called Hamurai, a stand-in name for the real thing.
 
-![Homer Simpson’s drinking bird pecking the Y key of his computer](/posts/letting-claude-do-my-bookkeeping/drinking-bird.jpg "Me, booking the quarter.")
+![Drake turning away from “Clicking through every bank line in the web app” and pointing approvingly at “Typing ‘yes’ under a table Claude filled in”](/posts/letting-claude-do-my-bookkeeping/drake.jpg "My quarterly bookkeeping, before and after.")
 
 ## MCP in one paragraph
 
