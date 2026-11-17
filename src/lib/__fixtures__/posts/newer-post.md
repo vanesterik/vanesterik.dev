@@ -14,3 +14,5 @@ sequenceDiagram
 ```
 
 ![A box](newer-post/box.svg)
+
+![A grey box](/posts/sample/photo.png)

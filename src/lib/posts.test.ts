@@ -59,15 +59,28 @@ describe('getPost', () => {
   })
 
   it('draws mermaid diagrams', async () => {
-    const html = toHtml((await getPost('newer-post', fixtures('posts'))).tree)
+    const html = toHtml(
+      (await getPost('newer-post', fixtures('posts'), fixtures('public'))).tree,
+    )
     expect(html).toContain('<figure class="mermaid">')
     expect(html).toContain('<title id="mermaid-1-title">A greeting</title>')
   })
 
   it('draws SVG images inline', async () => {
-    const html = toHtml((await getPost('newer-post', fixtures('posts'))).tree)
+    const html = toHtml(
+      (await getPost('newer-post', fixtures('posts'), fixtures('public'))).tree,
+    )
     expect(html).toContain('<figure class="drawing"><svg')
     expect(html).toContain('<title id="svg-1-title">A box</title>')
+  })
+
+  it('shows raster images from public/', async () => {
+    const html = toHtml(
+      (await getPost('newer-post', fixtures('posts'), fixtures('public'))).tree,
+    )
+    expect(html).toContain(
+      '<figure class="picture"><img src="/posts/sample/photo.png" alt="A grey box" width="40" height="20"',
+    )
   })
 
   it('names the file when a diagram is broken', async () => {
