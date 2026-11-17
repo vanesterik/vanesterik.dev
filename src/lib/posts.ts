@@ -9,6 +9,7 @@ import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import { unified } from 'unified'
 
+import { rehypeImage } from './rehype-image'
 import { rehypeMermaid } from './rehype-mermaid'
 import { rehypeSvg } from './rehype-svg'
 
@@ -23,6 +24,7 @@ export type PostMeta = {
 export type Post = PostMeta & { tree: Root }
 
 const POSTS_DIR = path.join(process.cwd(), 'content', 'posts')
+const PUBLIC_DIR = path.join(process.cwd(), 'public')
 const DATE = /^\d{4}-\d{2}-\d{2}$/
 
 // YAML reads an unquoted 2026-10-08 as a Date; keep dates as YYYY-MM-DD strings
@@ -62,7 +64,11 @@ export const getPosts = (dir = POSTS_DIR): PostMeta[] =>
     .map((f) => readPost(dir, f).meta)
     .sort((a, b) => b.date.localeCompare(a.date))
 
-export const getPost = async (slug: string, dir = POSTS_DIR): Promise<Post> => {
+export const getPost = async (
+  slug: string,
+  dir = POSTS_DIR,
+  publicDir = PUBLIC_DIR,
+): Promise<Post> => {
   const { meta, content } = readPost(dir, `${slug}.md`)
   const processor = unified()
     .use(remarkParse)
@@ -70,6 +76,7 @@ export const getPost = async (slug: string, dir = POSTS_DIR): Promise<Post> => {
     .use(remarkRehype)
     .use(rehypeMermaid)
     .use(rehypeSvg, { dir })
+    .use(rehypeImage, { publicDir })
     .use(rehypeShiki, {
       themes: { light: 'github-light', dark: 'github-dark' },
       defaultColor: false,

@@ -37,7 +37,7 @@ const svgSource = (node: Element) => {
 
 // A paragraph that holds one image and nothing else, as Markdown makes of an
 // image on its own line
-const onlyImage = (node: Element) => {
+export const onlyImage = (node: Element) => {
   if (node.tagName !== 'p') return undefined
   const content = node.children.filter(
     (child) => !(child.type === 'text' && !child.value.trim()),
