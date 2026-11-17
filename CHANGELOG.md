@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.17.0](https://github.com/vanesterik/vanesterik.dev/compare/v1.16.0...v1.17.0) (2026-11-17)
+
+### Features
+
+- add a meme to the bookkeeping and dataset posts ([52f75ec](https://github.com/vanesterik/vanesterik.dev/commit/52f75ec95016626d6d2cc3ed9d5784fb9cabe0a5))
+
+### Bug Fixes
+
+- let the villain speak in the scooby-doo caption ([eee94ec](https://github.com/vanesterik/vanesterik.dev/commit/eee94ec1f44c76263bc69e75e180b605117579b3))
+- use the drake meme in the bookkeeping post ([a9c51cd](https://github.com/vanesterik/vanesterik.dev/commit/a9c51cde8aeada4ada685fb183622461e3401d22))
+
 ## [1.16.0](https://github.com/vanesterik/vanesterik.dev/compare/v1.15.0...v1.16.0) (2026-11-17)
 
 ### Features
