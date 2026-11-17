@@ -18,7 +18,7 @@ Two kinds of files tend to tag along when a folder has lived on a Mac:
 - **`.DS_Store`**: Finder's little notebook about how you like the folder to look. Icon positions, view settings. Useless to everyone else.
 - **`._filename`**: so-called AppleDouble files. Each one carries the extended attributes of the real file next to it. So `cat_0001.jpg` gets a buddy called `._cat_0001.jpg`, which is _not_ a JPEG, but sure looks like one to a `*.jpg` glob. macOS creates these when it copies files to places that can't store Mac metadata natively, like a USB stick, an exFAT drive or a network share. And, as I found out the hard way, macOS's own `tar` writes them into every archive you make with it.
 
-![Fred from Scooby-Doo unmasking a villain: the mask is labelled cat_0001.jpg, the face underneath AppleDouble metadata](/posts/shipping-image-datasets-off-a-mac/scooby-doo-unmasking.jpg "And I would have decoded it too, if it weren’t for those meddling bytes.")
+![Fred from Scooby-Doo unmasking a villain: the mask is labelled cat_0001.jpg, the face underneath AppleDouble metadata](/posts/shipping-image-datasets-off-a-mac/scooby-doo-unmasking.jpg "And I would have made it into the archive too, if it weren’t for those meddling terminal commands.")
 
 ## Step 1: see what you're dealing with
 
