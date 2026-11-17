@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 
 import { PostContent } from '@/components/post-content'
+import { PostKeys } from '@/components/post-keys'
 import { PostPager } from '@/components/post-pager'
 import { formatPostDate } from '@/lib/post-date'
 import { getAdjacentPosts, getPost, getPosts } from '@/lib/posts'
@@ -44,6 +45,7 @@ export default async function Page({ params }: PageProps) {
         <PostContent tree={tree} />
       </div>
       <PostPager previous={previous} next={next} />
+      <PostKeys previous={previous?.slug} next={next?.slug} />
     </article>
   )
 }
