@@ -83,6 +83,14 @@ describe('getPost', () => {
     )
   })
 
+  it('names the file when an image is missing', async () => {
+    await expect(
+      getPost('broken-image', fixtures('broken-image'), fixtures('public')),
+    ).rejects.toThrow(
+      "broken-image.md: an image isn't in public/: /posts/sample/missing.png",
+    )
+  })
+
   it('names the file when a diagram is broken', async () => {
     await expect(
       getPost('broken-diagram', fixtures('broken-diagram')),
