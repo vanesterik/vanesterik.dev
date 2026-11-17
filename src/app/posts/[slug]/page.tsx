@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
 
 import { PostContent } from '@/components/post-content'
+import { PostPager } from '@/components/post-pager'
 import { formatPostDate } from '@/lib/post-date'
-import { getPost, getPosts } from '@/lib/posts'
+import { getAdjacentPosts, getPost, getPosts } from '@/lib/posts'
 
 type PageProps = {
   params: Promise<{ slug: string }>
@@ -21,7 +22,9 @@ export const generateMetadata = async ({
 }
 
 export default async function Page({ params }: PageProps) {
-  const { title, date, tree } = await getPost((await params).slug)
+  const { slug } = await params
+  const { title, date, tree } = await getPost(slug)
+  const { previous, next } = getAdjacentPosts(slug)
 
   return (
     <article className="mx-auto w-full max-w-160">
@@ -40,6 +43,7 @@ export default async function Page({ params }: PageProps) {
       <div className="prose">
         <PostContent tree={tree} />
       </div>
+      <PostPager previous={previous} next={next} />
     </article>
   )
 }
