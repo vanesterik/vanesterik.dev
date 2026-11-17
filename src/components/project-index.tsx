@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/accordion'
 import { withBasePath } from '@/lib/base-path'
 import { type Project, projectTitle } from '@/lib/projects'
+import { shortcutKey } from '@/lib/shortcut-key'
 
 // Name, type, year and the status dot; narrow enough for a phone as well
 const COLUMNS = 'grid grid-cols-[1fr_3rem_3rem_1rem] gap-x-4'
@@ -129,16 +130,8 @@ export const ProjectIndex = ({ projects }: ProjectIndexProps) => {
   // with Cmd, Ctrl or Alt stays the browser's, and a text field keeps its
   // keys
   const step = useEffectEvent((event: KeyboardEvent) => {
-    if (event.metaKey || event.ctrlKey || event.altKey) return
-    const key = event.key.toLowerCase()
+    const key = shortcutKey(event)
     if (key !== 'j' && key !== 'k' && key !== 'escape') return
-    const { target } = event
-    if (
-      target instanceof HTMLElement &&
-      (target.isContentEditable || target.closest('input, textarea, select'))
-    ) {
-      return
-    }
     if (key === 'escape') {
       if (open) change('')
       return
