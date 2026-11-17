@@ -42,6 +42,20 @@ Agents are creative, and creativity is the last thing you want in a handover. So
 - **Agents can't ask me anything mid-run.** Where a role needs a decision, it stops and hands back.
 - **Every post starts with a hidden marker** (`<!-- role:review -->`), so the next role finds the latest one, and the issue collects a one-line pointer to each result. A year later it reads as a timeline of the story.
 
+## Flying on autopilot
+
+Shipping one story at a time is fine. But once a few designs are approved, my part shrinks to typing `/unity:ship`, waiting, merging, and typing `/unity:ship` again. That's not a job. That's a loop with a person stuck in it.
+
+So Unity can fly on autopilot. `/unity:autopilot` picks up every approved design in the Build column, top first, builds it, reviews it, merges it, and goes back to the column for the next one. It keeps going until Build is empty, and then tells me what it did. I approve the designs; the rest happens while I'm doing something else, like writing about it.
+
+![How autopilot works through the Build column](stopping-claude-from-grading-its-own-homework/autopilot.svg "Approved stories wait in the Build column, top first. Autopilot takes the top one, builds it and reviews it, each with a fresh context, and a script merges it once the reviewer approved it and CI is green. Blocking findings go back to the builder at most twice. Then it takes the next story, from the updated main, until the column is empty and it writes a digest. The first story that gets stuck ends the run and goes back to Design.")
+
+What's going on:
+
+- **Top first.** I set the order by dragging the cards. Stories designed together usually build on each other, so the order matters.
+- **From the updated `main`.** Every story starts after the one before it has merged, so its builder plans against code that already has it.
+- **The digest.** The run ends with one summary, written by a script: each merged story with its pull request and the commits it landed on `main` (what I'd revert to undo it), where it stopped and why, and what still waits in Build.
+
 ## Testing what the stories add up to
 
 Unit tests answer one question: does the code do what the builder meant? They can't tell you whether what the builder meant is what the design said, or whether story twelve quietly broke a promise story four made. For that you need someone who has read the designs, never the code, and pokes at the running system.
@@ -82,7 +96,7 @@ The suite is supposed to stay small: one test per flow across stories, plus a sm
 
 ## Guardrails, because it merges by itself
 
-Once you trust the roles, `/unity:autopilot` takes every approved story in Build, top of the column first, and ships and merges them one after the other. That deserves some rules, built into the scripts, not just the prompts:
+Autopilot merges without asking me, so it gets some rules, built into the scripts, not just the prompts:
 
 - **One human gate.** My design approval. Nothing reaches Build without it.
 - **The merge is a script's call.** `pipeline.js merge` rebase-merges a pull request only when the reviewer's approval is on its head commit and CI is green. It waits up to 8 minutes for running checks.
