@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.17.1](https://github.com/vanesterik/vanesterik.dev/compare/v1.17.0...v1.17.1) (2026-11-18)
+
+### Bug Fixes
+
+- replace the post memes with old master paintings ([bcfabcf](https://github.com/vanesterik/vanesterik.dev/commit/bcfabcfc3ed5fd4c62b0444632d4072a0087435c))
+
 ## [1.17.0](https://github.com/vanesterik/vanesterik.dev/compare/v1.16.0...v1.17.0) (2026-11-17)
 
 ### Features
