@@ -11,7 +11,7 @@ My accountancy software has a web app for this, and it's fine. But it makes me c
 
 So I developed an MCP server together with Claude Code, one that lets it do the dull part, while I do the part that actually needs me: saying yes. The code is on GitHub as [hamurai](https://github.com/vanesterik/hamurai). In there, my accountancy software is called Hamurai, a stand-in name for the real thing.
 
-![Drake turning away from “Clicking through every bank line in the web app” and pointing approvingly at “Typing ‘yes’ under a table Claude filled in”](/posts/letting-claude-do-my-bookkeeping/drake.jpg "My quarterly bookkeeping, before and after.")
+![Rembrandt’s Syndics of the Drapers’ Guild: five men in black hats at a table with an open ledger, looking up at the viewer, a servant standing behind them](/posts/letting-claude-do-my-bookkeeping/syndics.jpg "The approval committee, looking up from the ledger as I come in to say yes. (Rembrandt, The Syndics of the Drapers’ Guild, 1662, Rijksmuseum)")
 
 ## MCP in one paragraph
 
